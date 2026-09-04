@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="Noratun">
+  <rect width="64" height="64" fill="#f4f2ea"/>
+  <g transform="translate(32 33.1) scale(0.369)" fill="#33121f" fill-rule="evenodd">
+    <path d="M 0,-62 C -24,-34 -18,-8 0,0 C 18,-8 24,-34 0,-62 Z"/>
+    <path d="M 0,62 C -24,34 -18,8 0,0 C 18,8 24,34 0,62 Z"/>
+    <path d="M -62,0 C -34,-24 -8,-18 0,0 C -8,18 -34,24 -62,0 Z"/>
+    <path d="M 62,0 C 34,-24 8,-18 0,0 C 8,18 34,24 62,0 Z"/>
+  </g>
+  <circle cx="32" cy="10.2" r="2.5" fill="#8b1e28"/>
+</svg>

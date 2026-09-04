@@ -1,0 +1,27 @@
+{
+  "name": "NORATUN — residences across Armenia",
+  "short_name": "NORATUN",
+  "description": "Apartments in Yerevan and houses in Dilijan, Sevan and Tsaghkadzor.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f2ea",
+  "theme_color": "#f4f2ea",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

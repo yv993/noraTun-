@@ -1,0 +1,4130 @@
+/* NORATUN — «նոր տուն». Original brand; the LAYOUT GRAMMAR (band order, arch
+   edges, spec cards, sticky amenities, giant word) is recreated from a
+   measured reference one-pager. Palette is ours: wine / lake / cream, with an
+   apricot accent — same three-tone structure, different country. */
+
+:root {
+  --cream: #f4f2ea;
+  --wine: #33121f;
+  --lake: #afc8ce;
+  --apricot: #d98e4a;
+  --ink: #1e1216;
+  --muted: #6a5f63;
+  --on-wine: #f2e8ec;
+  --hero-sky: #17539b; /* the sky-to-estate hero's ground, ERA-residence blue */
+  /* the hero's sky, top to horizon, and the white rules and shadow that sit on it */
+  --sky-top: #114278;
+  --sky-mid: #1a579f;
+  --sky-horizon: #2d77c5;
+  --sky-gradient: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 50%, var(--sky-horizon) 100%);
+  /* the seam: the CSS sky must end in the photograph's own sky colour at its
+     top edge, sampled from the file — deep blue, darker on the left and
+     lighter on the right — so the two meet with nothing to hide */
+  --sky-seam: #255895;
+  --sky-seam-l: #034280;
+  --sky-seam-m: #1e5291;
+  --sky-seam-r: #466da7;
+  /* the same two colours for the night photograph: near-black navy */
+  --night-top: #05070f;
+  --night-seam: #0b0d15;
+  --hero-rule: rgba(255, 255, 255, 0.4);
+  --hero-rule-strong: rgba(255, 255, 255, 0.85);
+  --hero-shadow: 0 2px 8px rgba(0, 32, 70, 0.35);
+
+  /* next/font sets --font-bodoni / --font-pinyon / --font-montserrat /
+     --font-grotesk on <html> (see app/layout.tsx); the site uses these roles */
+  --font-body: var(--font-grotesk), Arial, sans-serif;
+  --font-sans: var(--font-montserrat), var(--font-grotesk), Arial, sans-serif;
+  --font-display: var(--font-bodoni), "Bodoni MT", Georgia, serif;
+  --font-script: var(--font-pinyon), cursive;
+
+  --gutter: max(clamp(20px, 4vw, 64px), env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  margin: 0;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+img {
+  display: block;
+  max-width: 100%;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+h1,
+h2,
+h3,
+p,
+figure,
+blockquote,
+dl,
+dd {
+  margin: 0;
+}
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.n-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.n-skip {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 500;
+  background: var(--wine);
+  color: var(--on-wine);
+  padding: 10px 16px;
+  border-radius: 999px;
+  transform: translateY(-200%);
+}
+.n-skip:focus-visible {
+  transform: none;
+}
+
+/* one visible focus treatment everywhere */
+:where(a, button, input, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--wine);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+:where(.n-hero, .n-loc, .n-cta, .n-foot, .n-amen, .hp-tail) :where(a, button, [tabindex]):focus-visible {
+  outline-color: var(--cream);
+}
+
+/* every fill image covers its frame */
+.nv img,
+.n-dlg img {
+  object-fit: cover;
+}
+.n-media {
+  position: relative;
+  overflow: hidden;
+}
+.n-media img {
+  width: 100%;
+  height: 100%;
+}
+
+/* pills */
+.n-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 26px;
+  min-height: 44px;
+  border-radius: 999px;
+  background: var(--wine);
+  color: var(--on-wine);
+  font-size: 12.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transition: transform 220ms var(--ease), background 220ms var(--ease);
+}
+.n-pill:hover {
+  transform: translateY(-2px);
+}
+.n-pill.is-light {
+  background: var(--cream);
+  color: var(--wine);
+}
+.n-pill.is-static {
+  background: none;
+  color: inherit;
+  border: 1px solid currentColor;
+  opacity: 0.75;
+}
+.n-pill[disabled] {
+  opacity: 0.55;
+  cursor: progress;
+}
+
+.n-label {
+  display: block;
+  font-size: 11.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+.n-running {
+  font-size: 11.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  text-align: center;
+  max-width: 46ch;
+  margin: 0 auto;
+  line-height: 1.9;
+}
+
+/* ==========================================================================
+   Fixed chrome
+   ========================================================================== */
+.n-chrome .n-seal {
+  position: fixed;
+  top: 18px;
+  left: var(--gutter);
+  z-index: 220;
+  width: 90px;
+  height: 90px;
+  color: var(--wine);
+  mix-blend-mode: multiply;
+  transition: color 320ms var(--ease);
+}
+/* over a dark band the piece flips to its light scheme (class set per piece
+   by a hit test — legibility, not motion, so never PRM-gated) */
+.n-chrome .n-seal.is-dark,
+.n-nav.is-dark {
+  color: #fff; /* pure white over the sky and the photographs, no tint */
+  mix-blend-mode: normal;
+  text-shadow: var(--hero-shadow);
+}
+/* …and in the light scheme a cream halo keeps the wine ink readable when a
+   dark decorative element (a vine, a photograph) drifts underneath it */
+.n-chrome .n-seal:not(.is-dark),
+.n-nav:not(.is-dark) {
+  text-shadow: 0 0 10px var(--cream), 0 0 22px var(--cream);
+}
+.n-seal svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.n-seal__ring {
+  animation: n-seal-spin 24s linear infinite;
+}
+/* the botanical crest sits still inside the turning ring. Its petals reach
+   54% of the seal, which leaves a clear band of ~10px inside the text ring. */
+.n-seal__crest {
+  position: absolute;
+  inset: 1.6%;
+  transition: color 320ms var(--ease);
+}
+.n-chrome .n-seal.is-dark .n-seal__crest {
+  color: #fff;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+}
+/* the ring's words are spread to the exact circumference by textLength in
+   the markup, so the tracking here is a floor rather than the whole story */
+.n-seal text {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 8.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  fill: currentColor;
+}
+@keyframes n-seal-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .n-seal__ring {
+    animation: none;
+  }
+}
+.n-nav {
+  position: fixed;
+  top: 26px;
+  right: var(--gutter);
+  z-index: 220;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  /* utility links: geometric sans, small, bold, widely tracked */
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.6;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-align: right;
+  color: var(--wine);
+  mix-blend-mode: multiply;
+}
+.n-nav > a:not(.n-nav__cta):not(.phone),
+.n-nav > button {
+  opacity: 0.85;
+  transition: opacity 200ms var(--ease);
+}
+/* the UA sheet resets these on <button>; make the call button match the links */
+.n-nav > button {
+  letter-spacing: inherit;
+  text-transform: inherit;
+  text-shadow: inherit;
+  line-height: inherit;
+}
+.n-nav > a:hover,
+.n-nav > button:hover {
+  opacity: 1;
+  text-decoration: none; /* the roll is the hover, not an underline */
+}
+/* the hairline lockup: two display lines split by a rule the width of the
+   longer line, the block itself right-aligned with the links beneath */
+.n-nav__cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 10px;
+  font-family: var(--font-display);
+  /* the reference's lockup is a heavier, narrower cut: bold and condensed
+     by a horizontal scale, anchored to the nav's right edge */
+  font-weight: 700;
+  font-size: clamp(19px, 1.62vw, 26px);
+  line-height: 0.98;
+  letter-spacing: 0.015em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: inherit;
+  transform: scaleX(0.88);
+  transform-origin: 100% 50%;
+}
+/* the wave: each letter lifts and settles again, a beat after the one
+   before it, so the lockup ends exactly where it started */
+.n-wv {
+  display: inline-block;
+}
+.n-nav__cta:hover .n-wv,
+.n-nav__cta:focus-visible .n-wv {
+  animation: n-wave 620ms var(--ease);
+  animation-delay: calc(var(--i) * 26ms);
+}
+@keyframes n-wave {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  45% {
+    transform: translateY(-26%);
+  }
+}
+/* the roll: a hover carries the label up and its twin into its place */
+.n-roll {
+  display: inline-block;
+  overflow: clip;
+  height: 1.6em;
+  vertical-align: bottom;
+}
+.n-roll > span {
+  display: block;
+  transition: translate 460ms var(--ease);
+}
+.n-roll > span > span {
+  display: block;
+  line-height: 1.6;
+}
+.n-nav a:hover .n-roll > span,
+.n-nav button:hover .n-roll > span,
+.n-nav a:focus-visible .n-roll > span,
+.n-nav button:focus-visible .n-roll > span {
+  translate: 0 -50%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .n-nav__cta:hover .n-wv,
+  .n-nav__cta:focus-visible .n-wv {
+    animation: none;
+  }
+  .n-roll > span {
+    transition: none;
+  }
+}
+.n-nav__cta i {
+  display: block;
+  width: 100%;
+  height: 1px;
+  margin: 3px 0;
+  background: currentColor;
+  opacity: 0.9;
+  transition: transform 300ms var(--ease);
+}
+.n-nav__cta:hover i {
+  transform: scaleX(1.05);
+}
+@media (min-width: 861px) {
+  /* the lockup already points at the homes: drop the duplicate plain link */
+  .n-nav > a[data-primary] {
+    display: none;
+  }
+}
+@media (max-width: 860px) {
+  .n-nav__cta {
+    display: none; /* the bottom pill carries the plain link instead */
+  }
+}
+.n-nav .phone {
+  margin-top: 6px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
+/* ==========================================================================
+   1 · HERO — a sticky screen inside a tall scroll area, holding one tall
+   "world" that a camera pans: a CSS sky in its upper part, and below the
+   fold the photograph, its top edge dissolved into that sky by a mask so the
+   two read as one continuous picture. Scrolling pans the world up until the
+   photograph fills the screen; the lockup fades and floats away on the way.
+   Statically (mobile / PRM / no-JS) the photograph simply fills the screen.
+   ========================================================================== */
+.n-hero {
+  position: relative;
+  background: var(--sky-top);
+  color: #fff;
+}
+.n-hero__stage {
+  position: relative;
+  height: 100svh;
+  overflow: clip; /* never a scroll container (Tab must not shift it) */
+  background: var(--sky-top);
+}
+/* the world: the plane the camera pans. Statically it is one screen tall
+   with the photograph at its top; the wide+motion block below parks the
+   photograph under the fold and makes room for the sky above it. */
+.n-hero__world {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100svh;
+  will-change: transform;
+}
+/* the sky: cobalt down to azure, with a faint haze glowing at the zenith */
+.n-hero__sky {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 105svh;
+  background: var(--sky-gradient);
+}
+/* the night sky, crossfaded in over the day sky by the switch: near-black
+   navy easing to the night photograph's own top-edge colour at the seam */
+.n-hero__sky::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, var(--night-top) 0svh, var(--night-seam) 50svh, var(--night-seam) 100%);
+  opacity: 0;
+  transition: opacity 700ms var(--ease);
+}
+.n-hero__world[data-night] .n-hero__sky::after {
+  opacity: 1;
+}
+.n-hero__bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100svh; /* exactly the screen; the photograph is never oversized */
+}
+.n-hero__media {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+/* statically (phones, reduced motion) the tall photograph covers the screen
+   from its centre; on wide screens with motion it is shown whole, at its
+   own proportions, so no cropping applies there */
+.n-hero__media img {
+  object-position: 50% 50%;
+}
+/* the night photograph is taller than the day one (1493×1999 against
+   1826×1999); bottom-aligned in the same frame it keeps the villa where the
+   day villa stands and gives the extra height to the Milky Way above */
+.n-hero__media img.night {
+  opacity: 0;
+  object-position: 50% 100%;
+  transition: opacity 700ms var(--ease);
+}
+.n-hero__world[data-night] img.night {
+  opacity: 1;
+}
+/* No scrims: the photograph is shown exactly as it was made. Legibility of
+   the type over it comes from the type's own shadow, never from tinting the
+   picture. */
+
+/* hotspots: pulse pins anchored to features of the photograph. Each is a
+   button; its label shows on hover and on keyboard focus. */
+.n-pin {
+  position: absolute;
+  z-index: 2;
+  width: 32px;
+  height: 32px;
+  margin: -16px 0 0 -16px; /* centre the pin on its coordinate */
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #fff;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.n-pin__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  transition: transform 300ms var(--ease);
+}
+.n-pin:hover .n-pin__ring,
+.n-pin:focus-visible .n-pin__ring {
+  transform: scale(1.25);
+}
+.n-pin__beacon {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0.75;
+  animation: n-ping 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+.n-pin__dot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+.n-pin__label {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 8px;
+  padding: 4px 8px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.4);
+  font-family: var(--font-sans);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 200ms var(--ease);
+  pointer-events: none;
+}
+.n-pin:hover .n-pin__label,
+.n-pin:focus-visible .n-pin__label {
+  opacity: 1;
+}
+@keyframes n-ping {
+  75%,
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .n-pin__beacon {
+    animation: none;
+    opacity: 0.35;
+  }
+}
+@media (max-width: 860px) {
+  /* the photo is cropped hard on a phone, so the pins would drift off their
+     features; and hover labels have no touch equivalent */
+  .n-pin {
+    display: none;
+  }
+}
+.n-hero__fore {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  color: #fff; /* pure white type, zero tint */
+  will-change: transform;
+  pointer-events: none; /* the layer glides; only its controls catch clicks */
+}
+.n-hero__place {
+  position: absolute;
+  top: clamp(26px, 4vh, 44px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: rgba(255, 255, 255, 0.75);
+  text-shadow: var(--hero-shadow);
+}
+/* the display lockup, dead centre of the sky: two stacked didone lines at
+   12vw with tight leading and slightly negative tracking, the script accent
+   overlapping the base of the second line */
+.n-hero__mark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -52%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 0.82;
+  user-select: none;
+}
+.n-hero__mark .w1,
+.n-hero__mark .w2 {
+  display: block;
+  font-size: 12vw;
+  letter-spacing: -0.025em;
+  text-transform: uppercase;
+  text-shadow: 0 4px 16px rgba(0, 35, 80, 0.3);
+}
+.n-hero__mark .w2 {
+  margin-top: -0.08em;
+}
+.n-hero__mark .script {
+  display: block;
+  position: relative;
+  z-index: 1;
+  margin-top: -0.38em;
+  font-family: var(--font-script);
+  font-size: 8.5vw;
+  line-height: 1;
+  transform: rotate(-2deg);
+  color: #fff;
+  text-shadow: 0 2px 10px rgba(0, 35, 80, 0.25);
+}
+/* the bottom rail: two didone anchors on the bottom margin, one to each
+   side, with the day/night switch (its own element) centred between them.
+   Both share one bottom and one 44px height so their centre lines meet. */
+.n-hero__meta {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  left: 0;
+  right: 0;
+  bottom: clamp(24px, 4.5vh, 48px);
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--gutter);
+  font-family: var(--font-display);
+  font-size: 13px;
+  line-height: 1;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: var(--hero-shadow);
+  user-select: none;
+}
+.n-hero__meta span {
+  flex: 0 1 33.333%;
+}
+.n-hero__titleB {
+  text-align: right;
+}
+.n-hero__switch {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  bottom: clamp(24px, 4.5vh, 48px);
+  height: 44px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  pointer-events: auto;
+}
+/* bare words, no pills: the active one solid, the other at 40%, a short
+   hairline between them */
+.n-hero__switch button {
+  padding: 10px 6px; /* keeps a ≥44px hit area around a 9.5px word */
+  min-height: 44px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: #fff;
+  opacity: 0.4;
+  font-family: var(--font-sans);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  text-shadow: var(--hero-shadow);
+  transition: opacity 250ms var(--ease);
+}
+.n-hero__switch button:hover {
+  opacity: 0.8;
+}
+.n-hero__switch button.on {
+  opacity: 1;
+}
+.n-hero__switch i {
+  display: block;
+  width: 32px;
+  height: 1px;
+  background: var(--hero-rule);
+}
+.n-hero__hint {
+  position: absolute;
+  right: var(--gutter);
+  bottom: clamp(92px, 12vh, 128px); /* clear of the bottom rail's anchors */
+  z-index: 3;
+  color: rgba(255, 255, 255, 0.75);
+  font-family: var(--font-sans);
+  font-size: 8.5px;
+  font-weight: 500;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  writing-mode: vertical-rl;
+  text-shadow: var(--hero-shadow);
+}
+/* the two-speed machinery: only where wide + motion is welcome */
+@media (min-width: 861px) and (prefers-reduced-motion: no-preference) {
+  /* 320svh: 120svh of descent through the photograph, then 100svh during
+     which the frame holds still while the dome band climbs over it until it
+     fills the screen — the pin releases exactly as the band's top reaches
+     the top of the viewport */
+  .n-hero {
+    height: 320svh;
+  }
+  .n-hero__stage {
+    position: sticky;
+    top: 0;
+  }
+  /* the world: 50svh of CSS sky, then the photograph at its own proportions
+     (1826×1999, so 109.47vw tall). The photograph carries its own sky in its
+     upper quarter, so at rest the viewport shows CSS sky melting into that
+     photographed sky and its clouds — nothing of the estate — and the
+     camera descends through the picture's sky into the villa. */
+  .n-hero__world {
+    height: calc(50svh + 109.47vw);
+  }
+  /* the CSS sky: cobalt at the zenith, easing to the photograph's own deep
+     blue exactly at its top edge (50svh), and holding it underneath the
+     dissolve */
+  .n-hero__sky {
+    height: 72svh;
+    background: linear-gradient(180deg, var(--sky-top) 0svh, var(--sky-mid) 30svh, var(--sky-seam) 50svh, var(--sky-seam) 72svh);
+  }
+  /* the photograph's sky darkens to the left; this band under the seam
+     carries the same drift, fading in over the last 20svh above it */
+  .n-hero__sky::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 30svh;
+    bottom: 0;
+    background: linear-gradient(to right, var(--sky-seam-l), var(--sky-seam-m) 50%, var(--sky-seam-r));
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 20svh, #000 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 20svh, #000 100%);
+  }
+  .n-hero__bg {
+    top: 50svh;
+    height: auto;
+    aspect-ratio: 1826 / 1999; /* the file's own proportions: shown whole, never cropped */
+    /* the dissolve lives entirely inside the photograph's sky (its top 8%,
+       well above the palm crown at 28%), so it never touches the building —
+       a cubic fade so there is no line where the picture begins */
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0.08) 1.8%,
+      rgba(0, 0, 0, 0.28) 3.2%,
+      rgba(0, 0, 0, 0.65) 5%,
+      rgba(0, 0, 0, 0.95) 6.6%,
+      #000 8%,
+      #000 100%
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0.08) 1.8%,
+      rgba(0, 0, 0, 0.28) 3.2%,
+      rgba(0, 0, 0, 0.65) 5%,
+      rgba(0, 0, 0, 0.95) 6.6%,
+      #000 8%,
+      #000 100%
+    );
+  }
+  /* the dome band overlaps the hero's last 100svh: it starts rising at rail
+     point 5, right as the descent ends with the pool at the foot of the
+     screen, and climbs over the held photograph until it fills the viewport
+     — at which moment the pin releases and everything scrolls on together */
+  .n-hero + .n-arc {
+    margin-top: -100svh;
+  }
+}
+
+/* ==========================================================================
+   ARCH bands — the dome edge that flattens (the reference's signature).
+   --dome is animated by GSAP: "50% 12vh" → "0% 0vh".
+   ========================================================================== */
+.n-arch {
+  --dome: 0% 0vh;
+  position: relative;
+  border-top-left-radius: var(--dome);
+  border-top-right-radius: var(--dome);
+  margin-top: calc(-1 * clamp(20px, 6vh, 70px));
+}
+
+/* ---- 2 · ARC (lake) ---- */
+.n-arc {
+  background: var(--lake);
+  color: var(--wine);
+  text-align: center;
+  position: relative;
+  /* THE CIRCLE (measured off the reference): top-corner radius = the band's
+     full height — their 720px on a 1425×720 section. 50% of width / 100% of
+     height on both corners gives the same deep circular crest; the band is
+     kept at ~half its width tall so the crest reads as a true circle. This
+     overrides the shallow scrubbed --dome the other arch bands use. */
+  /* explicit radii of half the width on both axes: the crown is always a
+     true half-circle, whatever the band's height. Below the crown the sides
+     run straight. The band is at least a full screen tall so that, when it
+     has climbed over the held hero, it fills the viewport with nothing of
+     the photograph left showing under its foot. */
+  border-top-left-radius: 50vw 50vw;
+  border-top-right-radius: 50vw 50vw;
+  min-height: max(50vw, 100svh);
+  display: grid;
+  align-content: end;
+  justify-items: center;
+  gap: clamp(28px, 6vh, 64px);
+  padding: 0 var(--gutter) 0; /* the lockup's rule runs to the band's foot */
+  overflow: hidden;
+  isolation: isolate;
+}
+/* the promise rides the crest — an SVG textPath along the dome's own curve */
+.n-arc__promise {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  pointer-events: none;
+}
+.n-arc__promise svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+/* sized so the whole line spans roughly the top 60° of the dome — a crest,
+   not a rim (units are the SVG's 1440-wide viewBox) */
+.n-arc__promise text {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 30px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  fill: var(--wine);
+}
+/* the place lockup: word · crest · word, then a hairline straight down */
+.n-arc__region {
+  display: flex;
+  align-items: center;
+  gap: clamp(24px, 5vw, 80px);
+  font-size: 11.5px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+.n-arc__mark {
+  width: clamp(30px, 3vw, 44px);
+  height: clamp(30px, 3vw, 44px);
+  opacity: 0.85;
+}
+.n-arc__mark svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.n-arc__rule {
+  display: block;
+  width: 1px;
+  height: clamp(72px, 14vh, 160px);
+  background: color-mix(in srgb, var(--wine) 45%, transparent);
+}
+.n-arc__in {
+  display: grid;
+  gap: 22px;
+  justify-items: center;
+  will-change: transform;
+}
+
+/* ==========================================================================
+   22–25 · BLOOM — bougainvillea in two corners; the line assembles word by
+   word and reaches full weight exactly as the band ends.
+   ========================================================================== */
+.n-bloom {
+  position: relative;
+  overflow: clip;
+  background: var(--cream);
+  color: var(--wine);
+  min-height: 92svh;
+  display: grid;
+  place-content: center;
+  gap: clamp(20px, 3.5vh, 40px);
+  padding: clamp(90px, 15vh, 180px) var(--gutter);
+  text-align: center;
+}
+.n-bloom__vine {
+  position: absolute;
+  width: clamp(300px, 34vw, 620px);
+  height: auto;
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+}
+/* the road-intro vine exists only in the desktop composition — the plain
+   stacked panel doesn't carry it */
+.n-bloom__vine.i-bl {
+  display: none;
+}
+.n-bloom__vine[data-flip] {
+  transform: scaleX(-1);
+}
+.n-bloom__vine.tl {
+  top: -6%;
+  left: -6%;
+}
+.n-bloom__vine.br {
+  right: -6%;
+  bottom: -8%;
+}
+/* held clear of the longest credit line, which reaches ~74% across */
+.n-bloom__vine.c-tr {
+  top: -20%;
+  right: -12%;
+  width: clamp(260px, 28vw, 520px);
+}
+.n-bloom__line {
+  position: relative;
+  z-index: 1;
+  /* the line RESTS at its full designed cut on every layer — motion may
+     only govern how the words arrive, never the type itself (client
+     2026-08-11); the 300→700 weight scrub is gone */
+  --w: 700;
+  font-family: var(--font-display);
+  font-variation-settings: "wght" var(--w);
+  font-weight: 400;
+  font-size: clamp(1.7rem, 4.4vw, 4rem);
+  line-height: 1.12;
+  letter-spacing: 0.01em;
+  max-width: 20ch;
+  margin-inline: auto;
+  text-wrap: balance;
+}
+.n-bloom__line span {
+  display: inline-block;
+  margin-right: 0.28em;
+  will-change: transform, opacity, filter;
+}
+.n-bloom__foot {
+  position: relative;
+  z-index: 1;
+  font-size: 11.5px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+/* ---- 3 · PLACE (powder) — the reference's held screen after the dome: a
+   bold condensed title over its photograph, both changing every few seconds.
+   Three tiers: the title (top 30svh), the frame with its control row
+   (middle), copy and kicker (bottom). Powder-blue ground, deep Aegean navy
+   for type and rules. */
+.n-place {
+  --powder: var(--lake); /* the same blue as the dome band above, so the two meet without a seam */
+  --aegean: #152b3c;
+  position: relative; /* positioned, so it paints above the hero's sticky stage as it follows the band */
+  background: var(--powder);
+  color: var(--aegean);
+}
+.n-place__unit {
+  position: relative;
+  height: 100svh;
+  display: grid;
+  grid-template-rows: 30svh minmax(0, 1fr) auto;
+  justify-items: center;
+  padding-bottom: clamp(20px, 4svh, 40px);
+  overflow: clip;
+}
+/* the title: a heavy didone, condensed by an 0.8 horizontal scale of the
+   whole line, centred and fitting the width. Each letter is its own box so
+   it can lift away and be revealed on its own; the line clips them above and
+   below, with room kept for the Q's tail. */
+.n-place__title {
+  align-self: center;
+  justify-self: stretch;
+  display: flex;
+  justify-content: center;
+  margin: 0;
+  overflow: hidden;
+  padding: 0.06em 0 0.24em;
+  font-family: var(--font-display);
+  font-weight: 700;
+  /* sized so the longest title clears the fixed chrome on both sides */
+  font-size: clamp(2.4rem, 7.8vw, 9.5rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+.n-place__line {
+  display: inline-block;
+  white-space: nowrap;
+  transform: scaleX(0.78);
+  transform-origin: 50% 50%;
+}
+.n-place__line .w {
+  display: inline-block;
+  white-space: nowrap; /* a word never breaks inside itself */
+}
+.n-place__line .l {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+/* the frame: rigid 16:10, about a third of the width, sized to its tier */
+.n-place__card {
+  align-self: center;
+  width: min(36vw, 500px, calc(46svh * 1.6 - 100px));
+  display: grid;
+  gap: 18px;
+  justify-items: center;
+}
+.n-place__frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  margin: 0;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--aegean) 10%, var(--powder));
+  box-shadow: 0 24px 60px rgba(21, 43, 60, 0.12);
+  touch-action: pan-y;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.n-place__frame:active {
+  cursor: grabbing;
+}
+.n-place__frame img {
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 700ms var(--ease);
+  pointer-events: none;
+}
+.n-place__frame img[data-on] {
+  opacity: 1;
+}
+/* the control row: arrow · current numeral · scrubber · total · arrow */
+.n-place__ctl {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.n-place__ctl > button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 200ms var(--ease);
+}
+.n-place__ctl > button:hover {
+  opacity: 1;
+}
+.n-place__num {
+  min-width: 1.2em;
+  text-align: center;
+}
+.n-place__num--total {
+  opacity: 0.55;
+}
+.n-place__track {
+  position: relative;
+  width: clamp(120px, 13vw, 190px);
+  height: 1.5px;
+  background: color-mix(in srgb, var(--aegean) 25%, transparent);
+  overflow: hidden;
+}
+.n-place__track i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: var(--aegean);
+  transition: transform 400ms var(--ease);
+}
+/* the deck: one line of copy (two at most) in a regular sans, then the
+   kicker, bold and small, on the bottom margin */
+.n-place__deck {
+  align-self: end;
+  display: grid;
+  gap: clamp(22px, 5svh, 48px);
+  justify-items: center;
+  max-width: 720px;
+  padding: 0 var(--gutter);
+  text-align: center;
+}
+.n-place__copy {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: 0.005em;
+  min-height: 2lh; /* two lines' room, so the kicker does not jump between slides */
+}
+.n-place__kicker {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.7;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.n-place__kicker span {
+  display: block;
+}
+@media (max-width: 860px) {
+  .n-place__unit {
+    height: auto;
+    min-height: 100svh;
+    grid-template-rows: auto auto auto;
+    gap: 26px;
+    padding: 96px 0 96px;
+  }
+  /* on a phone the title wraps at its word space into two lines */
+  .n-place__title {
+    font-size: 13vw;
+    padding: 0.06em var(--gutter) 0.24em;
+  }
+  .n-place__line {
+    white-space: normal;
+    text-align: center;
+    transform: scaleX(0.84);
+  }
+  .n-place__card {
+    width: 92vw;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .n-place__frame img {
+    transition: none;
+  }
+}
+
+/* ---- 4 · PULL (photo band) — the estate full-bleed. The band is as tall
+   as the photograph's lower 55% at full width, so the frame opens on sky
+   above the villa and ends on the pool; that sky dissolves into the same
+   blue as the screen above, so the two run on as one. The line sits lower
+   right in white, in the concept screen's condensed bold didone. ---- */
+.n-pull {
+  position: relative;
+  height: max(73.6vw, 100svh);
+  color: #fff;
+  background: var(--lake);
+  overflow: clip;
+}
+.n-pull__bg {
+  position: absolute;
+  inset: -6% 0; /* headroom for the drift */
+  will-change: transform;
+  /* the seam: the photograph's sky fades up into the band's blue */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 4%, #000 22%, #000 100%);
+  mask-image: linear-gradient(to bottom, transparent 4%, #000 22%, #000 100%);
+}
+.n-pull__bg img {
+  object-fit: cover;
+  object-position: 50% 100%; /* anchored to the pool at the foot */
+}
+.n-pull__say {
+  position: absolute;
+  left: 50%;
+  top: 56%;
+  width: min(42vw, 640px);
+  margin: 0;
+  display: grid;
+  gap: 16px;
+  will-change: transform;
+  text-shadow: 0 2px 16px rgba(0, 20, 40, 0.35);
+}
+.n-pull__mark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(3rem, 5vw, 5rem);
+  line-height: 0.55;
+  margin-left: 0.6em;
+}
+.n-pull__say p {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.4rem, 2.5vw, 2.5rem);
+  line-height: 1.16;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+  transform: scaleX(0.86);
+  transform-origin: 0 50%;
+}
+.n-pull__by {
+  margin-top: clamp(24px, 5vh, 56px);
+  display: grid;
+  gap: 4px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.n-pull__by strong {
+  font-weight: 700;
+}
+.n-pull__by span {
+  font-weight: 400;
+  opacity: 0.9;
+}
+@media (max-width: 860px) {
+  /* a phone's frame is far taller than it is wide, so the tall photograph
+     fits by height and would give half the screen to sky; zoomed from its
+     foot, the villa and the pool fill the frame instead */
+  .n-pull__bg img {
+    transform: scale(1.6);
+    transform-origin: 50% 100%;
+  }
+  .n-pull__say {
+    left: var(--gutter);
+    right: var(--gutter);
+    width: auto;
+    top: auto;
+    bottom: 120px;
+  }
+  .n-pull__say p {
+    font-size: clamp(1.25rem, 6vw, 1.8rem);
+  }
+}
+
+/* ---- 5 · CONCEPT (cream) ---- */
+.n-concept {
+  background: var(--cream);
+  padding: clamp(90px, 15vh, 180px) var(--gutter);
+  display: grid;
+  gap: clamp(30px, 5vh, 60px);
+  justify-items: center;
+  text-align: center;
+}
+.n-concept h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.5rem, 3.1vw, 2.9rem);
+  line-height: 1.3;
+  letter-spacing: 0.05em;
+}
+.n-concept h2 span {
+  display: block;
+}
+.n-concept__side {
+  max-width: 54ch;
+  color: var(--muted);
+}
+.n-concept__fig {
+  width: min(100%, 78vw);
+  height: clamp(300px, 68vh, 640px);
+  margin-top: clamp(20px, 4vh, 50px);
+}
+
+/* ---- 6 · THE ROAD (wine) — horizontal chapter: a sticky screen pans a
+   three-panel track. Statically it is a vertical stack of the same panels. */
+.n-loc {
+  position: relative;
+  background: var(--wine);
+  color: var(--on-wine);
+}
+.n-loc__track {
+  display: grid;
+  gap: clamp(70px, 12vh, 140px);
+  padding: clamp(90px, 15vh, 180px) var(--gutter);
+}
+.n-loc__panel {
+  position: relative;
+  isolation: isolate;
+}
+/* 27–28 · the concept panel — cream field, vines in two corners */
+.n-loc__concept {
+  background: var(--cream);
+  color: var(--wine);
+  overflow: clip;
+}
+.n-loc__card {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: clamp(16px, 2.6vh, 30px);
+  justify-items: center;
+  text-align: center;
+  /* NOT a ch measure — ch resolves against the card's body-size font and
+     would strangle the display-size headline inside it */
+  width: min(78vw, 1120px);
+  margin-inline: auto;
+  will-change: transform, opacity;
+}
+/* measured off the reference: 0.880 line-height, −0.016em tracking */
+.n-loc__statement {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.3rem, 3.3vw, 3rem);
+  line-height: 0.88;
+  letter-spacing: -0.016em;
+  text-transform: uppercase;
+  text-wrap: nowrap;
+}
+.n-loc__statement span {
+  display: block;
+}
+.n-loc__side {
+  max-width: 30ch;
+  font-size: 0.86em;
+  line-height: 1.38;
+  letter-spacing: -0.024em;
+  color: var(--muted);
+}
+.n-loc__orn {
+  width: 40px;
+  height: 40px;
+  color: var(--wine);
+  margin-top: clamp(8px, 2vh, 22px);
+}
+.n-loc__concept .n-bloom__vine {
+  width: clamp(240px, 22vw, 420px);
+  opacity: 0.92;
+}
+.n-loc__concept .n-bloom__vine.p-tl {
+  top: -12%;
+  left: -7%;
+}
+.n-loc__concept .n-bloom__vine.p-br {
+  right: -7%;
+  bottom: -14%;
+}
+
+/* 29–33 · the three-word title, each word at its own speed. Cream ground
+   and dark type, like the concept panel before it. */
+.n-loc__intro {
+  background: var(--cream);
+  color: var(--wine);
+}
+.n-loc__lines {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(3rem, 9vw, 9.5rem);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.n-loc__lines span {
+  display: block;
+  white-space: nowrap;
+  will-change: transform;
+}
+/* the condensing scale lives on an inner box, so the scroll tween that
+   moves each line keeps its own transform to itself */
+.n-loc__lines i {
+  display: inline-block;
+  font-style: normal;
+  transform: scaleX(0.8);
+  transform-origin: 0 50%;
+}
+/* the round call-to-action: a hairline circle with the line centred in it */
+.n-loc__orb {
+  display: grid;
+  place-items: center;
+  width: 220px;
+  height: 220px;
+  padding: 0 44px;
+  border: 1px solid color-mix(in srgb, var(--wine) 40%, transparent);
+  border-radius: 50%;
+  text-align: center;
+  text-decoration: none;
+  color: inherit;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  line-height: 1.7;
+  text-transform: uppercase;
+  transition: background 300ms var(--ease), color 300ms var(--ease), border-color 300ms var(--ease);
+}
+.n-loc__orb:hover,
+.n-loc__orb:focus-visible {
+  background: var(--wine);
+  border-color: var(--wine);
+  color: var(--cream);
+}
+/* the ragged staircase: cell 8.5vw, gutter 1vw — measured */
+.n-loc__lines span:nth-child(1) {
+  margin-left: 4.25vw;
+}
+.n-loc__lines span:nth-child(2) {
+  margin-left: 9.5vw;
+}
+.n-loc__lines span:nth-child(3) {
+  margin-left: 0;
+}
+.n-loc__shot {
+  width: clamp(240px, 26vw, 460px);
+  height: clamp(300px, 42vh, 560px);
+}
+.n-loc__note {
+  max-width: 40ch;
+}
+/* the subtitle in the same condensed didone, the paragraph in the sans */
+.n-loc__note h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.2rem, 2.1vw, 2.1rem);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  transform: scaleX(0.86);
+  transform-origin: 0 50%;
+  margin-bottom: 14px;
+}
+.n-loc__note p {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+/* the route panel reads on cream, like the two panels before it */
+.n-loc__path {
+  background: var(--cream);
+  color: var(--wine);
+  display: grid;
+  gap: clamp(20px, 4vh, 40px);
+  align-content: center;
+}
+.n-loc__path .n-loc__route {
+  color: var(--wine);
+}
+.n-loc__routeWrap {
+  width: 100%;
+}
+.n-loc__route {
+  width: min(100%, 900px);
+  position: relative;
+  color: var(--on-wine);
+}
+.n-loc__route svg {
+  width: 100%;
+  height: 90px;
+  opacity: 0.65;
+}
+.n-loc__route ol {
+  display: flex;
+  justify-content: space-between;
+  margin-top: -12px;
+}
+.n-loc__route li {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.n-loc__route i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--apricot);
+}
+.n-loc__route strong {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+}
+.n-loc__route em {
+  font-style: normal;
+  opacity: 0.65;
+}
+.n-loc__foot {
+  max-width: 52ch;
+  opacity: 0.8;
+}
+/* the pan machinery — wide screens with motion only */
+@media (min-width: 861px) and (prefers-reduced-motion: no-preference) {
+  /* 380svh puts the pan's exit near rail 42 — retune this single number once
+     the post-42 chapters land, since the rail is a share of total height */
+  .n-loc {
+    height: 380svh;
+  }
+  .n-loc__screen {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    overflow: clip; /* clip, not hidden: Tab must never desync the pan */
+  }
+  .n-loc__track {
+    display: flex;
+    align-items: stretch;
+    height: 100%;
+    width: max-content;
+    padding: 0;
+    gap: 0;
+    will-change: transform;
+  }
+  .n-loc__panel {
+    flex: none;
+    display: grid;
+    align-content: center;
+    height: 100svh;
+    padding: 0 var(--gutter);
+  }
+  .n-loc__concept {
+    width: 100vw;
+    justify-items: center;
+    align-content: center;
+  }
+  /* the three-word panel: the reference's NEW GOLDEN MILE composition on a
+     122vw panel — the title at ~12vw stepping down the left and reaching
+     over the photograph's edge; the photograph 39vw wide at the panel's
+     full height from ~37vw; the subtitle and paragraph plain at the lower
+     right of it; the round call-to-action mid-height near the viewport's
+     right edge; the bougainvillea cut in the lower-left corner */
+  .n-loc__intro {
+    width: 122vw;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .n-loc__lines {
+    position: relative;
+    z-index: 1;
+    font-size: 12vw;
+  }
+  .n-loc__shot {
+    position: absolute;
+    left: 30%;
+    top: 0;
+    bottom: 0;
+    width: 32%;
+    height: 100%;
+    z-index: 0;
+  }
+  .n-loc__note {
+    position: absolute;
+    left: 63.5%;
+    bottom: 5%;
+    z-index: 2;
+    width: 30vw;
+    max-width: 560px;
+  }
+  /* mid-height, its right third past the viewport's edge while the panel
+     is centred — it comes fully in as the pan carries on */
+  .n-loc__orb {
+    position: absolute;
+    left: 81%;
+    top: 50%;
+    translate: 0 -50%;
+    z-index: 3;
+  }
+  .n-loc__intro .n-bloom__vine.i-bl {
+    display: block;
+    left: -3%;
+    bottom: -16%;
+    width: clamp(300px, 26vw, 520px);
+    z-index: 0;
+  }
+  /* a full viewport wide, so the pan ends with the route panel flush to
+     both edges — nothing of the panel before it left showing — and the
+     page then carries on downward */
+  .n-loc__path {
+    width: 100vw;
+    justify-items: start;
+    padding-right: calc(var(--gutter) * 2);
+  }
+  .n-loc__route {
+    width: min(76vw, 900px);
+  }
+  .n-loc__path .n-bloom__vine {
+    width: clamp(300px, 26vw, 520px);
+  }
+  .n-loc__path .n-bloom__vine.r-tr {
+    top: -14%;
+    right: -6%;
+  }
+}
+
+/* ==========================================================================
+   42 · SKY — the page returns to its vertical rhythm. A keyed cloud strip
+   drifts right→left on a wall-clock marquee (the reference does the same:
+   its clouds are CSS keyframes, not scroll-driven), over the valley.
+   ========================================================================== */
+.n-sky {
+  position: relative;
+  min-height: 100svh;
+  overflow: clip;
+  isolation: isolate;
+  /* cream, like the chapters either side: anything the top scrim dissolves
+     lands on the same ground rather than on a wine edge */
+  background: var(--cream);
+  color: var(--cream);
+  display: grid;
+  align-content: end;
+  padding: clamp(60px, 10vh, 120px) var(--gutter);
+}
+/* the top edge dissolves into the cream above it. The photograph and the
+   cloud band both start hard against the section's edge, which read as a
+   line across the page; this scrim carries them in. The stops follow an
+   ease-out rather than a straight ramp — a linear fade ends abruptly enough
+   to show a band of its own. */
+.n-sky::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 24%;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    var(--cream) 0%,
+    color-mix(in srgb, var(--cream) 94%, transparent) 16%,
+    color-mix(in srgb, var(--cream) 78%, transparent) 34%,
+    color-mix(in srgb, var(--cream) 54%, transparent) 54%,
+    color-mix(in srgb, var(--cream) 28%, transparent) 74%,
+    color-mix(in srgb, var(--cream) 9%, transparent) 89%,
+    transparent 100%
+  );
+}
+.n-sky__fig {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+}
+.n-sky__fig img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  will-change: transform;
+}
+.n-sky__clouds {
+  position: absolute;
+  left: 0;
+  right: 0;
+  /* held high in the frame: the drift belongs to the ridges and the snow
+     line, not to the roofs below them */
+  top: -18%;
+  height: 62%;
+  z-index: -1;
+  overflow: clip;
+  pointer-events: none;
+  /* dissolve the layer's lower edge — a hard cut reads as a seam across the
+     photograph */
+  -webkit-mask-image: linear-gradient(to bottom, #000 52%, transparent 96%);
+  mask-image: linear-gradient(to bottom, #000 52%, transparent 96%);
+}
+.n-sky__drift {
+  display: block;
+  width: 200%;
+  height: 100%;
+  /* the strip followed by its own mirror, so repeat-x meets itself and no
+     seam shows where the tile turns over */
+  background-image: url("/flora/clouds-wide-tile.webp");
+  background-size: 50% 100%;
+  background-repeat: repeat-x;
+  opacity: 0.85;
+  animation: n-drift 78s linear infinite;
+}
+/* the reference runs THREE cloud layers (966/829/696px tiles) — the far
+   ones smaller, fainter, slower. Same strip, different scale and clock. */
+.n-sky__drift.d2 {
+  position: absolute;
+  inset: 6% 0 0;
+  background-size: 41% 82%;
+  background-position: 22% 0;
+  opacity: 0.5;
+  animation-duration: 118s;
+}
+.n-sky__drift.d3 {
+  position: absolute;
+  inset: 14% 0 0;
+  background-size: 33% 66%;
+  background-position: 61% 0;
+  opacity: 0.32;
+  animation-duration: 154s;
+}
+@keyframes n-drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+.n-sky__place {
+  position: relative;
+  z-index: 1; /* clear of the top scrim */
+  justify-self: end;
+  text-align: right;
+  display: grid;
+  gap: 4px;
+  text-shadow: 0 2px 20px color-mix(in srgb, var(--wine) 78%, transparent);
+}
+.n-sky__place strong {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2.2rem, 5.4vw, 5rem);
+  line-height: 0.95;
+  letter-spacing: 0.02em;
+}
+.n-sky__place em {
+  font-style: normal;
+  font-size: 11.5px;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+.n-sky__place i {
+  font-style: normal;
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  opacity: 0.6;
+}
+
+/* ---- 7 · COLLECTIONS (lake, arch) ---- */
+.n-cols {
+  background: var(--lake);
+  color: var(--wine);
+  padding: clamp(90px, 15vh, 180px) var(--gutter);
+  display: grid;
+  gap: clamp(40px, 7vh, 90px);
+}
+.n-cols__lines {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.3rem, 2.6vw, 2.4rem);
+  line-height: 1.35;
+  letter-spacing: 0.05em;
+  text-align: center;
+}
+.n-cols__lines span {
+  display: block;
+}
+.n-cards {
+  display: grid;
+  gap: clamp(60px, 10vh, 130px);
+}
+.n-card {
+  display: grid;
+  grid-template-columns: 0.9fr 1.4fr 0.9fr;
+  grid-template-rows: auto auto;
+  gap: clamp(18px, 3vw, 44px);
+  align-items: center;
+}
+.n-card__spec {
+  display: grid;
+  gap: 26px;
+  justify-items: start;
+}
+.n-card__spec .k {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+.n-card__spec .v {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 2.6vw, 2.5rem);
+  letter-spacing: 0.04em;
+}
+.n-card__fig {
+  height: clamp(280px, 56vh, 560px);
+}
+.n-card__body {
+  display: grid;
+  gap: 20px;
+  justify-items: start;
+  align-content: center;
+}
+.n-card__body p {
+  max-width: 34ch;
+  color: color-mix(in srgb, var(--wine) 78%, transparent);
+}
+.n-card__name {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2rem, 4.6vw, 4.2rem);
+  letter-spacing: 0.08em;
+}
+.n-card__name .place {
+  display: block;
+  font-family: var(--font-script);
+  font-size: clamp(1.4rem, 2.4vw, 2.2rem);
+  margin-top: -0.2em;
+  color: color-mix(in srgb, var(--wine) 70%, transparent);
+}
+
+/* ---- 7b · THE COLLECTIONS CAROUSEL — the reference's type band (its rail
+   51), measured at 1440×900 and rebuilt in our tokens. Full-viewport lake
+   band; content inset one 10-col column each side; a 3:4 portrait dead-
+   centre over a 16svh mid strip (data cols 2-4, desc cols 7-9 of an inner
+   8-col grid); the huge didone name at the bottom (their 122.4px = 8.5vw,
+   lh 0.88, ls −0.024em); pagination = arrow+number · 10vw hairline timer ·
+   number+arrow. Rendered only on the MOVED layer — phones, PRM and no-JS
+   keep the stacked spec cards above, which carry the same four collections
+   without a timer. */
+.n-tycar {
+  display: none;
+}
+@media (min-width: 861px) and (prefers-reduced-motion: no-preference) {
+  html.js .n-tycar {
+    display: block;
+    background: var(--lake);
+    color: var(--wine);
+    height: 100svh;
+    min-height: 700px;
+    padding: 3vw;
+  }
+  html.js .n-cards {
+    display: none;
+  }
+}
+.n-tycar__in {
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: 1fr auto;
+  column-gap: 1vw;
+  row-gap: 1vw;
+}
+.n-tycar__stage {
+  grid-column: 2 / -2;
+  grid-row: 1;
+  position: relative;
+}
+.n-tycar__slide {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: 1fr auto 1fr;
+}
+/* pre-hydration: only the first slide exists visually; JS re-parks everything */
+.n-tycar__slide:not(:first-child) {
+  visibility: hidden;
+}
+.n-tycar__mid {
+  grid-row: 2;
+  min-height: 16svh;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  column-gap: 1vw;
+  align-items: start;
+  z-index: 1;
+}
+.n-tycar__data {
+  grid-column: 1 / 3; /* the reference's specs start at the band's inset, clear of the photograph */
+  display: grid;
+  justify-items: start;
+  gap: 0.5em;
+}
+/* the specs: a small tracked sans label over a large condensed didone figure */
+.n-tycar__data .k {
+  font-family: var(--font-sans);
+  font-size: clamp(11px, 0.85vw, 13px);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+.n-tycar__data .v {
+  display: inline-block;
+  white-space: nowrap; /* a range stays on one line */
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.6rem, 2.6vw, 2.5rem);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  transform: scaleX(0.82);
+  transform-origin: 0 50%;
+}
+.n-tycar__data .n-tycar__lm:nth-of-type(3) {
+  margin-top: 1.4em;
+}
+.n-tycar__desc {
+  grid-column: 7 / 9;
+  display: grid;
+  justify-items: start;
+  gap: 1.6em;
+}
+.n-tycar__desc p {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: clamp(13px, 1.05vw, 16px);
+  line-height: 1.4;
+  color: color-mix(in srgb, var(--wine) 90%, transparent);
+}
+/* the outlined pill */
+.n-tycar__pill {
+  padding: 15px 26px;
+  border: 1px solid var(--wine);
+  border-radius: 999px;
+  background: none;
+  cursor: pointer;
+  color: inherit;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-transform: uppercase;
+  transition: background 300ms var(--ease), color 300ms var(--ease);
+}
+.n-tycar__pill:hover {
+  background: var(--wine);
+  color: var(--cream);
+}
+/* the photograph: a 3:4 portrait, most of the band's height, dead centre */
+.n-tycar__fig {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  height: min(80svh, 84%);
+  aspect-ratio: 3 / 4;
+  margin: 0;
+  z-index: 2;
+}
+.n-tycar__clip {
+  position: absolute;
+  inset: 0;
+  overflow: clip;
+  will-change: clip-path;
+}
+.n-tycar__clip img {
+  object-fit: cover;
+  will-change: transform;
+}
+/* the title: the heavy condensed didone, one line always, centred on the
+   photograph with its baseline on the photograph's bottom edge so the
+   letters sit across the picture's foot. Condensed by a horizontal scale
+   of the whole line; each letter is its own mask. */
+.n-tycar__name {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  translate: -50% 0.1em;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  column-gap: 0.26em;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 8.5vw;
+  line-height: 0.88;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  transform: scaleX(0.72);
+  transform-origin: 50% 100%;
+  z-index: 3;
+  pointer-events: none;
+}
+.n-tycar__word {
+  display: inline-flex;
+  white-space: nowrap;
+}
+/* the line mask — every text reveal rides inside one of these */
+.n-tycar__lm {
+  display: block;
+  overflow: clip;
+}
+.n-tycar__li {
+  display: block;
+  will-change: transform;
+}
+.n-tycar__name .n-tycar__lm,
+.n-tycar__name .n-tycar__li {
+  display: inline-block;
+}
+.n-tycar__pag {
+  grid-column: 2 / -2;
+  grid-row: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2vw;
+  min-height: 43px;
+}
+.n-tycar__nav {
+  display: flex;
+  align-items: center;
+  gap: 1vw;
+  padding: 10px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: inherit;
+}
+.n-tycar__nav svg {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.35s var(--ease);
+}
+.n-tycar__nav.prev:hover svg {
+  transform: translateX(3.6px);
+}
+.n-tycar__nav.next:hover svg {
+  transform: translateX(-3.6px);
+}
+.n-tycar__nav .n {
+  font-size: clamp(9px, 0.69vw, 12px);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+.n-tycar__track {
+  position: relative;
+  width: 10vw;
+  height: 1px;
+  background: color-mix(in srgb, var(--wine) 12%, transparent);
+}
+.n-tycar__fill {
+  position: absolute;
+  inset: 0;
+  background: var(--wine);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+.n-tycar :focus-visible {
+  outline: 2px solid var(--wine);
+  outline-offset: 4px;
+}
+
+/* ---- ARRIVAL MASKS (site-wide) — parked and moved by JS only; without JS
+   or under reduced motion nothing is ever hidden. `.n-lm`/`.n-li` are
+   built at effect time for simple blocks; line-group headings carry them
+   in the markup. */
+.n-lm {
+  overflow: clip;
+}
+.n-li {
+  display: block;
+  font-style: normal;
+  will-change: transform;
+}
+[data-lines] > span {
+  display: block;
+  overflow: clip;
+}
+
+/* ---- 8b · AMENITIES, the reference's screen (its rail 58) — MOVED layer
+   only; the static .n-amen above stays for phones/PRM/no-JS. One photograph
+   of the grounds at dusk, untinted; the amenities as a condensed didone list
+   top right with a hairline beside the active one; that amenity's label
+   floating on the picture at its place; the statement set large bottom
+   left; a round call-to-action over the pool. */
+.n-amsl {
+  display: none;
+}
+@media (min-width: 861px) and (prefers-reduced-motion: no-preference) {
+  /* two screens tall: the screen inside holds for the second while the
+     interiors band's crown rises over it, and lets go as that crown's top
+     reaches the top of the viewport */
+  html.js .n-amsl {
+    display: block;
+    position: relative;
+    height: 200svh;
+    background: var(--wine);
+    color: #fff;
+  }
+  html.js .n-amsl + .n-inter {
+    margin-top: -100svh;
+  }
+  html.js .n-amen {
+    display: none;
+  }
+}
+.n-amsl__screen {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  min-height: 720px;
+  overflow: clip;
+}
+.n-amsl__bg {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+}
+.n-amsl__bg img {
+  object-fit: cover;
+  object-position: 50% 60%;
+}
+/* the key on the picture: a dot at each amenity's place, the active one
+   carrying its name */
+.n-amsl__pin {
+  position: absolute;
+  z-index: 2;
+  translate: -50% -50%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border: 0;
+  background: none;
+  color: #fff;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+.n-amsl__pin i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.25);
+  opacity: 0.7;
+  transition: opacity 300ms var(--ease), transform 300ms var(--ease);
+}
+.n-amsl__pin span {
+  white-space: nowrap;
+  opacity: 0;
+  translate: -6px 0;
+  transition: opacity 350ms var(--ease), translate 350ms var(--ease);
+}
+.n-amsl__pin[data-on] i {
+  opacity: 1;
+  transform: scale(1.3);
+}
+.n-amsl__pin[data-on] span {
+  opacity: 1;
+  translate: 0;
+}
+/* the list: the condensed didone, the active item solid, the rest faded,
+   a hairline beside the active one */
+.n-amsl__tabs {
+  position: absolute;
+  left: 67%;
+  top: 20%;
+  z-index: 3;
+  display: grid;
+  justify-items: start;
+  padding-left: 22px;
+}
+.n-amsl__line {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: 0;
+  background: #fff;
+}
+.n-amsl__tab {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #fff;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.5rem, 2.1vw, 2.2rem);
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  transform: scaleX(0.8);
+  transform-origin: 0 50%;
+  opacity: 0.45;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+  transition: opacity 300ms var(--ease);
+}
+.n-amsl__tab:hover {
+  opacity: 0.75;
+}
+.n-amsl__tab[aria-selected="true"] {
+  opacity: 1;
+}
+.n-amsl__note {
+  margin: 14px 0 0;
+  max-width: 30ch;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+  animation: n-amsl-in 500ms var(--ease);
+}
+@keyframes n-amsl-in {
+  from {
+    opacity: 0;
+    translate: 0 6px;
+  }
+}
+/* the statement: the condensed didone set large, bottom left, its first
+   line hung in */
+.n-amsl__say {
+  position: absolute;
+  left: var(--gutter);
+  bottom: 8%;
+  z-index: 3;
+  width: min(46vw, 760px);
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.5rem, 2.4vw, 2.5rem);
+  line-height: 1.16;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+  text-indent: 10vw;
+  transform: scaleX(0.86);
+  transform-origin: 0 100%;
+  text-shadow: 0 2px 16px rgba(0, 20, 40, 0.45);
+}
+/* the round call-to-action over the pool */
+.n-amsl__orb {
+  position: absolute;
+  right: 19%;
+  bottom: 8%;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 240px;
+  height: 240px;
+  padding: 0 48px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  background: none;
+  color: #fff;
+  cursor: pointer;
+  text-align: center;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  line-height: 1.7;
+  text-transform: uppercase;
+  transition: background 300ms var(--ease), color 300ms var(--ease);
+}
+.n-amsl__orb:hover,
+.n-amsl__orb:focus-visible {
+  background: #fff;
+  color: var(--wine);
+}
+.n-amsl :focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 4px;
+}
+
+/* ---- 8 · AMENITIES (photo + sticky list) — the photo zooms ×2 while the
+   intro veil fades (the reference's zoom-through); rows brighten over it. */
+.n-amen {
+  position: relative;
+}
+.n-amen__bg {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+}
+.n-amen__bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  will-change: transform;
+}
+.n-amen__bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--wine) 62%, transparent), transparent 60%);
+}
+.n-amen__intro {
+  position: relative;
+  height: 100svh;
+  margin-top: -100svh;
+  z-index: 1;
+  display: grid;
+  place-content: center;
+  gap: 14px;
+  text-align: center;
+  color: var(--cream);
+  pointer-events: none;
+}
+.n-amen__intro h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2rem, 5vw, 4.6rem);
+  letter-spacing: 0.06em;
+  max-width: 16ch;
+}
+.n-amen__list {
+  position: relative;
+  z-index: 2;
+  padding: clamp(90px, 15vh, 170px) var(--gutter) clamp(90px, 15vh, 170px);
+  display: grid;
+  gap: clamp(40px, 8vh, 90px);
+  color: var(--cream);
+  max-width: 620px;
+}
+@media (min-width: 861px) and (prefers-reduced-motion: no-preference) {
+  .n-amen__intro {
+    position: sticky;
+    top: 0;
+  }
+  .n-amen__list {
+    margin-top: 40svh; /* the zoom plays before the rows arrive */
+  }
+}
+.n-amen__item h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.3rem, 2.2vw, 2rem);
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+.n-amen__item p {
+  max-width: 44ch;
+  opacity: 0.85;
+}
+
+/* ---- 9 · INTERIORS (cream, arch) ---- */
+/* the crown: a great cream circle — its top on the band's top edge, its
+   sides curving down to the viewport's edges — drawn by a pseudo-element
+   clipped to a circle of radius --crown; from that circle's centre down
+   the band is solid cream. Rising over the held amenities screen it reads
+   as a disc coming up from below, the reference's device. */
+.n-inter {
+  /* radius = half the viewport width: the circle's widest point is exactly
+     the screen's width, so the photograph shows down both sides of the
+     crown all the way to that point, where the solid ground takes over
+     with no step */
+  --crown: 50vw;
+  position: relative;
+  isolation: isolate;
+  background: none;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  padding: 0 var(--gutter) clamp(100px, 16vh, 190px);
+  display: grid;
+  gap: clamp(30px, 5vh, 60px);
+  justify-items: center;
+  text-align: center;
+  /* the band's own box takes no hits: outside the crown the chrome must
+     read the photograph beneath, so only the ground pieces and the
+     content answer */
+  pointer-events: none;
+}
+.n-inter > * {
+  pointer-events: auto;
+}
+.n-inter__crown {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: calc(var(--crown) * 2);
+  background: var(--cream);
+  clip-path: circle(var(--crown) at 50% var(--crown));
+  z-index: -1;
+}
+.n-inter__ground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--crown);
+  bottom: 0;
+  background: var(--cream);
+  z-index: -1;
+}
+/* the title fills the crown's screen: the four words stacked in the heavy
+   condensed didone, the script beneath in the same ink */
+.n-inter__stack {
+  min-height: 100svh;
+  display: grid;
+  align-content: start;
+  /* set low in the crown, as the reference does — the first line sits about
+     two fifths down, and the script rides below the fold until the scroll
+     carries the whole lockup up */
+  padding-top: 40svh;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(3rem, 10vw, 11rem);
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+}
+.n-inter__stack span {
+  display: block;
+  transform: scaleX(0.78);
+  transform-origin: 50% 50%;
+}
+.n-inter__stack .script {
+  display: block;
+  font-family: var(--font-script);
+  font-style: normal;
+  font-weight: 400;
+  font-size: clamp(3rem, 8vw, 9rem);
+  line-height: 1;
+  margin-top: -0.28em;
+  transform: rotate(-4deg);
+  color: var(--wine);
+}
+@media (max-width: 860px) {
+  .n-inter {
+    --crown: 85vw; /* a gentler arch on a narrow screen */
+  }
+  .n-inter__stack {
+    padding-top: 24svh;
+  }
+}
+.n-inter__copy {
+  max-width: 52ch;
+  color: var(--muted);
+}
+/* the statement: the condensed didone, staggered — the first line stepped
+   in, the rest flush, as the reference sets it */
+.n-inter__statement {
+  /* sized so the longest line still sets on one line under the step-in */
+  width: min(100%, 1340px);
+  margin: clamp(50px, 9vh, 110px) auto 0;
+  text-align: left;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.25rem, 3.02vw, 3rem);
+  line-height: 1.22;
+  letter-spacing: -0.012em;
+  text-transform: uppercase;
+}
+.n-inter__statement > span:first-child {
+  margin-left: 10%;
+}
+/* the round outlined call, in place of the filled pill */
+.n-inter__orb {
+  display: grid;
+  place-items: center;
+  width: clamp(190px, 16vw, 250px);
+  height: clamp(190px, 16vw, 250px);
+  padding: 0 40px;
+  border: 1px solid color-mix(in srgb, var(--wine) 40%, transparent);
+  border-radius: 50%;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  text-align: center;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  line-height: 1.7;
+  text-transform: uppercase;
+  transition: background 300ms var(--ease), color 300ms var(--ease), border-color 300ms var(--ease);
+}
+.n-inter__orb:hover,
+.n-inter__orb:focus-visible {
+  background: var(--wine);
+  border-color: var(--wine);
+  color: var(--cream);
+}
+.n-inter__lists {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 320px));
+  gap: clamp(30px, 6vw, 90px);
+  text-align: left;
+  margin-top: clamp(10px, 2vh, 24px);
+}
+.n-inter__lists h3 {
+  font-size: 11.5px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  opacity: 0.65;
+}
+.n-inter__lists li {
+  padding: 9px 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+}
+/* the reference's rail-73 field (measured, 1338 content / 662 columns):
+   left column seated a 245px spacer lower, its 570×760 portrait bleeding
+   past the container edge, caption inset 41%; right column: 570×427
+   landscape inset 20%, lead full-left, lists inset 41%, button inset 20%.
+   The COLUMNS carry the ±10 counter-drift — everything inside rides. */
+.n-inter__field {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(16px, 1vw, 20px);
+  width: 100%;
+  margin-top: clamp(20px, 4vh, 50px);
+  text-align: left;
+}
+.n-inter__col {
+  display: grid;
+  gap: clamp(16px, 2.6vh, 26px);
+  justify-items: start;
+  align-content: start;
+  will-change: transform;
+}
+.n-inter__col.is-l {
+  padding-top: clamp(120px, 27vh, 245px);
+}
+.n-inter__imgL {
+  width: 86%;
+  margin-left: calc(var(--gutter) * -0.5);
+  aspect-ratio: 570 / 760;
+}
+.n-inter__cap {
+  margin: 0 0 0 41%;
+  font-size: 12px;
+  opacity: 0.7;
+  max-width: 30ch;
+}
+.n-inter__imgR {
+  width: 86%;
+  margin-left: 20%;
+  aspect-ratio: 570 / 427;
+}
+.n-inter__col .n-inter__copy {
+  max-width: 40ch;
+}
+.n-inter__col .n-inter__lists {
+  margin-left: 41%;
+  grid-template-columns: 1fr;
+  gap: clamp(20px, 3vh, 30px);
+}
+.n-inter__col .n-inter__orb {
+  margin-left: 20%;
+}
+/* the chapter-foot gallery — the reference's 83%-wide 1111×694 slider */
+.n-igal,
+.n-igal-plain {
+  width: 83%;
+  margin: clamp(120px, 27vh, 245px) auto 0;
+}
+.n-igal__stage {
+  position: relative;
+  aspect-ratio: 1111 / 694;
+}
+.n-igal__slide {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+}
+.n-igal__slide:not(:first-child) {
+  visibility: hidden;
+}
+.n-igal__clip {
+  position: absolute;
+  inset: 0;
+  overflow: clip;
+  will-change: clip-path;
+}
+.n-igal__clip img {
+  object-fit: cover;
+  will-change: transform;
+}
+.n-igal__pag {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2vw;
+  min-height: 43px;
+}
+.n-igal :focus-visible {
+  outline: 2px solid var(--wine);
+  outline-offset: 4px;
+}
+.n-igal-plain {
+  display: grid;
+  gap: 16px;
+}
+.n-igal-plain figure {
+  position: relative;
+  aspect-ratio: 1111 / 694;
+  margin: 0;
+  overflow: hidden;
+}
+.n-igal-plain img {
+  object-fit: cover;
+}
+.n-flower.f-inter {
+  right: -6%;
+  top: 26%;
+  width: clamp(220px, 24vw, 420px);
+}
+
+/* ---- decorative rotating stamps (the reference dots chapters with these) */
+.n-flower {
+  position: absolute;
+  z-index: -1;
+  aspect-ratio: 1;
+  pointer-events: none;
+  opacity: 0.3;
+}
+.n-flower svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.n-flower .spin {
+  transform-origin: 100px 100px;
+  animation: n-spin 70s linear infinite;
+}
+@keyframes n-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.n-flower.f-locinfo {
+  left: -14%;
+  bottom: -16%;
+  width: clamp(320px, 56vh, 720px);
+}
+.n-flower.f-locpath {
+  right: -8%;
+  top: -12%;
+  width: clamp(320px, 56vh, 720px);
+}
+.n-flower.f-cols {
+  right: -5%;
+  top: 4%;
+  width: clamp(280px, 42vh, 560px);
+}
+
+/* ---- 10 · THE ARCHITECTURE SEQUENCE. Two frames stand offset, converge
+   until they are equal, join edge to edge, then the joined frame grows until
+   it covers the screen and ARCHITECTURE arrives letter by letter over it.
+   Statically (phones, PRM, no-JS) the sequence is absent and the chapter
+   below carries its own word and photographs. ---- */
+.n-warea {
+  position: relative;
+}
+.n-archseq {
+  display: none;
+}
+@media (min-width: 861px) and (prefers-reduced-motion: no-preference) {
+  .n-archseq {
+    display: grid;
+    place-items: center;
+    position: relative;
+    height: 100svh;
+    overflow: clip;
+    background: var(--cream);
+  }
+  /* the pair: the frames' base size, before the growth */
+  .n-archseq__pair {
+    --gap: 2.2vw;
+    display: flex;
+    gap: var(--gap);
+    width: 62vw;
+    height: 58svh;
+    will-change: transform;
+  }
+  .n-archseq__panel {
+    position: relative;
+    margin: 0;
+    overflow: clip;
+    will-change: transform;
+  }
+  .n-archseq__panel.is-l {
+    flex: 1.35 1 0;
+  }
+  .n-archseq__panel.is-r {
+    flex: 1 1 0;
+  }
+  /* each frame carries the picture at the PAIR's width and slides it to its
+     own place, so the two windows show neighbouring slices of one image.
+     The frames divide 1.35 : 1, hence 1/0.5745 = 174.074% inside the left
+     and 1/0.4255 = 235% inside the right, offset by −135% of its own width.
+     (The slide is its own box because next/image's fill writes width and
+     inset inline, which a stylesheet rule cannot override.) */
+  .n-archseq__slide {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+  }
+  .n-archseq__panel.is-l .n-archseq__slide {
+    left: 0;
+    width: 174.074%;
+  }
+  .n-archseq__panel.is-r .n-archseq__slide {
+    left: -135%;
+    width: 235%;
+  }
+  .n-archseq__panel img {
+    object-fit: cover;
+  }
+  /* the word over the covered screen; each letter rises out of its own mask */
+  .n-archseq__word {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    z-index: 2;
+    margin: 0;
+    translate: 0 -50%;
+    display: flex;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 10.5vw;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    color: #fff;
+    transform: scaleX(0.78);
+    text-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+  }
+  .n-archseq__lm {
+    display: inline-block;
+    overflow: clip;
+    padding-bottom: 0.08em;
+  }
+  /* parked by the sequence at effect time, never in CSS — a CSS transform
+     here would be read as a fixed pixel offset and added under the tween */
+  .n-archseq__li {
+    display: inline-block;
+    will-change: transform;
+  }
+  .n-archscreen {
+    position: relative;
+    z-index: 1;
+    background: var(--cream);
+  }
+  /* the chapter's own word is the static layer's — the sequence carries it here */
+  .n-archi__word {
+    display: none;
+  }
+}
+
+/* ---- ARCHITECTURE (cream) ---- */
+/* the chapter's own heading — the static layer's; on the moved layer the
+   sequence above carries it and this is hidden */
+.n-archi {
+  background: var(--cream);
+  padding: clamp(60px, 10vh, 130px) var(--gutter);
+  display: grid;
+  justify-items: center;
+}
+.n-archi__word {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2.4rem, 11vw, 10rem);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  line-height: 1;
+  text-align: center;
+}
+
+/* ---- 10c · VIEWS — the picture fills the screen while the type climbs over
+   it at its own rate; then the picture pulls back into a frame and the wine
+   field opens on all four sides, carrying on into the call and the footer. */
+.n-views {
+  position: relative;
+  background: var(--wine);
+  color: #fff;
+}
+.n-views__screen {
+  position: relative;
+  height: 100svh;
+  overflow: clip;
+}
+.n-views__bg {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  will-change: clip-path;
+}
+.n-views__bg img {
+  object-fit: cover;
+  will-change: transform;
+}
+.n-views__fore {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: clamp(16px, 3vh, 34px);
+  padding: 0 var(--gutter);
+  text-align: center;
+  pointer-events: none;
+  will-change: transform;
+}
+/* the reference's sea-views title: a high-contrast didone at its regular
+   weight, large and tightly leaded — not the heavy condensed cut */
+.n-views__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2.6rem, 8.6vw, 9rem);
+  line-height: 0.94;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+  text-shadow: 0 4px 30px rgba(0, 20, 40, 0.3);
+}
+.n-views__title span {
+  display: block;
+}
+.n-views__sub {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(11px, 1.05vw, 16px);
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 14px rgba(0, 20, 40, 0.45);
+}
+.n-views__orb {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(-90px, -7vh, -50px);
+  translate: -50% 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: clamp(200px, 17vw, 260px);
+  height: clamp(200px, 17vw, 260px);
+  padding: 0 44px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  text-align: center;
+  text-decoration: none;
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  line-height: 1.7;
+  text-transform: uppercase;
+  transition: background 300ms var(--ease), color 300ms var(--ease);
+}
+.n-views__orb:hover,
+.n-views__orb:focus-visible {
+  background: #fff;
+  color: var(--wine);
+}
+/* the chapter's lead, on the wine the frame has opened */
+.n-views__note {
+  background: var(--wine);
+  color: var(--on-wine);
+  padding: clamp(50px, 9vh, 110px) var(--gutter) 0;
+  display: grid;
+  justify-items: center;
+}
+.n-views__note p {
+  margin: 0;
+  max-width: 52ch;
+  text-align: center;
+  opacity: 0.85;
+}
+@media (min-width: 861px) and (prefers-reduced-motion: no-preference) {
+  /* two screens of travel: the type climbs through the first, the frame
+     closes through the second */
+  .n-views {
+    height: 220svh;
+  }
+  .n-views__screen {
+    position: sticky;
+    top: 0;
+  }
+}
+/* ---- CREDITS — the closing screen: four lines in the condensed didone,
+   each carrying a + that opens one line of fact beneath it. The + turns to
+   an × while its line is open. ---- */
+.n-creds {
+  position: relative;
+  overflow: clip;
+  background: var(--cream);
+  color: var(--wine);
+  min-height: 100svh;
+  display: grid;
+  place-content: center;
+  padding: clamp(90px, 15vh, 180px) var(--gutter);
+  text-align: center;
+}
+.n-creds__list {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  display: grid;
+  justify-items: center;
+}
+.n-creds__row {
+  display: grid;
+  justify-items: center;
+}
+.n-creds__row dt {
+  margin: 0;
+}
+.n-creds__btn {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 0.04em;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2rem, 5.2vw, 5.6rem);
+  line-height: 1.16;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+  transform: scaleX(0.82);
+  transition: opacity 250ms var(--ease);
+}
+.n-creds__btn:hover {
+  opacity: 0.62;
+}
+.n-creds__btn i {
+  font-style: normal;
+  font-size: 0.3em;
+  line-height: 1.3;
+  transition: transform 320ms var(--ease);
+}
+.n-creds__row[data-open] .n-creds__btn i {
+  transform: rotate(45deg);
+}
+/* the fact opens by growing its own grid row from 0fr to 1fr */
+.n-creds__info {
+  margin: 0;
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 420ms var(--ease);
+}
+.n-creds__row[data-open] .n-creds__info {
+  grid-template-rows: 1fr;
+}
+.n-creds__info > span {
+  display: block;
+  min-height: 0;
+  overflow: hidden;
+  visibility: hidden; /* keeps a closed fact out of the reading order too */
+  /* the padding lives on the open state: on the closed one it would be the
+     row's only height and the line would never collapse flat */
+  padding: 0;
+  max-width: 46ch;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+  transition: visibility 0s 420ms, padding 420ms var(--ease);
+}
+.n-creds__row[data-open] .n-creds__info > span {
+  visibility: visible;
+  padding: 6px 0 16px;
+  transition: visibility 0s, padding 420ms var(--ease);
+}
+
+/* ---- 11 · CTA (wine) ---- */
+.n-cta {
+  background: var(--wine);
+  color: var(--on-wine);
+  text-align: center;
+  padding: clamp(110px, 18vh, 210px) var(--gutter);
+  display: grid;
+  gap: clamp(24px, 4vh, 44px);
+  justify-items: center;
+}
+.n-cta h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2rem, 4.6vw, 4.4rem);
+  line-height: 1.08;
+  letter-spacing: 0.05em;
+}
+.n-cta h2 span {
+  display: block;
+}
+.n-cta h2 .script {
+  font-family: var(--font-script);
+  font-style: normal;
+  font-size: clamp(1.8rem, 3.8vw, 3.6rem);
+  color: var(--apricot);
+  display: block;
+  margin: -0.1em 0;
+  transform: rotate(-3deg);
+}
+.n-cta p {
+  max-width: 52ch;
+  opacity: 0.85;
+}
+
+/* ---- 12 · FOOTER (deep wine) — as it arrives the CTA band clips inward to
+   a frame and the footer content scales in from 0.75 (the closing move). */
+.n-foot {
+  /* the same wine as the band above it: a darker footer left a visible
+     seam where the two met */
+  background: var(--wine);
+  color: var(--on-wine);
+  text-align: center;
+  padding: clamp(60px, 10vh, 110px) var(--gutter) 30px;
+  display: grid;
+}
+.n-foot__in {
+  display: grid;
+  gap: clamp(24px, 4vh, 40px);
+  justify-items: center;
+  width: 100%;
+}
+@media (min-width: 861px) and (prefers-reduced-motion: no-preference) {
+  .n-foot {
+    min-height: 100svh;
+    align-content: center;
+  }
+}
+.n-foot__top {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+.n-foot__top:hover,
+.n-foot .links a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+/* the emblem above the number, as the reference sets it */
+/* the footer's letter boxes — a word never breaks inside itself, and the
+   letters are parked by the arrival, never in CSS */
+.n-foot .n-w {
+  display: inline-block;
+  white-space: nowrap;
+}
+.n-foot .n-l {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+.n-foot__mark {
+  width: clamp(44px, 3.4vw, 58px);
+  height: clamp(44px, 3.4vw, 58px);
+}
+.n-foot__mark svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+/* the number is the footer's headline: the didone, very large */
+.n-foot__phone {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2.2rem, 7vw, 7rem);
+  line-height: 1;
+  letter-spacing: 0.005em;
+  white-space: nowrap;
+}
+/* a small tracked label over the address, which is set bold and tracked */
+.n-foot__office {
+  display: grid;
+  gap: 5px;
+  font-family: var(--font-sans);
+}
+.n-foot__office .lbl {
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin-bottom: 3px;
+}
+.n-foot__office .ln {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+/* the closing row: two columns, bold small caps, the tracking of the rest */
+.n-foot__row {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+  margin-top: clamp(30px, 7vh, 80px);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  text-align: left;
+}
+.n-foot__col {
+  display: grid;
+  gap: 4px;
+  opacity: 0.8;
+}
+.n-foot__col.is-r {
+  text-align: right;
+  justify-items: end;
+}
+.n-foot__col .strong,
+.n-foot__col .links a {
+  font-weight: 700;
+  opacity: 1;
+}
+.n-foot__col .links {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+/* ==========================================================================
+   /HOMES — the catalog. Giant didone title over a rotating stamp, a working
+   filter row, blueprint cards (technical corner-tick frame, square contain
+   plan, spec rows) three across with photo tiles in card slots, a fixed
+   vertical place rail at the left, a closing wine chapter, the footer.
+   ========================================================================== */
+.hp {
+  background: var(--cream);
+  color: var(--wine);
+}
+.hp img {
+  object-fit: cover;
+}
+.hp-list {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: clamp(110px, 16vh, 190px) var(--gutter) clamp(80px, 12vh, 150px);
+  display: grid;
+  justify-items: center;
+}
+.hp-flower.is-page {
+  left: 50%;
+  top: clamp(-140px, -7vw, -40px);
+  transform: translateX(-50%);
+  width: min(68vw, 984px);
+}
+.hp-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(4.2rem, 12vw, 10.8rem);
+  line-height: 0.87;
+  letter-spacing: -0.024em;
+  margin-top: 10px;
+  text-align: center;
+}
+.hp-sub {
+  max-width: 54ch;
+  text-align: center;
+  color: var(--muted);
+  margin-top: clamp(16px, 3vh, 28px);
+}
+.hp-filter {
+  margin-top: clamp(26px, 5vh, 46px);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 18px;
+}
+.hp-filter__label {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+.hp-filter__group {
+  display: flex;
+  gap: 4px;
+}
+.hp-filter button {
+  padding: 8px 12px;
+  min-height: 40px;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  opacity: 0.55;
+  border-bottom: 1px solid transparent;
+  transition: opacity 250ms var(--ease), border-color 250ms var(--ease);
+}
+.hp-filter button:hover {
+  opacity: 0.85;
+}
+.hp-filter button.on {
+  opacity: 1;
+  border-bottom-color: var(--apricot);
+}
+.hp-filter__rule {
+  width: 1px;
+  height: 22px;
+  background: color-mix(in srgb, var(--wine) 25%, transparent);
+}
+.hp-count {
+  margin-top: 16px;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+.hp-legend {
+  margin-top: 6px;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.45;
+  text-align: center;
+}
+.hp-grid {
+  width: 100%;
+  margin-top: clamp(40px, 7vh, 70px);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: clamp(12px, 1vw, 15px);
+  row-gap: clamp(56px, 9vh, 88px);
+  padding-left: clamp(0px, 9.5vw, 137px); /* clearance over the fixed place rail */
+}
+.hp-grid > li {
+  display: grid;
+}
+/* --- blueprint card ---------------------------------------------------- */
+.hp-card {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  width: 100%;
+  padding: clamp(20px, 2.2vw, 30px);
+  text-align: center;
+  transition: box-shadow 350ms var(--ease);
+}
+.hp-card::before {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border: 1px solid color-mix(in srgb, var(--wine) 24%, transparent);
+  transition: border-color 350ms var(--ease);
+  pointer-events: none;
+}
+.hp-frame .c {
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  border: 0 solid var(--wine);
+  opacity: 0.8;
+  pointer-events: none;
+  transition: transform 350ms var(--ease);
+}
+.hp-frame .lt { left: 0; top: 0; border-left-width: 2px; border-top-width: 2px; }
+.hp-frame .rt { right: 0; top: 0; border-right-width: 2px; border-top-width: 2px; }
+.hp-frame .rb { right: 0; bottom: 0; border-right-width: 2px; border-bottom-width: 2px; }
+.hp-frame .lb { left: 0; bottom: 0; border-left-width: 2px; border-bottom-width: 2px; }
+.hp-card:hover,
+.hp-card:focus-visible {
+  box-shadow: 0 30px 70px -34px color-mix(in srgb, var(--wine) 45%, transparent);
+}
+.hp-card:hover::before {
+  border-color: color-mix(in srgb, var(--wine) 55%, transparent);
+}
+.hp-card:hover .hp-frame .lt { transform: translate(-3px, -3px); }
+.hp-card:hover .hp-frame .rt { transform: translate(3px, -3px); }
+.hp-card:hover .hp-frame .rb { transform: translate(3px, 3px); }
+.hp-card:hover .hp-frame .lb { transform: translate(-3px, 3px); }
+.hp-card:hover .hp-plan {
+  color: var(--apricot);
+}
+.hp-card__kick {
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+.hp-card__status {
+  margin-top: 5px;
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--apricot);
+}
+.hp-card[data-status="reserved"] .hp-card__status {
+  color: inherit;
+  opacity: 0.5;
+}
+.hp-plan {
+  width: 100%;
+  aspect-ratio: 1;
+  margin: clamp(10px, 1.4vh, 16px) 0;
+  display: grid;
+  place-items: center;
+  color: color-mix(in srgb, var(--wine) 82%, transparent);
+  transition: color 350ms var(--ease);
+}
+.hp-plan svg {
+  width: 88%;
+  height: 88%;
+}
+.hp-plan text {
+  fill: currentColor;
+  letter-spacing: 0.1em;
+}
+.hp-card__specs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+.hp-card__specs .sep {
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.hp-card__big {
+  margin-top: clamp(8px, 1.2vh, 14px);
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 2.5vw, 2.25rem);
+  text-transform: uppercase;
+}
+.hp-card__note {
+  margin-top: 8px;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+.hp-tilewrap {
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+  min-height: 420px;
+  margin: 7px; /* sits inside the same inset as the card hairline */
+}
+.hp-empty {
+  margin-top: clamp(40px, 7vh, 70px);
+  max-width: 46ch;
+  text-align: center;
+  opacity: 0.75;
+}
+/* --- fixed place rail (the reference's side index — ours filters) ------- */
+.hp-rail {
+  position: fixed;
+  left: calc(var(--gutter) * 0.55 - 6px);
+  top: clamp(150px, 24vh, 240px);
+  z-index: 210;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 40px;
+}
+.hp-rail button,
+.hp-rail__soon {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 10.5px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.hp-rail button {
+  position: relative;
+  min-height: 44px;
+  opacity: 0.5;
+  transition: opacity 250ms var(--ease);
+}
+.hp-rail button:hover {
+  opacity: 0.85;
+}
+.hp-rail button.on {
+  opacity: 1;
+}
+.hp-rail button.on::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -9px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--apricot);
+  transform: translateX(-50%);
+}
+.hp-rail__rule {
+  width: 1px;
+  height: 40px;
+  background: color-mix(in srgb, var(--wine) 28%, transparent);
+}
+.hp-rail__soon {
+  opacity: 0.35;
+}
+/* past the listing the rail stands down (it would sit wine-on-wine) */
+.hp-rail {
+  transition: opacity 300ms var(--ease), visibility 300ms var(--ease);
+}
+.hp-rail[data-off] {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+/* --- closing chapter ---------------------------------------------------- */
+.hp-tail {
+  background: var(--wine);
+  color: var(--on-wine);
+  text-align: center;
+  padding: clamp(110px, 18vh, 210px) var(--gutter) clamp(90px, 14vh, 170px);
+  display: grid;
+  gap: clamp(24px, 4vh, 44px);
+  justify-items: center;
+}
+.hp-tail h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2rem, 4.6vw, 4.4rem);
+  line-height: 1.08;
+  letter-spacing: 0.05em;
+}
+.hp-tail h2 span {
+  display: block;
+}
+.hp-tail h2 .script {
+  font-family: var(--font-script);
+  font-style: normal;
+  font-size: clamp(1.8rem, 3.8vw, 3.6rem);
+  color: var(--apricot);
+  display: block;
+  margin: -0.1em 0;
+  transform: rotate(-3deg);
+}
+.hp-tail__copy {
+  max-width: 52ch;
+  opacity: 0.85;
+}
+.hp-tail__row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 18px 26px;
+}
+.hp-tail__back {
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  opacity: 0.85;
+  text-underline-offset: 4px;
+}
+.hp-tail__back:hover {
+  text-decoration: underline;
+}
+.hp-tail__fig {
+  width: min(100%, 76vw);
+  height: clamp(280px, 56vh, 540px);
+  margin-top: clamp(16px, 3vh, 30px);
+}
+
+/* ==========================================================================
+   Book-a-call dialog (n-dlg) — staged arrival; instant under reduced motion
+   ========================================================================== */
+.n-dlg {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: grid;
+  place-items: center;
+  padding: clamp(16px, 4vh, 48px) var(--gutter);
+}
+.n-dlg__veil {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--wine) 62%, transparent);
+  cursor: pointer;
+}
+.n-dlg__card {
+  position: relative;
+  width: min(700px, 100%);
+  max-height: 92svh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--cream);
+  color: var(--ink);
+  border-radius: 24px;
+  padding: clamp(30px, 4.4vw, 54px) clamp(24px, 4vw, 58px) clamp(26px, 3.6vw, 44px);
+  text-align: center;
+}
+.n-dlg__x {
+  position: absolute;
+  top: clamp(14px, 2vw, 24px);
+  right: clamp(14px, 2vw, 24px);
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  border-radius: 50%;
+  transition: background 200ms var(--ease);
+}
+.n-dlg__x:hover {
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+}
+.n-dlg__kicker {
+  display: block;
+  font-family: var(--font-script);
+  font-size: clamp(1.3rem, 2vw, 1.7rem);
+  color: var(--apricot);
+}
+.n-dlg__title {
+  margin: 10px 0 clamp(22px, 4vh, 40px);
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.7rem, 3.6vw, 2.8rem);
+  line-height: 1.1;
+  letter-spacing: 0.04em;
+}
+.n-dlg__title span {
+  display: block;
+}
+.n-dlg__form {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(14px, 2.4vh, 24px);
+  text-align: left;
+}
+.n-dlg__pot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+.n-dlg__field {
+  position: relative;
+  display: block;
+}
+.n-dlg__field input,
+.n-dlg__field textarea {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--ink) 35%, transparent);
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  font-family: var(--font-body);
+  font-size: clamp(1rem, 1.5vw, 1.25rem);
+  padding: 22px 0 10px;
+  transition: border-color 200ms var(--ease);
+}
+.n-dlg__field textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+.n-dlg__field input:focus,
+.n-dlg__field textarea:focus {
+  outline: none;
+  border-bottom-color: var(--ink);
+}
+.n-dlg__field .lbl {
+  position: absolute;
+  left: 0;
+  top: 20px;
+  font-size: clamp(0.95rem, 1.4vw, 1.2rem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ink) 55%, transparent);
+  pointer-events: none;
+  transform-origin: left top;
+  transition: transform 240ms var(--ease), color 240ms var(--ease);
+}
+.n-dlg__field input:focus + .lbl,
+.n-dlg__field textarea:focus + .lbl,
+.n-dlg__field input:not(:placeholder-shown) + .lbl,
+.n-dlg__field textarea:not(:placeholder-shown) + .lbl {
+  transform: translateY(-19px) scale(0.6);
+  color: var(--muted);
+}
+.n-dlg__field .err {
+  display: block;
+  margin-top: 6px;
+  font-style: normal;
+  font-size: 12.5px;
+  color: #8e2a22;
+}
+.n-dlg__field input[aria-invalid="true"],
+.n-dlg__field textarea[aria-invalid="true"] {
+  border-bottom-color: #8e2a22;
+}
+.n-dlg__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(16px, 3vw, 34px);
+  margin-top: 8px;
+}
+.n-dlg__consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  max-width: 40ch;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--muted);
+  cursor: pointer;
+}
+.n-dlg__consent input {
+  width: 18px;
+  height: 18px;
+  margin: 1px 0 0;
+  accent-color: var(--wine);
+}
+.n-dlg__consent a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.n-dlg__ok,
+.n-dlg__warn {
+  margin: 0 0 clamp(14px, 2.4vh, 22px);
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  text-align: left;
+}
+.n-dlg__ok {
+  background: color-mix(in srgb, #1e9c8f 12%, transparent);
+  color: #0f5f57;
+}
+.n-dlg__warn {
+  background: color-mix(in srgb, #c0392b 13%, transparent);
+  color: #8e2a22;
+}
+.n-dlg__ok a,
+.n-dlg__warn a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ==========================================================================
+   Legal / stop pages
+   ========================================================================== */
+.n-legal {
+  max-width: 74ch;
+  margin: 0 auto;
+  padding: clamp(110px, 16vh, 180px) var(--gutter) clamp(56px, 9vh, 110px);
+}
+.n-legal h1 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2rem, 4.6vw, 3.4rem);
+  letter-spacing: 0.04em;
+  margin-bottom: 14px;
+}
+.n-legal h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.15rem, 1.9vw, 1.55rem);
+  margin: clamp(26px, 4.6vh, 46px) 0 8px;
+}
+.n-legal p {
+  color: var(--muted);
+  margin-bottom: 12px;
+  line-height: 1.75;
+}
+.n-legal a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.n-legal .foot {
+  margin-top: clamp(40px, 7vh, 80px);
+  padding-top: 20px;
+  border-top: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.n-stop {
+  min-height: 100svh;
+  display: grid;
+  align-content: center;
+  gap: clamp(16px, 2.6vh, 28px);
+  padding: clamp(110px, 16vh, 180px) var(--gutter);
+}
+.n-stop .code {
+  font-family: var(--font-script);
+  font-size: clamp(1.6rem, 3vw, 2.6rem);
+  color: var(--apricot);
+}
+.n-stop h1 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2.4rem, 6.4vw, 5.6rem);
+  line-height: 1.02;
+  letter-spacing: 0.04em;
+}
+.n-stop p {
+  max-width: 46ch;
+  color: var(--muted);
+}
+.n-stop nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(14px, 2.4vw, 30px);
+  align-items: center;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.n-stop nav a:not(.n-pill):hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ==========================================================================
+   Small screens — single column, no pins (JS gates them too)
+   ========================================================================== */
+@media (max-width: 860px) {
+  .n-nav {
+    top: auto;
+    bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+    /* right-aligned rather than centred: a centred pill of three tracked
+       labels runs into the round button on the left of a narrow screen */
+    right: var(--gutter);
+    transform: none;
+    flex-direction: row;
+    gap: 16px;
+    align-items: center;
+    background: color-mix(in srgb, var(--cream) 88%, transparent);
+    backdrop-filter: blur(8px);
+    padding: 10px 18px;
+    border-radius: 999px;
+    mix-blend-mode: normal;
+    /* shrink-to-fit against `right: 50%` would cap the pill at half the
+       screen and wrap its labels; size it to its content instead */
+    width: max-content;
+    max-width: calc(100vw - 2 * var(--gutter));
+    white-space: nowrap;
+  }
+  .n-nav .phone {
+    display: none;
+  }
+  .n-chrome .n-seal {
+    width: 66px;
+    height: 66px;
+  }
+  /* the lockup scales up on a narrow screen; the anchors stack above the
+     switch, which sits above the CTA pill on the bottom margin */
+  .n-hero__place {
+    top: 100px; /* clear of the 66px seal in the corner */
+  }
+  /* the crest text is set in the SVG's 1440-wide units; on a phone-width
+     dome that scale would leave it 8px tall, so it is set larger here */
+  .n-arc__promise text {
+    font-size: 48px;
+  }
+  .n-hero__mark .w1,
+  .n-hero__mark .w2 {
+    font-size: 17vw;
+  }
+  .n-hero__mark .script {
+    font-size: 12vw;
+  }
+  .n-hero__meta {
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+    text-align: center;
+    height: auto;
+    bottom: clamp(150px, 27vh, 210px);
+    font-size: 11px;
+  }
+  .n-hero__meta span,
+  .n-hero__titleB {
+    flex: none;
+    text-align: center;
+  }
+  .n-hero__switch {
+    bottom: clamp(86px, 16vh, 130px);
+  }
+  .n-flower {
+    display: none; /* the stamps are a wide-screen flourish */
+  }
+  .n-bloom__vine {
+    width: clamp(210px, 52vw, 340px);
+    opacity: 0.85;
+  }
+  .n-pull {
+    justify-content: stretch;
+    text-align: center;
+  }
+  .n-pull__say {
+    justify-self: center;
+    text-align: center;
+  }
+  .n-loc__lines span:nth-child(1),
+  .n-loc__lines span:nth-child(2),
+  .n-loc__lines span:nth-child(3) {
+    margin-left: 0;
+  }
+  .n-loc__shot {
+    width: 100%;
+    height: clamp(240px, 40vh, 380px);
+  }
+  .n-loc__note {
+    background: none;
+    padding: 0;
+    margin: 0;
+    max-width: none;
+  }
+  /* room above for the fixed seal, room below for the nav pill */
+  .n-loc__intro {
+    display: grid;
+    gap: 22px;
+    padding: 100px var(--gutter) 130px;
+  }
+  .n-loc__orb {
+    width: 180px;
+    height: 180px;
+    padding: 0 30px;
+    margin: 8px auto 0;
+  }
+  .n-sky__clouds {
+    height: 46%;
+  }
+  /* /homes: the place rail becomes a sticky chip row; grid single-column */
+  .hp-rail {
+    position: sticky;
+    top: 0;
+    left: auto;
+    z-index: 120;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    gap: 4px 10px;
+    padding: 12px var(--gutter) 12px 96px; /* clears the fixed seal */
+    overflow-x: auto;
+    background: color-mix(in srgb, var(--cream) 90%, transparent);
+    backdrop-filter: blur(8px);
+  }
+  .hp-rail button,
+  .hp-rail__soon {
+    writing-mode: horizontal-tb;
+    transform: none;
+  }
+  .hp-rail button.on::after {
+    top: auto;
+    bottom: 2px;
+  }
+  .hp-rail__rule {
+    width: 22px;
+    height: 1px;
+  }
+  .hp-grid {
+    grid-template-columns: 1fr;
+    padding-left: 0;
+    row-gap: 44px;
+  }
+  .hp-tilewrap {
+    min-height: 300px;
+  }
+  .hp-title {
+    font-size: clamp(3.4rem, 17vw, 5.2rem);
+  }
+  .n-reason,
+  .n-reason:nth-child(even) {
+    grid-template-columns: 1fr;
+  }
+  .n-reason:nth-child(even) .n-reason__n,
+  .n-reason:nth-child(even) .n-reason__fig {
+    order: 0;
+    text-align: left;
+  }
+  .n-card {
+    grid-template-columns: 1fr;
+  }
+  .n-card__spec {
+    grid-auto-flow: column;
+    justify-content: start;
+    gap: 40px;
+  }
+  .n-inter__lists {
+    grid-template-columns: 1fr;
+  }
+  .n-inter__field {
+    grid-template-columns: 1fr;
+  }
+  .n-inter__col.is-l {
+    padding-top: 0;
+  }
+  .n-inter__imgL,
+  .n-inter__imgR {
+    width: 100%;
+    margin-left: 0;
+  }
+  .n-inter__cap,
+  .n-inter__col .n-inter__lists,
+  .n-inter__col .n-pill {
+    margin-left: 0;
+  }
+  .n-igal,
+  .n-igal-plain {
+    width: 100%;
+  }
+  .n-archi {
+    grid-template-columns: 1fr;
+  }
+  .n-archi__side {
+    width: 100%;
+  }
+  .n-dlg__row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .n-arch {
+    --dome: 24% 5vh;
+  }
+}
+
+/* reduced motion: everything visible, nothing pinned, dome edges rest flat.
+   (The pin/pan media blocks all require no-preference, so under PRM every
+   chapter is already its static single-screen form.) */
+@media (prefers-reduced-motion: reduce) {
+  .n-amen__item {
+    opacity: 1 !important;
+  }
+  .n-arch {
+    --dome: 0% 0vh !important;
+  }
+  .n-flower .spin {
+    animation: none;
+  }
+  .n-pill,
+  .n-dlg__field .lbl,
+  .n-chrome .n-seal {
+    transition: none;
+  }
+  /* the line is already assembled and already bold */
+  .n-bloom__line {
+    --w: 700;
+    letter-spacing: 0.01em;
+  }
+  .n-bloom__line span {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    filter: none !important;
+  }
+  .n-sky__drift {
+    animation: none;
+  }
+}
+/* no-JS: identical guarantees (motion never wires, so no tall scroll areas,
+   no frame overlay, no offset list) */
+html:not(.js) .n-hero {
+  height: auto;
+}
+html:not(.js) .n-loc {
+  height: auto;
+}
+html:not(.js) .n-loc__screen {
+  position: static;
+  height: auto;
+  overflow: visible;
+}
+html:not(.js) .n-loc__track {
+  display: grid;
+  width: auto;
+  height: auto;
+  padding: clamp(90px, 15vh, 180px) var(--gutter);
+  gap: clamp(70px, 12vh, 140px);
+}
+html:not(.js) .n-loc__panel {
+  width: auto;
+  height: auto;
+  padding: 0;
+}
+html:not(.js) .n-hero + .n-arc {
+  margin-top: 0;
+}
+html:not(.js) .n-archseq {
+  display: none;
+}
+html:not(.js) .n-amen__intro {
+  position: relative;
+}
+html:not(.js) .n-amen__list {
+  margin-top: 0;
+}
+html:not(.js) .n-foot {
+  min-height: 0;
+}
+html:not(.js) .n-amen__item {
+  opacity: 1;
+}
+/* no-JS: the new bands must also read as finished, not mid-animation */
+html:not(.js) .n-bloom__line {
+  --w: 700;
+  letter-spacing: 0.01em;
+}
+html:not(.js) .n-loc__card {
+  opacity: 1;
+  transform: none;
+}
+
+/* ==========================================================================
+   Side rail — tick, page PERCENTAGE, filling hairline, SCROLL arrow.
+   The number is the site's shared coordinate ("the band at 16") for editing
+   notes and for visitors. White + difference blend stays legible on all three
+   fields: near-black on cream, deep umber on lake, pale mint on wine.
+   ========================================================================== */
+.n-rail {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--gutter) * 0.55);
+  z-index: 210;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: clamp(40px, 6vh, 64px) 0 clamp(28px, 4.5vh, 48px);
+  width: 34px;
+  pointer-events: none; /* only the button is interactive */
+  color: #fff;
+  mix-blend-mode: difference;
+}
+.n-rail__tick {
+  width: 1px;
+  height: clamp(26px, 4vh, 40px);
+  background: currentColor;
+}
+.n-rail__meter {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin: 18px 0;
+  min-height: 0;
+}
+.n-rail__num {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.8;
+}
+.n-rail__line {
+  position: relative;
+  flex: 1 1 auto;
+  width: 1px;
+  min-height: 60px;
+  background: color-mix(in srgb, currentColor 34%, transparent);
+  overflow: hidden;
+}
+.n-rail__fill {
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  transform: scaleY(0);
+  transform-origin: top;
+}
+.n-rail__go {
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 8px; /* a ≥44px hit area around slim glyphs */
+  color: inherit;
+}
+.n-rail__go .txt {
+  writing-mode: vertical-rl;
+  font-family: var(--font-sans);
+  font-size: 8.5px;
+  font-weight: 500;
+  letter-spacing: 0.35em;
+  opacity: 0.75;
+}
+.n-rail__go svg {
+  width: 10px;
+  height: 56px;
+  transition: transform 260ms var(--ease);
+}
+.n-rail__go svg[data-up] {
+  transform: rotate(180deg);
+}
+@media (max-width: 860px) {
+  .n-rail {
+    display: none; /* the bottom nav pill owns small screens */
+  }
+}
