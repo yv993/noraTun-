@@ -1052,7 +1052,8 @@ ol {
 .n-place__frame img {
   object-fit: cover;
   opacity: 0;
-  transition: opacity 700ms var(--ease);
+  /* short enough that the crossfade finishes inside a two-second slide */
+  transition: opacity 480ms var(--ease);
   pointer-events: none;
 }
 .n-place__frame img[data-on] {

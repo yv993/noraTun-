@@ -116,7 +116,7 @@ export const sky = {
 // slides. Kicker stays fixed.
 export const place = {
   label: "The concept",
-  interval: 4000,
+  interval: 2000,
   slides: [
     {
       title: "BOUTIQUE CONCEPT",

@@ -40,14 +40,16 @@ export default function PlaceCarousel({
 
   const letters = () => (line.current ? Array.from(line.current.querySelectorAll<HTMLElement>(".l")) : []);
 
-  // reveal the current title from its first letter, and the copy after it
+  // Reveal the current title from its first letter, and the copy after it.
+  // The pair of moves is kept under ~1.2s on the longest title so a two-second
+  // slide still comes to rest before the next one starts.
   const reveal = () => {
     gsap.fromTo(
       letters(),
       { yPercent: 110, autoAlpha: 0 },
-      { yPercent: 0, autoAlpha: 1, duration: 0.6, ease: "power3.out", stagger: 0.035, onComplete: () => (busy.current = false) },
+      { yPercent: 0, autoAlpha: 1, duration: 0.42, ease: "power3.out", stagger: 0.018, onComplete: () => (busy.current = false) },
     );
-    if (copyEl.current) gsap.fromTo(copyEl.current, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out", delay: 0.25 });
+    if (copyEl.current) gsap.fromTo(copyEl.current, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.34, ease: "power2.out", delay: 0.16 });
   };
 
   // change slides: lift the title away from its first letter, then swap;
@@ -64,15 +66,15 @@ export default function PlaceCarousel({
     gsap.to(letters(), {
       yPercent: -110,
       autoAlpha: 0,
-      duration: 0.42,
+      duration: 0.28,
       ease: "power2.in",
-      stagger: 0.022,
+      stagger: 0.012,
       onComplete: () => {
         idxRef.current = next;
         setIdx(next);
       },
     });
-    if (copyEl.current) gsap.to(copyEl.current, { autoAlpha: 0, y: -8, duration: 0.3, ease: "power2.in" });
+    if (copyEl.current) gsap.to(copyEl.current, { autoAlpha: 0, y: -8, duration: 0.2, ease: "power2.in" });
   };
   const pickAndRestart = (to: number) => {
     go(to);

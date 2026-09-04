@@ -2,10 +2,10 @@ import type { MetadataRoute } from "next";
 import { abs, site } from "@/lib/site";
 
 export default function robots(): MetadataRoute.Robots {
-  // previews and localhost stay unindexed; only the real https origin opens up
-  const isProd = site.url.startsWith("https://") && !site.url.includes("localhost");
+  // previews and localhost stay unindexed; only the configured https origin
+  // opens up (see lib/site.ts — a Vercel preview URL must not qualify)
   return {
-    rules: isProd
+    rules: site.indexable
       ? [{ userAgent: "*", allow: "/", disallow: ["/api/"] }]
       : [{ userAgent: "*", disallow: "/" }],
     sitemap: abs("/sitemap.xml"),
