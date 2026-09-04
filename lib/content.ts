@@ -467,134 +467,303 @@ export const callModal = {
 // with photo tiles mixed in, a vertical place rail fixed at the left, then a
 // closing chapter and the footer. Every listing below is our own invention;
 // the plans are original room diagrams drawn as SVG geometry.
-export type Room = { x: number; y: number; w: number; h: number; t?: string };
+// A room rectangle in the plan's own 100 x 70 drafting grid. `label` and
+// `area` are printed inside the room; `out` marks garden and terrace, which
+// draw tinted and never count toward the interior area.
+export type Room = { x: number; y: number; w: number; h: number; label?: string; area?: number; out?: true };
+// Every home draws TWO plans, upper level first. Where a home is single
+// storey the second is its outdoor level, which is the honest drawing.
+export type Level = { caption: string; rooms: Room[] };
+
 export type Listing = {
   id: string;
+  code: string; // the № on the card
   name: string;
   place: "Yerevan" | "Dilijan" | "Sevan";
   kind: string;
+  typology: Typology;
+  block: string;
+  floor: string;
   bedrooms: number;
-  area: number; // m²
+  area: number; // m² interior
+  terrace: number; // m² outdoor, quoted separately as the reference does
+  completion: string; // "2Q 2027"
   level: string; // "Floor 4" | "Plot 5.5 a"
   status: "available" | "reserved";
   note: string;
-  plan: Room[];
+  levels: Level[];
+};
+
+// NORATUN's equivalents of the reference's four typologies
+export const TYPOLOGIES = ["Garden + lower level", "Garden level", "Penthouse", "Duplex"] as const;
+export type Typology = (typeof TYPOLOGIES)[number];
+
+// The gallery on a home's own page, by place. Alts describe what each
+// photograph actually shows — they are reused verbatim from where the same
+// photograph already appears on the site.
+export const homeGallery: Record<Listing["place"], Array<{ src: StaticImageData; alt: string }>> = {
+  Yerevan: [
+    { src: phInteriorLiving, alt: "City apartment living room with tall windows and pale walls" },
+    { src: phInteriorKitchen, alt: "A marble kitchen island with a window above the sink" },
+    { src: phBalcony, alt: "A planted balcony with a cushioned sofa and flowering pots" },
+  ],
+  Dilijan: [
+    { src: phDilijanForest, alt: "Pine forest climbing a ridge at sundown" },
+    { src: phStair, alt: "A cream plaster stair rising into soft light" },
+    { src: phCourtyard, alt: "Terraced planting and clipped hedges climbing beside a residential block" },
+  ],
+  Sevan: [
+    { src: phSevanLake, alt: "A wooden jetty reaching into a still lake" },
+    { src: phTerrace, alt: "A planted roof terrace with a long cushioned bench and timber tables" },
+    { src: phInteriorBath, alt: "A pale stone bathroom with a freestanding bath and a lit recess" },
+  ],
 };
 
 export const listings: Listing[] = [
   {
-    id: "Y-A4", name: "Orran A4", place: "Yerevan", kind: "Apartment", bedrooms: 1, area: 52,
-    level: "Floor 4", status: "available", note: "Saryan district · five minutes to the park",
-    plan: [
-      { x: 8, y: 14, w: 50, h: 44, t: "L" }, { x: 8, y: 58, w: 50, h: 28, t: "K" },
-      { x: 58, y: 14, w: 34, h: 38, t: "B" }, { x: 58, y: 52, w: 34, h: 16, t: "W" },
-      { x: 58, y: 68, w: 34, h: 18, t: "T" },
+    id: "Y-A4", code: "011", name: "Orran A4", place: "Yerevan", kind: "Apartment",
+    typology: "Garden level", block: "A1", floor: "4 floor", bedrooms: 1, area: 52, terrace: 9,
+    completion: "2Q 2027", level: "Floor 4", status: "available",
+    note: "Saryan district · five minutes to the park",
+    levels: [
+      { caption: "Main level", rooms: [
+        { x: 6, y: 6, w: 48, h: 32, label: "Living", area: 20 },
+        { x: 6, y: 38, w: 28, h: 26, label: "Kitchen", area: 9 },
+        { x: 34, y: 38, w: 20, h: 26, label: "Hall", area: 4 },
+        { x: 54, y: 6, w: 40, h: 34, label: "Bedroom", area: 14 },
+        { x: 54, y: 40, w: 40, h: 24, label: "Bath", area: 5 },
+      ] },
+      { caption: "Terrace", rooms: [
+        { x: 6, y: 10, w: 62, h: 46, label: "Terrace", area: 9, out: true },
+        { x: 68, y: 10, w: 26, h: 20, label: "Store", area: 2, out: true },
+      ] },
     ],
   },
   {
-    id: "Y-B2", name: "Orran B2", place: "Yerevan", kind: "Apartment", bedrooms: 2, area: 78,
-    level: "Floor 2", status: "available", note: "Saryan district · courtyard side",
-    plan: [
-      { x: 8, y: 14, w: 44, h: 46, t: "L" }, { x: 8, y: 60, w: 26, h: 26, t: "K" },
-      { x: 34, y: 60, w: 18, h: 26, t: "W" }, { x: 52, y: 14, w: 40, h: 30, t: "B" },
-      { x: 52, y: 44, w: 40, h: 28, t: "B" }, { x: 52, y: 72, w: 40, h: 14, t: "T" },
+    id: "Y-B2", code: "012", name: "Orran B2", place: "Yerevan", kind: "Apartment",
+    typology: "Garden level", block: "A1", floor: "2 floor", bedrooms: 2, area: 78, terrace: 12,
+    completion: "2Q 2027", level: "Floor 2", status: "available",
+    note: "Saryan district · courtyard side",
+    levels: [
+      { caption: "Main level", rooms: [
+        { x: 6, y: 6, w: 46, h: 34, label: "Living", area: 26 },
+        { x: 6, y: 40, w: 26, h: 24, label: "Kitchen", area: 11 },
+        { x: 32, y: 40, w: 20, h: 24, label: "Hall", area: 6 },
+        { x: 52, y: 6, w: 42, h: 26, label: "Bedroom", area: 15 },
+        { x: 52, y: 32, w: 42, h: 20, label: "Bedroom", area: 13 },
+        { x: 52, y: 52, w: 42, h: 12, label: "Bath", area: 7 },
+      ] },
+      { caption: "Terrace", rooms: [
+        { x: 6, y: 12, w: 88, h: 42, label: "Terrace", area: 12, out: true },
+      ] },
     ],
   },
   {
-    id: "Y-C12", name: "Saryan Court 12", place: "Yerevan", kind: "Apartment", bedrooms: 2, area: 84,
-    level: "Floor 5", status: "reserved", note: "Corner rooms · evening sun",
-    plan: [
-      { x: 8, y: 14, w: 40, h: 18, t: "T" }, { x: 8, y: 32, w: 40, h: 40, t: "L" },
-      { x: 8, y: 72, w: 40, h: 14, t: "K" }, { x: 48, y: 14, w: 44, h: 34, t: "B" },
-      { x: 48, y: 48, w: 44, h: 24, t: "B" }, { x: 48, y: 72, w: 44, h: 14, t: "W" },
+    id: "Y-C12", code: "013", name: "Saryan Court 12", place: "Yerevan", kind: "Apartment",
+    typology: "Garden level", block: "A2", floor: "5 floor", bedrooms: 2, area: 84, terrace: 10,
+    completion: "4Q 2027", level: "Floor 5", status: "reserved",
+    note: "Corner rooms · evening sun",
+    levels: [
+      { caption: "Main level", rooms: [
+        { x: 6, y: 6, w: 44, h: 36, label: "Living", area: 28 },
+        { x: 6, y: 42, w: 26, h: 22, label: "Kitchen", area: 12 },
+        { x: 32, y: 42, w: 18, h: 22, label: "Wash", area: 5 },
+        { x: 50, y: 6, w: 44, h: 28, label: "Bedroom", area: 17 },
+        { x: 50, y: 34, w: 44, h: 20, label: "Bedroom", area: 14 },
+        { x: 50, y: 54, w: 44, h: 10, label: "Bath", area: 8 },
+      ] },
+      { caption: "Terrace", rooms: [
+        { x: 10, y: 10, w: 80, h: 44, label: "Corner terrace", area: 10, out: true },
+      ] },
     ],
   },
   {
-    id: "Y-P7", name: "Komitas Parkside 7", place: "Yerevan", kind: "Apartment", bedrooms: 3, area: 112,
-    level: "Floor 6", status: "available", note: "Park windows in every bedroom",
-    plan: [
-      { x: 8, y: 14, w: 50, h: 36, t: "L" }, { x: 8, y: 50, w: 24, h: 36, t: "K" },
-      { x: 32, y: 50, w: 26, h: 18, t: "W" }, { x: 32, y: 68, w: 26, h: 18, t: "H" },
-      { x: 58, y: 14, w: 34, h: 26, t: "B" }, { x: 58, y: 40, w: 34, h: 24, t: "B" },
-      { x: 58, y: 64, w: 34, h: 22, t: "B" },
+    id: "Y-P7", code: "021", name: "Komitas Parkside 7", place: "Yerevan", kind: "Apartment",
+    typology: "Duplex", block: "B1", floor: "6 floor", bedrooms: 3, area: 112, terrace: 14,
+    completion: "1Q 2028", level: "Floor 6", status: "available",
+    note: "Park windows in every bedroom",
+    levels: [
+      { caption: "Upper level", rooms: [
+        { x: 6, y: 6, w: 50, h: 36, label: "Living", area: 30 },
+        { x: 6, y: 42, w: 30, h: 22, label: "Kitchen", area: 13 },
+        { x: 36, y: 42, w: 20, h: 22, label: "Hall", area: 7 },
+        { x: 56, y: 6, w: 38, h: 30, label: "Dining", area: 12 },
+        { x: 56, y: 36, w: 38, h: 28, label: "Wash", area: 6 },
+      ] },
+      { caption: "Lower level", rooms: [
+        { x: 6, y: 6, w: 42, h: 30, label: "Bedroom", area: 16 },
+        { x: 6, y: 36, w: 42, h: 28, label: "Bedroom", area: 14 },
+        { x: 48, y: 6, w: 46, h: 32, label: "Bedroom", area: 14 },
+        { x: 48, y: 38, w: 46, h: 26, label: "Bath", area: 6 },
+      ] },
     ],
   },
   {
-    id: "Y-A9", name: "Orran Penthouse A9", place: "Yerevan", kind: "Apartment", bedrooms: 3, area: 138,
-    level: "Floor 9", status: "available", note: "Wrapped terrace · Ararat side",
-    plan: [
-      { x: 8, y: 14, w: 46, h: 42, t: "L" }, { x: 8, y: 56, w: 22, h: 30, t: "K" },
-      { x: 30, y: 56, w: 24, h: 14, t: "W" }, { x: 30, y: 70, w: 24, h: 16, t: "H" },
-      { x: 54, y: 14, w: 38, h: 24, t: "B" }, { x: 54, y: 38, w: 38, h: 24, t: "B" },
-      { x: 54, y: 62, w: 38, h: 28, t: "T" },
+    id: "Y-A9", code: "022", name: "Orran Penthouse A9", place: "Yerevan", kind: "Apartment",
+    typology: "Penthouse", block: "A1", floor: "9 floor", bedrooms: 3, area: 138, terrace: 34,
+    completion: "1Q 2028", level: "Floor 9", status: "available",
+    note: "Wrapped terrace · Ararat side",
+    levels: [
+      { caption: "Main level", rooms: [
+        { x: 6, y: 6, w: 52, h: 38, label: "Living", area: 38 },
+        { x: 6, y: 44, w: 30, h: 20, label: "Kitchen", area: 15 },
+        { x: 36, y: 44, w: 22, h: 20, label: "Hall", area: 8 },
+        { x: 58, y: 6, w: 36, h: 30, label: "Bedroom", area: 20 },
+        { x: 58, y: 36, w: 36, h: 28, label: "Bath", area: 9 },
+      ] },
+      { caption: "Terrace level", rooms: [
+        { x: 6, y: 6, w: 40, h: 28, label: "Bedroom", area: 26 },
+        { x: 6, y: 34, w: 40, h: 30, label: "Bedroom", area: 22 },
+        { x: 46, y: 6, w: 48, h: 58, label: "Roof terrace", area: 34, out: true },
+      ] },
     ],
   },
   {
-    id: "D-3", name: "Pine Lane 3", place: "Dilijan", kind: "House", bedrooms: 2, area: 96,
-    level: "Plot 4.0 a", status: "available", note: "First line of the forest",
-    plan: [
-      { x: 8, y: 14, w: 52, h: 44, t: "L" }, { x: 8, y: 58, w: 30, h: 28, t: "K" },
-      { x: 38, y: 58, w: 22, h: 28, t: "W" }, { x: 60, y: 14, w: 32, h: 36, t: "B" },
-      { x: 60, y: 50, w: 32, h: 36, t: "B" },
+    id: "D-3", code: "031", name: "Pine Lane 3", place: "Dilijan", kind: "House",
+    typology: "Garden level", block: "P1", floor: "0 floor", bedrooms: 2, area: 96, terrace: 26,
+    completion: "3Q 2027", level: "Plot 4.0 a", status: "available",
+    note: "First line of the forest",
+    levels: [
+      { caption: "Main level", rooms: [
+        { x: 6, y: 6, w: 52, h: 36, label: "Living", area: 34 },
+        { x: 6, y: 42, w: 30, h: 22, label: "Kitchen", area: 16 },
+        { x: 36, y: 42, w: 22, h: 22, label: "Hall", area: 8 },
+        { x: 58, y: 6, w: 36, h: 30, label: "Bedroom", area: 18 },
+        { x: 58, y: 36, w: 36, h: 28, label: "Bedroom", area: 20 },
+      ] },
+      { caption: "Garden level", rooms: [
+        { x: 6, y: 6, w: 34, h: 24, label: "Bath", area: 8 },
+        { x: 6, y: 30, w: 34, h: 34, label: "Store", area: 6 },
+        { x: 40, y: 6, w: 54, h: 58, label: "Garden", area: 26, out: true },
+      ] },
     ],
   },
   {
-    id: "D-5", name: "Pine Lane 5", place: "Dilijan", kind: "House", bedrooms: 3, area: 128,
-    level: "Plot 5.5 a", status: "reserved", note: "The quiet end of the lane",
-    plan: [
-      { x: 8, y: 14, w: 48, h: 40, t: "L" }, { x: 8, y: 54, w: 24, h: 32, t: "K" },
-      { x: 32, y: 54, w: 24, h: 16, t: "W" }, { x: 32, y: 70, w: 24, h: 16, t: "H" },
-      { x: 56, y: 14, w: 36, h: 26, t: "B" }, { x: 56, y: 40, w: 36, h: 24, t: "B" },
-      { x: 56, y: 64, w: 36, h: 22, t: "B" },
+    id: "D-5", code: "032", name: "Pine Lane 5", place: "Dilijan", kind: "House",
+    typology: "Garden + lower level", block: "P1", floor: "0 floor", bedrooms: 3, area: 128, terrace: 30,
+    completion: "3Q 2027", level: "Plot 5.5 a", status: "reserved",
+    note: "The quiet end of the lane",
+    levels: [
+      { caption: "Main level", rooms: [
+        { x: 6, y: 6, w: 50, h: 34, label: "Living", area: 32 },
+        { x: 6, y: 40, w: 28, h: 24, label: "Kitchen", area: 16 },
+        { x: 34, y: 40, w: 22, h: 24, label: "Dining", area: 12 },
+        { x: 56, y: 6, w: 38, h: 32, label: "Bedroom", area: 18 },
+        { x: 56, y: 38, w: 38, h: 26, label: "Bath", area: 8 },
+      ] },
+      { caption: "Lower level", rooms: [
+        { x: 6, y: 6, w: 40, h: 30, label: "Bedroom", area: 20 },
+        { x: 6, y: 36, w: 40, h: 28, label: "Bedroom", area: 16 },
+        { x: 46, y: 6, w: 26, h: 26, label: "Wash", area: 6 },
+        { x: 46, y: 32, w: 26, h: 32, label: "Store", area: 0 },
+        { x: 72, y: 6, w: 22, h: 58, label: "Garden", area: 30, out: true },
+      ] },
     ],
   },
   {
-    id: "D-HS", name: "Half-Stone House", place: "Dilijan", kind: "House", bedrooms: 3, area: 142,
-    level: "Plot 6.2 a", status: "available", note: "Stone below, timber above",
-    plan: [
-      { x: 8, y: 14, w: 56, h: 40, t: "L" }, { x: 8, y: 54, w: 28, h: 32, t: "K" },
-      { x: 36, y: 54, w: 28, h: 16, t: "W" }, { x: 36, y: 70, w: 28, h: 16, t: "H" },
-      { x: 64, y: 14, w: 28, h: 28, t: "B" }, { x: 64, y: 42, w: 28, h: 26, t: "B" },
-      { x: 64, y: 68, w: 28, h: 18, t: "B" },
+    id: "D-HS", code: "033", name: "Half-Stone House", place: "Dilijan", kind: "House",
+    typology: "Garden + lower level", block: "P2", floor: "0 floor", bedrooms: 3, area: 142, terrace: 28,
+    completion: "1Q 2028", level: "Plot 6.0 a", status: "available",
+    note: "Tuff below, timber above",
+    levels: [
+      { caption: "Main level", rooms: [
+        { x: 6, y: 6, w: 54, h: 36, label: "Living", area: 40 },
+        { x: 6, y: 42, w: 32, h: 22, label: "Kitchen", area: 18 },
+        { x: 38, y: 42, w: 22, h: 22, label: "Hall", area: 9 },
+        { x: 60, y: 6, w: 34, h: 32, label: "Study", area: 12 },
+        { x: 60, y: 38, w: 34, h: 26, label: "Wash", area: 6 },
+      ] },
+      { caption: "Lower level", rooms: [
+        { x: 6, y: 6, w: 42, h: 30, label: "Bedroom", area: 22 },
+        { x: 6, y: 36, w: 42, h: 28, label: "Bedroom", area: 18 },
+        { x: 48, y: 6, w: 24, h: 32, label: "Bedroom", area: 17 },
+        { x: 48, y: 38, w: 24, h: 26, label: "Bath", area: 0 },
+        { x: 72, y: 6, w: 22, h: 58, label: "Garden", area: 28, out: true },
+      ] },
     ],
   },
   {
-    id: "D-FG1", name: "Forest Gate 1", place: "Dilijan", kind: "House", bedrooms: 4, area: 168,
-    level: "Plot 8.0 a", status: "available", note: "The largest plot of the lane",
-    plan: [
-      { x: 8, y: 14, w: 44, h: 36, t: "L" }, { x: 8, y: 50, w: 22, h: 36, t: "K" },
-      { x: 30, y: 50, w: 22, h: 18, t: "W" }, { x: 30, y: 68, w: 22, h: 18, t: "H" },
-      { x: 52, y: 14, w: 40, h: 20, t: "B" }, { x: 52, y: 34, w: 40, h: 18, t: "B" },
-      { x: 52, y: 52, w: 40, h: 18, t: "B" }, { x: 52, y: 70, w: 40, h: 16, t: "B" },
+    id: "D-FG1", code: "034", name: "Forest Gate 1", place: "Dilijan", kind: "House",
+    typology: "Duplex", block: "P2", floor: "0 floor", bedrooms: 4, area: 168, terrace: 36,
+    completion: "2Q 2028", level: "Plot 7.5 a", status: "available",
+    note: "Gate on the lane, treeline at the back",
+    levels: [
+      { caption: "Upper level", rooms: [
+        { x: 6, y: 6, w: 52, h: 38, label: "Living", area: 44 },
+        { x: 6, y: 44, w: 30, h: 20, label: "Kitchen", area: 20 },
+        { x: 36, y: 44, w: 22, h: 20, label: "Dining", area: 16 },
+        { x: 58, y: 6, w: 36, h: 32, label: "Bedroom", area: 20 },
+        { x: 58, y: 38, w: 36, h: 26, label: "Bath", area: 8 },
+      ] },
+      { caption: "Lower level", rooms: [
+        { x: 6, y: 6, w: 38, h: 30, label: "Bedroom", area: 22 },
+        { x: 6, y: 36, w: 38, h: 28, label: "Bedroom", area: 18 },
+        { x: 44, y: 6, w: 28, h: 30, label: "Bedroom", area: 14 },
+        { x: 44, y: 36, w: 28, h: 28, label: "Wash", area: 6 },
+        { x: 72, y: 6, w: 22, h: 58, label: "Garden", area: 36, out: true },
+      ] },
     ],
   },
   {
-    id: "S-T2", name: "Shore Terrace 2", place: "Sevan", kind: "Lake house", bedrooms: 2, area: 88,
-    level: "Plot 3.6 a", status: "available", note: "Terrace faces the water",
-    plan: [
-      { x: 8, y: 14, w: 84, h: 16, t: "T" }, { x: 8, y: 30, w: 50, h: 38, t: "L" },
-      { x: 8, y: 68, w: 26, h: 18, t: "K" }, { x: 34, y: 68, w: 24, h: 18, t: "W" },
-      { x: 58, y: 30, w: 34, h: 28, t: "B" }, { x: 58, y: 58, w: 34, h: 28, t: "B" },
+    id: "S-T2", code: "041", name: "Shore Terrace 2", place: "Sevan", kind: "Lake house",
+    typology: "Garden level", block: "S1", floor: "0 floor", bedrooms: 2, area: 88, terrace: 22,
+    completion: "3Q 2027", level: "Plot 3.5 a", status: "available",
+    note: "Set back from the shore road",
+    levels: [
+      { caption: "Main level", rooms: [
+        { x: 6, y: 6, w: 50, h: 36, label: "Living", area: 32 },
+        { x: 6, y: 42, w: 28, h: 22, label: "Kitchen", area: 14 },
+        { x: 34, y: 42, w: 22, h: 22, label: "Hall", area: 7 },
+        { x: 56, y: 6, w: 38, h: 30, label: "Bedroom", area: 18 },
+        { x: 56, y: 36, w: 38, h: 28, label: "Bedroom", area: 17 },
+      ] },
+      { caption: "Terrace", rooms: [
+        { x: 6, y: 6, w: 30, h: 26, label: "Bath", area: 0 },
+        { x: 6, y: 32, w: 30, h: 32, label: "Store", area: 0 },
+        { x: 36, y: 6, w: 58, h: 58, label: "Lake terrace", area: 22, out: true },
+      ] },
     ],
   },
   {
-    id: "S-T4", name: "Shore Terrace 4", place: "Sevan", kind: "Lake house", bedrooms: 3, area: 121,
-    level: "Plot 4.4 a", status: "available", note: "Morning light across the lake",
-    plan: [
-      { x: 8, y: 14, w: 84, h: 14, t: "T" }, { x: 8, y: 28, w: 46, h: 40, t: "L" },
-      { x: 8, y: 68, w: 24, h: 18, t: "K" }, { x: 32, y: 68, w: 22, h: 18, t: "W" },
-      { x: 54, y: 28, w: 38, h: 22, t: "B" }, { x: 54, y: 50, w: 38, h: 20, t: "B" },
-      { x: 54, y: 70, w: 38, h: 16, t: "B" },
+    id: "S-T4", code: "042", name: "Shore Terrace 4", place: "Sevan", kind: "Lake house",
+    typology: "Duplex", block: "S1", floor: "0 floor", bedrooms: 3, area: 121, terrace: 24,
+    completion: "4Q 2027", level: "Plot 4.2 a", status: "reserved",
+    note: "Every main room turned to the water",
+    levels: [
+      { caption: "Upper level", rooms: [
+        { x: 6, y: 6, w: 52, h: 34, label: "Living", area: 34 },
+        { x: 6, y: 40, w: 30, h: 24, label: "Kitchen", area: 16 },
+        { x: 36, y: 40, w: 22, h: 24, label: "Dining", area: 12 },
+        { x: 58, y: 6, w: 36, h: 30, label: "Bedroom", area: 18 },
+        { x: 58, y: 36, w: 36, h: 28, label: "Wash", area: 5 },
+      ] },
+      { caption: "Lower level", rooms: [
+        { x: 6, y: 6, w: 40, h: 30, label: "Bedroom", area: 20 },
+        { x: 6, y: 36, w: 40, h: 28, label: "Bedroom", area: 16 },
+        { x: 46, y: 6, w: 26, h: 58, label: "Bath", area: 0 },
+        { x: 72, y: 6, w: 22, h: 58, label: "Lake terrace", area: 24, out: true },
+      ] },
     ],
   },
   {
-    id: "S-L1", name: "Lighthouse Row 1", place: "Sevan", kind: "Lake house", bedrooms: 3, area: 134,
-    level: "Plot 5.0 a", status: "reserved", note: "End of the row · open horizon",
-    plan: [
-      { x: 8, y: 14, w: 84, h: 16, t: "T" }, { x: 8, y: 30, w: 52, h: 36, t: "L" },
-      { x: 8, y: 66, w: 28, h: 20, t: "K" }, { x: 36, y: 66, w: 24, h: 20, t: "W" },
-      { x: 60, y: 30, w: 32, h: 24, t: "B" }, { x: 60, y: 54, w: 32, h: 18, t: "B" },
-      { x: 60, y: 72, w: 32, h: 14, t: "B" },
+    id: "S-L1", code: "043", name: "Lighthouse Row 1", place: "Sevan", kind: "Lake house",
+    typology: "Garden + lower level", block: "S2", floor: "0 floor", bedrooms: 3, area: 134, terrace: 31,
+    completion: "2Q 2028", level: "Plot 5.0 a", status: "available",
+    note: "The last house before the point",
+    levels: [
+      { caption: "Main level", rooms: [
+        { x: 6, y: 6, w: 54, h: 36, label: "Living", area: 38 },
+        { x: 6, y: 42, w: 30, h: 22, label: "Kitchen", area: 17 },
+        { x: 36, y: 42, w: 24, h: 22, label: "Hall", area: 9 },
+        { x: 60, y: 6, w: 34, h: 32, label: "Bedroom", area: 20 },
+        { x: 60, y: 38, w: 34, h: 26, label: "Bath", area: 6 },
+      ] },
+      { caption: "Lower level", rooms: [
+        { x: 6, y: 6, w: 40, h: 32, label: "Bedroom", area: 24 },
+        { x: 6, y: 38, w: 40, h: 26, label: "Bedroom", area: 20 },
+        { x: 46, y: 6, w: 26, h: 58, label: "Store", area: 0 },
+        { x: 72, y: 6, w: 22, h: 58, label: "Shore garden", area: 31, out: true },
+      ] },
     ],
   },
 ];
@@ -603,10 +772,34 @@ export const homesPage = {
   kicker: "(Available now)",
   title: "HOMES",
   sub: "Twelve homes across three places — apartments in Yerevan, houses in Dilijan, lake houses at Sevan. Tsaghkadzor joins for the winter season.",
-  legend: "L living · K kitchen · B bedroom · W wash · T terrace · H hall — indicative plans",
+  // the reference opens its listing page with three intro blocks; these are ours
+  intro: [
+    {
+      title: "Boutique by count",
+      copy: "Every address we take on is under thirty homes. The list you are reading is the whole of it — not a selection from a larger stock.",
+    },
+    {
+      title: "Built to stay",
+      copy: "Local tuff and basalt, timber cut and dried in country, deep-set windows. Nothing is finished in a material that looks tired in five winters.",
+    },
+    {
+      title: "Handed over finished",
+      copy: "Floors laid, kitchen fitted, bathrooms tiled, doors hung. What is left for the owner is furniture and opinion.",
+    },
+  ],
+  legend: "Plans are indicative and drawn to the room schedule — areas are measured to the inside face of the wall.",
+  typologyLabel: "Typology",
   bedsLabel: "Bedrooms",
-  bedsAny: "Any",
+  sortLabel: "Sort by",
+  resetLabel: "Reset",
+  allLabel: "All",
+  bedsAny: "All",
   beds3plus: "3+",
+  sortOptions: [
+    { v: "relevant", label: "Relevant" },
+    { v: "smallest", label: "Smallest area" },
+    { v: "largest", label: "Largest area" },
+  ] as const,
   onlyAvailable: "Only available",
   placeAll: "All places",
   soon: "Tsaghkadzor — soon",
@@ -614,6 +807,32 @@ export const homesPage = {
   empty: "Nothing matches that mix — loosen a filter, or call us: the list moves weekly.",
   ask: "Ask about",
   statusLabel: { available: "Available", reserved: "Reserved" },
+  // the sticky side panel
+  panel: { title: ["SELECT", "A HOME"], call: "Book a call", contact: "Contact" },
+  completionLabel: "Completion",
+  terraceLabel: "Terrace",
+  // /homes/[id]
+  detail: {
+    back: "All homes",
+    plansLabel: "The plans",
+    specLabel: "The schedule",
+    galleryLabel: "The finish",
+    nearbyLabel: "Other homes here",
+    callLabel: "Ask about this home",
+    callCopy: "Fifteen minutes on the phone settles whether this one fits how you actually live — and what else is coming to the list.",
+    spec: {
+      code: "Reference",
+      typology: "Typology",
+      place: "Place",
+      block: "Block",
+      floor: "Level",
+      bedrooms: "Bedrooms",
+      area: "Interior area",
+      terrace: "Terrace",
+      completion: "Completion",
+      status: "Status",
+    },
+  },
   tiles: [
     { img: phBalcony, alt: "A planted balcony with a cushioned sofa and flowering pots" },
     { img: phStair, alt: "A cream plaster stair rising into soft light" },
