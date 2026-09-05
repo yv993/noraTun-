@@ -358,6 +358,22 @@ export default function HomesView() {
           },
         });
       });
+
+      // the title's letters — and the count's digits after them — rise one by
+      // one out of their own clip boxes: the reference's split-char arrival.
+      // Parked here at effect time, never in CSS, so a reader without motion
+      // (or without JS) sees the word standing at rest.
+      const chars = el.querySelectorAll<HTMLElement>(".hp-title__ch > span");
+      if (chars.length) {
+        gsap.set(chars, { yPercent: 112 });
+        gsap.to(chars, {
+          yPercent: 0,
+          duration: 0.9,
+          ease: "power3.out",
+          stagger: 0.05,
+          delay: 0.1,
+        });
+      }
     });
 
     // this view mounts post-hydration and the filters change the page height,
@@ -448,24 +464,36 @@ export default function HomesView() {
             </svg>
           </div>
 
-          <span className="n-label" data-rise>
-            {homesPage.kicker}
-          </span>
-          <h1 className="hp-title" data-rise>
-            {homesPage.title}
-          </h1>
-          <p className="hp-sub" data-rise>
-            {homesPage.sub}
-          </p>
-
-          {/* three intro blocks, the reference's own device */}
-          <div className="hp-intro" data-rise>
-            {homesPage.intro.map((b) => (
-              <div key={b.title}>
-                <h2>{b.title}</h2>
-                <p>{b.copy}</p>
-              </div>
-            ))}
+          {/* THE HEAD, THE REFERENCE'S WAY (client, 2026-09-05): the word alone,
+              tall and light, the count of homes at the far right in the same
+              face, and the filter row straight beneath — nothing in between.
+              Each letter sits in its own clip box so the arrival below can
+              lift it in on its own; the h1 keeps the whole word as its name,
+              so a reader hears "Homes", not five letters. */}
+          <div className="hp-head">
+            <h1 className="hp-title" aria-label={homesPage.title}>
+              <span className="hp-title__word" aria-hidden="true">
+                {homesPage.title.split("").map((ch, i) => (
+                  <span className="hp-title__ch" key={i}>
+                    <span>{ch}</span>
+                  </span>
+                ))}
+              </span>
+            </h1>
+            <p
+              className="hp-title__count"
+              aria-label={`${listings.length} ${homesPage.title.toLowerCase()}`}
+            >
+              <span aria-hidden="true">
+                {String(listings.length)
+                  .split("")
+                  .map((ch, i) => (
+                    <span className="hp-title__ch" key={i}>
+                      <span>{ch}</span>
+                    </span>
+                  ))}
+              </span>
+            </p>
           </div>
 
           <div className="hp-filter" data-rise>
@@ -595,6 +623,22 @@ export default function HomesView() {
           ) : (
             <p className="hp-empty">{homesPage.empty}</p>
           )}
+
+          {/* the pitch and the three intro blocks: the reference keeps its
+              head to the word and the count, so these follow the list */}
+          <div className="hp-about">
+            <p className="hp-sub" data-rise>
+              {homesPage.sub}
+            </p>
+            <div className="hp-intro" data-rise>
+              {homesPage.intro.map((b) => (
+                <div key={b.title}>
+                  <h2>{b.title}</h2>
+                  <p>{b.copy}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </section>
 
         <aside className="hp-panel" aria-label="Enquire">

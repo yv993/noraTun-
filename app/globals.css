@@ -1104,7 +1104,7 @@ ol {
   display: grid;
   place-content: center;
   gap: clamp(20px, 3.5vh, 40px);
-  padding: clamp(90px, 15vh, 180px) var(--gutter);
+  padding: clamp(56px, min(15vh, 14vw), 180px) var(--gutter);
   text-align: center;
 }
 .n-bloom__vine {
@@ -1482,7 +1482,7 @@ ol {
 /* ---- 5 · CONCEPT (cream) ---- */
 .n-concept {
   background: var(--cream);
-  padding: clamp(90px, 15vh, 180px) var(--gutter);
+  padding: clamp(56px, min(15vh, 14vw), 180px) var(--gutter);
   display: grid;
   gap: clamp(30px, 5vh, 60px);
   justify-items: center;
@@ -1517,8 +1517,8 @@ ol {
 }
 .n-loc__track {
   display: grid;
-  gap: clamp(70px, 12vh, 140px);
-  padding: clamp(90px, 15vh, 180px) var(--gutter);
+  gap: clamp(52px, min(12vh, 13vw), 140px);
+  padding: clamp(56px, min(15vh, 14vw), 180px) var(--gutter);
 }
 .n-loc__panel {
   position: relative;
@@ -1860,7 +1860,7 @@ ol {
   color: var(--cream);
   display: grid;
   align-content: end;
-  padding: clamp(60px, 10vh, 120px) var(--gutter);
+  padding: clamp(48px, min(10vh, 12vw), 120px) var(--gutter);
 }
 /* the top edge dissolves into the cream above it. The photograph and the
    cloud band both start hard against the section's edge, which read as a
@@ -1986,7 +1986,7 @@ ol {
 .n-cols {
   background: var(--lake);
   color: var(--wine);
-  padding: clamp(90px, 15vh, 180px) var(--gutter);
+  padding: clamp(56px, min(15vh, 14vw), 180px) var(--gutter);
   display: grid;
   gap: clamp(40px, 7vh, 90px);
 }
@@ -2003,7 +2003,11 @@ ol {
 }
 .n-cards {
   display: grid;
-  gap: clamp(60px, 10vh, 130px);
+  gap: clamp(48px, min(10vh, 12vw), 130px);
+}
+/* the phone rail's position readout — hidden wherever the cards stack */
+.n-cards__at {
+  display: none;
 }
 .n-card {
   display: grid;
@@ -2585,7 +2589,8 @@ ol {
 .n-amen__list {
   position: relative;
   z-index: 2;
-  padding: clamp(90px, 15vh, 170px) var(--gutter) clamp(90px, 15vh, 170px);
+  padding: clamp(56px, min(15vh, 14vw), 170px) var(--gutter)
+    clamp(56px, min(15vh, 14vw), 170px);
   display: grid;
   gap: clamp(40px, 8vh, 90px);
   color: var(--cream);
@@ -2710,7 +2715,7 @@ ol {
 .n-inter__statement {
   /* sized so the longest line still sets on one line under the step-in */
   width: min(100%, 1340px);
-  margin: clamp(50px, 9vh, 110px) auto 0;
+  margin: clamp(40px, min(9vh, 11vw), 110px) auto 0;
   text-align: left;
   font-family: var(--font-display);
   font-weight: 700;
@@ -2983,8 +2988,10 @@ ol {
     left: -135%;
     width: 235%;
   }
-  .n-archseq__panel img {
-    object-fit: cover;
+  .n-archseq__slide {
+    background-image: url("/img/architecture-1920.webp");
+    background-size: cover;
+    background-position: 50% 50%;
   }
   /* the word over the covered screen; each letter rises out of its own mask */
   .n-archseq__word {
@@ -3035,9 +3042,16 @@ ol {
    sequence above carries it and this is hidden */
 .n-archi {
   background: var(--cream);
-  padding: clamp(60px, 10vh, 130px) var(--gutter);
+  padding: clamp(48px, min(10vh, 12vw), 130px) var(--gutter);
   display: grid;
   justify-items: center;
+}
+/* the phone's stand-in for the architecture sequence — shown only below 861
+   (see the phone block); at every other width the sequence itself carries the
+   chapter and these are hidden, which also stops their lazy images fetching */
+.n-archi__pair,
+.n-archi__copy {
+  display: none;
 }
 .n-archi__word {
   font-family: var(--font-display);
@@ -3148,7 +3162,7 @@ ol {
 .n-views__note {
   background: var(--wine);
   color: var(--on-wine);
-  padding: clamp(50px, 9vh, 110px) var(--gutter) 0;
+  padding: clamp(40px, min(9vh, 11vw), 110px) var(--gutter) 0;
   display: grid;
   justify-items: center;
 }
@@ -3180,7 +3194,7 @@ ol {
   min-height: 100svh;
   display: grid;
   place-content: center;
-  padding: clamp(90px, 15vh, 180px) var(--gutter);
+  padding: clamp(56px, min(15vh, 14vw), 180px) var(--gutter);
   text-align: center;
 }
 .n-creds__list {
@@ -3269,7 +3283,7 @@ ol {
   background: var(--wine);
   color: var(--on-wine);
   text-align: center;
-  padding: clamp(110px, 18vh, 210px) var(--gutter);
+  padding: clamp(64px, min(18vh, 16vw), 210px) var(--gutter);
   display: grid;
   gap: clamp(24px, 4vh, 44px);
   justify-items: center;
@@ -3306,7 +3320,7 @@ ol {
   background: var(--wine);
   color: var(--on-wine);
   text-align: center;
-  padding: clamp(60px, 10vh, 110px) var(--gutter) 30px;
+  padding: clamp(48px, min(10vh, 12vw), 110px) var(--gutter) 30px;
   display: grid;
 }
 .n-foot__in {
@@ -3462,7 +3476,8 @@ ol {
 }
 .hp-list {
   position: relative;
-  padding: clamp(90px, 15vh, 170px) 0 clamp(70px, 12vh, 140px);
+  padding: clamp(56px, min(15vh, 14vw), 170px) 0
+    clamp(52px, min(12vh, 13vw), 140px);
   display: grid;
   justify-items: start;
   gap: clamp(12px, 2vh, 22px);
@@ -3477,13 +3492,61 @@ ol {
   pointer-events: none;
 }
 /* 172.8/1440 = 12vw */
-.hp-title {
+/* ---- the head, the reference's way (client, 2026-09-05) -----------------
+   The word alone at the reference's 172.8px, weight 400, line-height 0.87,
+   -0.024em, with the count of homes at the far right in the same face and
+   the filter row straight beneath. Their face is a condensed didone; Bodoni
+   Moda has no width axis, so the word is set at their size and weight and
+   drawn narrow with the scaleX idiom the side panel's title already uses —
+   0.72 puts a letter at their measured 77px advance. Each letter is a box
+   that clips only vertically, so a serif can still reach past its neighbour
+   while the glyph rises in from below. */
+.hp-head {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: clamp(16px, 3vw, 48px);
+}
+.hp-title,
+.hp-title__count {
+  margin: 0;
   font-family: var(--font-display);
-  font-weight: 700;
+  font-weight: 400;
   font-size: clamp(3rem, 12vw, 10.8rem);
   line-height: 0.87;
   letter-spacing: -0.024em;
   text-transform: uppercase;
+  white-space: nowrap;
+  font-variant-numeric: lining-nums;
+}
+.hp-title__word,
+.hp-title__count > span {
+  display: inline-block;
+  transform: scaleX(0.72);
+  transform-origin: 0 100%;
+}
+.hp-title__count > span {
+  transform-origin: 100% 100%;
+}
+.hp-title__ch {
+  display: inline-block;
+  overflow-y: clip;
+  overflow-x: visible;
+  vertical-align: top;
+  padding-top: 0.06em;
+  margin-top: -0.06em;
+}
+.hp-title__ch > span {
+  display: inline-block;
+}
+/* the pitch and the intro blocks, after the list */
+.hp-about {
+  width: 100%;
+  margin-top: clamp(44px, 8vh, 96px);
+  padding-top: clamp(24px, 4vh, 40px);
+  border-top: 1px solid color-mix(in srgb, var(--wine) 16%, transparent);
 }
 .hp-sub {
   max-width: 46ch;
@@ -3519,9 +3582,11 @@ ol {
    style so it belongs to the same drawing. */
 .hp-filter {
   width: 100%;
-  margin-top: clamp(28px, 6vh, 70px);
-  padding-top: clamp(18px, 3vh, 30px);
-  border-top: 1px solid color-mix(in srgb, var(--wine) 16%, transparent);
+  /* straight under the head, in the reference's hairline frame */
+  margin-top: clamp(22px, 4vh, 44px);
+  padding: clamp(16px, 2.4vh, 24px) clamp(18px, 2.4vw, 32px);
+  border: 1px solid color-mix(in srgb, var(--wine) 16%, transparent);
+  border-radius: 18px;
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
@@ -3954,7 +4019,8 @@ body:has(.hp) .n-nav__cta {
   background: var(--wine);
   color: var(--on-wine);
   text-align: center;
-  padding: clamp(110px, 18vh, 210px) var(--gutter) clamp(90px, 14vh, 170px);
+  padding: clamp(64px, min(18vh, 16vw), 210px) var(--gutter)
+    clamp(56px, min(14vh, 14vw), 170px);
   display: grid;
   gap: clamp(20px, 3.4vh, 40px);
   justify-items: center;
@@ -4224,7 +4290,7 @@ body:has(.hp) .n-nav__cta {
   background: var(--wine);
   color: var(--on-wine);
   text-align: center;
-  padding: clamp(90px, 15vh, 180px) var(--gutter);
+  padding: clamp(56px, min(15vh, 14vw), 180px) var(--gutter);
   display: grid;
   gap: clamp(20px, 3.4vh, 40px);
   justify-items: center;
@@ -4511,7 +4577,8 @@ body:has(.n-sheet) .n-seal {
 .n-legal {
   max-width: 74ch;
   margin: 0 auto;
-  padding: clamp(110px, 16vh, 180px) var(--gutter) clamp(56px, 9vh, 110px);
+  padding: clamp(60px, min(16vh, 15vw), 180px) var(--gutter)
+    clamp(56px, 9vh, 110px);
 }
 .n-legal h1 {
   font-family: var(--font-display);
@@ -4552,7 +4619,7 @@ body:has(.n-sheet) .n-seal {
   display: grid;
   align-content: center;
   gap: clamp(16px, 2.6vh, 28px);
-  padding: clamp(110px, 16vh, 180px) var(--gutter);
+  padding: clamp(60px, min(16vh, 15vw), 180px) var(--gutter);
 }
 .n-stop .code {
   font-family: var(--font-script);
@@ -4842,6 +4909,11 @@ body:has(.n-sheet) .n-seal {
   }
   .n-hero__switch {
     bottom: clamp(86px, 16vh, 130px);
+    /* shrink-to-fit against `left: 50%` caps this at half the screen: at
+       12px the two words no longer fitted and the buttons wrapped to
+       "BY / DAY". Size it to its content, as the pill does. */
+    width: max-content;
+    max-width: calc(100vw - 2 * var(--gutter));
     /* a scrim behind the two words only — the photograph itself is untouched
        and the band fades out at both ends so it reads as light, not a bar */
     padding-inline: 18px;
@@ -4858,6 +4930,7 @@ body:has(.n-sheet) .n-seal {
     font-size: 12px;
     letter-spacing: 0.14em;
     opacity: 0.7;
+    white-space: nowrap;
   }
   .n-hero__switch button.on {
     opacity: 1;
@@ -5083,6 +5156,148 @@ body:has(.n-sheet) .n-seal {
   .n-archi__word {
     font-size: min(10vw, 10rem);
   }
+  .n-archi {
+    gap: 26px;
+    justify-items: stretch;
+  }
+  /* the same two-window device as the desktop sequence, at phone scale: the
+     frames divide 1.35 : 1, so the picture sits at 174.074% inside the left
+     and 235% inside the right, offset by -135% of its own width. Closing the
+     gap puts the two halves back into register as one photograph. */
+  .n-archi__pair {
+    --gap: 14px;
+    display: flex;
+    gap: var(--gap);
+    width: 100%;
+    aspect-ratio: 5 / 4;
+    transition: gap 380ms var(--ease);
+  }
+  .n-archi__pair[data-joined] {
+    --gap: 0px;
+  }
+  .n-archi__pair .n-archseq__panel {
+    position: relative;
+    margin: 0;
+    overflow: clip;
+  }
+  .n-archi__pair .n-archseq__panel.is-l {
+    flex: 1.35 1 0;
+  }
+  .n-archi__pair .n-archseq__panel.is-r {
+    flex: 1 1 0;
+  }
+  .n-archi__pair .n-archseq__slide {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+  }
+  .n-archi__pair .n-archseq__slide {
+    /* declared only inside this query, so no wider viewport ever fetches it */
+    background-image: image-set(
+      url("/img/architecture-760.webp") 1x,
+      url("/img/architecture-1200.webp") 2x
+    );
+    background-size: cover;
+    background-position: 50% 50%;
+  }
+  .n-archi__pair .n-archseq__panel.is-l .n-archseq__slide {
+    left: 0;
+    width: 174.074%;
+  }
+  .n-archi__pair .n-archseq__panel.is-r .n-archseq__slide {
+    left: -135%;
+    width: 235%;
+  }
+  .n-archi__copy {
+    display: block;
+    margin: 0;
+    max-width: 46ch;
+    text-wrap: pretty;
+    color: color-mix(in srgb, var(--wine) 82%, transparent);
+  }
+
+  /* ---- WP13 · the two screens that hold one line each --------------------
+     .n-inter__stack was a full 844px viewport carrying 21 characters, with
+     the statement stranded in its own block below. They read as one thing;
+     on a phone they are set as one. */
+  .n-inter__stack {
+    min-height: 0;
+    padding-top: clamp(48px, 12vh, 120px);
+    padding-bottom: 0;
+  }
+  .n-inter__statement {
+    margin-top: 22px;
+  }
+  .n-inter__statement > span:first-child {
+    margin-left: 0;
+  }
+  /* the dome's crown is a half-circle of the band's WIDTH; forcing a full
+     screen underneath it left 69% of the band flat lake blue on a phone.
+     The crest keeps its geometry, the empty field below it goes. */
+  .n-arc {
+    min-height: max(50vw, 62svh);
+  }
+
+  /* ---- WP12 · skip the style and layout of what is not on screen ---------
+     First paint was gated by two ~800ms style/layout tasks over the whole
+     document. Every intrinsic size below is this band's REAL rendered height
+     at 390 (measured after the WP13 changes, not estimated) — a wrong number
+     puts every ScrollTrigger below it on a stale document. `auto` in front of
+     it means the browser replaces the guess with the real size the moment the
+     band has been laid out once.
+     The hero is deliberately absent: it is the first paint. */
+  .n-arc {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 523px;
+  }
+  .n-place {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 844px;
+  }
+  .n-pull {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 844px;
+  }
+  .n-bloom {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 776px;
+  }
+  .n-loc {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 2226px;
+  }
+  .n-sky {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 844px;
+  }
+  .n-cols {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 1349px;
+  }
+  .n-amen {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 1848px;
+  }
+  .n-inter {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 3526px;
+  }
+  .n-warea {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 595px;
+  }
+  .n-creds {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 844px;
+  }
+  .n-views {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 844px;
+  }
+  .n-foot {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 663px;
+  }
   /* /homes: the place rail becomes a sticky chip row; grid single-column */
   .hp-rail {
     position: sticky;
@@ -5213,8 +5428,54 @@ body:has(.n-sheet) .n-seal {
     order: 0;
     text-align: left;
   }
+  /* ---- WP13 · the four collections ------------------------------------
+     Measured: 3,285px — 3.9 viewports — of four near-identical stacked
+     blocks, where a wide screen gets one pinned screen. A snapped rail
+     instead: one card at a time, the page's own vertical scroll untouched
+     because touch-action hands vertical gestures straight back. */
+  .n-cards {
+    grid-auto-flow: column;
+    grid-auto-columns: 84vw;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    touch-action: pan-x pan-y;
+    gap: 16px;
+    padding-bottom: 4px;
+    scroll-padding-inline: var(--gutter);
+    scrollbar-width: none;
+  }
+  .n-cards::-webkit-scrollbar {
+    display: none;
+  }
   .n-card {
     grid-template-columns: 1fr;
+    scroll-snap-align: center;
+  }
+  .n-cards__at {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 18px 0 0;
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    font-variant-numeric: tabular-nums;
+    color: color-mix(in srgb, var(--wine) 78%, transparent);
+  }
+  .n-cards__at .bar {
+    flex: 1 1 auto;
+    height: 1px;
+    background: color-mix(in srgb, var(--wine) 22%, transparent);
+    overflow: hidden;
+  }
+  .n-cards__at .bar i {
+    display: block;
+    height: 100%;
+    background: currentColor;
+    transform-origin: left center;
+    transition: transform 320ms var(--ease);
   }
   .n-card__spec {
     grid-auto-flow: column;
@@ -5312,6 +5573,10 @@ body:has(.n-sheet) .n-seal {
   .n-seal__ring {
     animation: none;
   }
+  .n-archi__pair {
+    --gap: 0px;
+    transition: none;
+  }
   /* the progress hairline rests full-width rather than tracking the scroll */
   .n-nav::before {
     transform: none;
@@ -5349,8 +5614,8 @@ html:not(.js) .n-loc__track {
   display: grid;
   width: auto;
   height: auto;
-  padding: clamp(90px, 15vh, 180px) var(--gutter);
-  gap: clamp(70px, 12vh, 140px);
+  padding: clamp(56px, min(15vh, 14vw), 180px) var(--gutter);
+  gap: clamp(52px, min(12vh, 13vw), 140px);
 }
 html:not(.js) .n-loc__panel {
   width: auto;
@@ -5380,9 +5645,87 @@ html:not(.js) .n-bloom__line {
   --w: 700;
   letter-spacing: 0.01em;
 }
+html:not(.js) .n-archi__pair {
+  --gap: 0px;
+}
 html:not(.js) .n-loc__card {
   opacity: 1;
   transform: none;
+}
+
+/* ==========================================================================
+   TABLET TIER — 701 to 860.
+   The single max-width:860px handed the full PHONE layout to every iPad in
+   portrait (834 and 768 both match it): one 767px column of body copy, lists
+   that fit two columns forced to one, and the rail, the pins and the phone
+   number all hidden. This block restores what a tablet has room for, without
+   touching either the phone block above it or the desktop values below.
+   ========================================================================== */
+@media (min-width: 701px) and (max-width: 860px) {
+  /* a 767px measure is twice a comfortable line; 62ch is the ceiling */
+  p {
+    max-width: 62ch;
+  }
+  /* the phone block frees this one to fill the clipped concept panel; on a
+     tablet the panel is wide enough for the measure to matter again */
+  .n-loc__side {
+    max-width: 62ch;
+  }
+  /* the collections stack again — a snapped rail is a phone gesture */
+  .n-cards {
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
+    overflow-x: visible;
+    scroll-snap-type: none;
+    touch-action: auto;
+    gap: clamp(48px, min(10vh, 12vw), 130px);
+  }
+  .n-cards__at {
+    display: none;
+  }
+  .n-card {
+    grid-template-columns: 1fr 1.4fr;
+    scroll-snap-align: none;
+  }
+  .n-inter__lists {
+    grid-template-columns: repeat(2, minmax(0, 320px));
+  }
+  /* the hotspot pins: the crop is wide enough here for them to sit on their
+     features, and a tablet's focus ring reaches the labels */
+  .n-pin {
+    display: block;
+  }
+  /* the number reads, so the glyph stands down */
+  .n-chrome .n-nav .phone__ico {
+    display: none;
+  }
+  .n-chrome .n-nav .phone__txt {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+    font-family: var(--font-display);
+    font-size: 15px;
+    letter-spacing: 0.04em;
+    text-transform: none;
+  }
+  /* the chapter index belongs to the phone; the rail carries the coordinate */
+  .n-chrome .n-nav__idx {
+    display: none;
+  }
+  /* the catalogue fits two across */
+  .hp-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  /* the architecture pair is the phone's stand-in for the sequence */
+  .n-archi__pair,
+  .n-archi__copy {
+    display: none;
+  }
+  .n-archi {
+    gap: 0;
+  }
 }
 
 /* ==========================================================================
@@ -5469,8 +5812,8 @@ html:not(.js) .n-loc__card {
 .n-rail__go svg[data-up] {
   transform: rotate(180deg);
 }
-@media (max-width: 860px) {
+@media (max-width: 700px) {
   .n-rail {
-    display: none; /* the bottom nav pill owns small screens */
+    display: none; /* the bottom nav pill owns PHONE screens */
   }
 }
