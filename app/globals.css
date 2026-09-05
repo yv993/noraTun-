@@ -4,6 +4,12 @@
    apricot accent — same three-tone structure, different country. */
 
 :root {
+  /* The lane the fixed chrome occupies on a phone. Content reserves it so the
+     seal and the nav pill stop landing on live text and CTAs, and the two
+     scroll-padding values keep focus and anchors out from under them. */
+  --chrome-top: calc(84px + env(safe-area-inset-top, 0px));
+  /* 84 = the pill's 14px offset + its measured 61px two-row height + clearance */
+  --chrome-b: calc(84px + env(safe-area-inset-bottom, 0px));
   --cream: #f4f2ea;
   --wine: #33121f;
   --lake: #afc8ce;
@@ -16,7 +22,12 @@
   --sky-top: #114278;
   --sky-mid: #1a579f;
   --sky-horizon: #2d77c5;
-  --sky-gradient: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 50%, var(--sky-horizon) 100%);
+  --sky-gradient: linear-gradient(
+    180deg,
+    var(--sky-top) 0%,
+    var(--sky-mid) 50%,
+    var(--sky-horizon) 100%
+  );
   /* the seam: the CSS sky must end in the photograph's own sky colour at its
      top edge, sampled from the file — deep blue, darker on the left and
      lighter on the right — so the two meet with nothing to hide */
@@ -38,7 +49,11 @@
   --font-display: var(--font-bodoni), "Bodoni MT", Georgia, serif;
   --font-script: var(--font-pinyon), cursive;
 
-  --gutter: max(clamp(20px, 4vw, 64px), env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+  --gutter: max(
+    clamp(20px, 4vw, 64px),
+    env(safe-area-inset-left, 0px),
+    env(safe-area-inset-right, 0px)
+  );
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
@@ -74,6 +89,28 @@ button {
   border: 0;
   padding: 0;
   cursor: pointer;
+}
+/* Android paints a default cyan flash on every tap. :where() keeps this at
+   zero specificity so any rule below can still override it. */
+:where(a, button, [role="button"], summary) {
+  -webkit-tap-highlight-color: color-mix(in srgb, var(--wine) 14%, transparent);
+}
+/* the site had exactly ONE :active rule in 4,600 lines — a cursor. A press
+   needs to answer in the site's own language: the pill dips, the filter chips
+   take a wash of wine. */
+.n-pill:active {
+  transform: translateY(1px) scale(0.985);
+}
+.hp-filter__opts button:active,
+.hp-filter__reset:active:not(:disabled),
+.hp-rail button:active {
+  background: color-mix(in srgb, var(--wine) 10%, transparent);
+}
+.n-nav > a:active,
+.n-nav > button:active,
+.n-foot a:active,
+.n-creds__btn:active {
+  opacity: 0.6;
 }
 h1,
 h2,
@@ -122,7 +159,8 @@ ol {
   outline-offset: 3px;
   border-radius: 3px;
 }
-:where(.n-hero, .n-loc, .n-cta, .n-foot, .n-amen, .hp-tail) :where(a, button, [tabindex]):focus-visible {
+:where(.n-hero, .n-loc, .n-cta, .n-foot, .n-amen, .hp-tail)
+  :where(a, button, [tabindex]):focus-visible {
   outline-color: var(--cream);
 }
 
@@ -153,10 +191,14 @@ ol {
   font-size: 12.5px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  transition: transform 220ms var(--ease), background 220ms var(--ease);
+  transition:
+    transform 220ms var(--ease),
+    background 220ms var(--ease);
 }
-.n-pill:hover {
-  transform: translateY(-2px);
+@media (hover: hover) and (pointer: fine) {
+  .n-pill:hover {
+    transform: translateY(-2px);
+  }
 }
 .n-pill.is-light {
   background: var(--cream);
@@ -216,15 +258,24 @@ ol {
    dark decorative element (a vine, a photograph) drifts underneath it */
 .n-chrome .n-seal:not(.is-dark),
 .n-nav:not(.is-dark) {
-  text-shadow: 0 0 10px var(--cream), 0 0 22px var(--cream);
+  text-shadow:
+    0 0 10px var(--cream),
+    0 0 22px var(--cream);
 }
 .n-seal svg {
   width: 100%;
   height: 100%;
   display: block;
 }
+/* The spin is on this WRAPPER DIV, never on the <svg>. Animating a transform
+   on an SVG element makes the engine re-raster it every frame — measured 765
+   Paint + 765 Layout + 765 Raster per 10 idle seconds, 8.2 s of main thread.
+   On a div it is a compositor-only transform: 0 paints. */
 .n-seal__ring {
+  width: 100%;
+  height: 100%;
   animation: n-seal-spin 24s linear infinite;
+  will-change: transform;
 }
 /* the botanical crest sits still inside the turning ring. Its petals reach
    54% of the seal, which leaves a clear band of ~10px inside the text ring. */
@@ -289,10 +340,12 @@ ol {
   text-shadow: inherit;
   line-height: inherit;
 }
-.n-nav > a:hover,
-.n-nav > button:hover {
-  opacity: 1;
-  text-decoration: none; /* the roll is the hover, not an underline */
+@media (hover: hover) and (pointer: fine) {
+  .n-nav > a:hover,
+  .n-nav > button:hover {
+    opacity: 1;
+    text-decoration: none; /* the roll is the hover, not an underline */
+  }
 }
 /* the hairline lockup: two display lines split by a rule the width of the
    longer line, the block itself right-aligned with the links beneath */
@@ -319,10 +372,15 @@ ol {
 .n-wv {
   display: inline-block;
 }
-.n-nav__cta:hover .n-wv,
 .n-nav__cta:focus-visible .n-wv {
   animation: n-wave 620ms var(--ease);
   animation-delay: calc(var(--i) * 26ms);
+}
+@media (hover: hover) and (pointer: fine) {
+  .n-nav__cta:hover .n-wv {
+    animation: n-wave 620ms var(--ease);
+    animation-delay: calc(var(--i) * 26ms);
+  }
 }
 @keyframes n-wave {
   0%,
@@ -348,11 +406,15 @@ ol {
   display: block;
   line-height: 1.6;
 }
-.n-nav a:hover .n-roll > span,
-.n-nav button:hover .n-roll > span,
 .n-nav a:focus-visible .n-roll > span,
 .n-nav button:focus-visible .n-roll > span {
   translate: 0 -50%;
+}
+@media (hover: hover) and (pointer: fine) {
+  .n-nav a:hover .n-roll > span,
+  .n-nav button:hover .n-roll > span {
+    translate: 0 -50%;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .n-nav__cta:hover .n-wv,
@@ -372,8 +434,10 @@ ol {
   opacity: 0.9;
   transition: transform 300ms var(--ease);
 }
-.n-nav__cta:hover i {
-  transform: scaleX(1.05);
+@media (hover: hover) and (pointer: fine) {
+  .n-nav__cta:hover i {
+    transform: scaleX(1.05);
+  }
 }
 @media (min-width: 861px) {
   /* the lockup already points at the homes: drop the duplicate plain link */
@@ -392,6 +456,104 @@ ol {
   font-size: 15px;
   letter-spacing: 0.04em;
   text-transform: none;
+}
+/* wide screens read the number itself; the glyph is the phone-width cap */
+.n-nav .phone__ico {
+  display: none;
+}
+/* the chapter index belongs to phone widths only: above 860 the side rail
+   already carries the page's coordinate */
+.n-nav__idx {
+  display: none;
+}
+/* the focus ring is wine, which measured 1.7-2.2:1 against the dark bands the
+   chrome flips over */
+.n-chrome .is-dark:focus-visible,
+.n-chrome .is-dark :focus-visible {
+  outline-color: var(--cream);
+}
+
+/* ==========================================================================
+   The chapter sheet — the phone's stand-in for the side rail. Same contract
+   as the call dialog: labelled, focus-trapped, Escape and veil close, focus
+   returned to the trigger.
+   ========================================================================== */
+.n-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 240;
+  display: flex;
+  align-items: flex-end;
+}
+.n-sheet__veil {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  background: color-mix(in srgb, var(--wine) 78%, transparent);
+  backdrop-filter: blur(3px);
+  cursor: pointer;
+}
+.n-sheet__card {
+  position: relative;
+  width: 100%;
+  max-height: 86svh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--cream);
+  color: var(--wine);
+  border-radius: 20px 20px 0 0;
+  padding: 22px var(--gutter) calc(18px + env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -20px 60px rgba(21, 43, 60, 0.28);
+}
+.n-sheet__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+.n-sheet__list a {
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  align-items: baseline;
+  gap: 12px;
+  min-height: 46px;
+  padding: 12px 0;
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--wine) 14%, transparent);
+}
+.n-sheet__list i {
+  font-family: var(--font-sans);
+  font-style: normal;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.55;
+}
+.n-sheet__list span {
+  font-family: var(--font-display);
+  font-size: 17px;
+  line-height: 1.14;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+.n-sheet__x {
+  margin-top: 16px;
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid color-mix(in srgb, var(--wine) 26%, transparent);
+  border-radius: 999px;
+  background: none;
+  color: inherit;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
 }
 
 /* ==========================================================================
@@ -439,7 +601,12 @@ ol {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, var(--night-top) 0svh, var(--night-seam) 50svh, var(--night-seam) 100%);
+  background: linear-gradient(
+    180deg,
+    var(--night-top) 0svh,
+    var(--night-seam) 50svh,
+    var(--night-seam) 100%
+  );
   opacity: 0;
   transition: opacity 700ms var(--ease);
 }
@@ -504,9 +671,13 @@ ol {
   -webkit-backdrop-filter: blur(2px);
   transition: transform 300ms var(--ease);
 }
-.n-pin:hover .n-pin__ring,
 .n-pin:focus-visible .n-pin__ring {
   transform: scale(1.25);
+}
+@media (hover: hover) and (pointer: fine) {
+  .n-pin:hover .n-pin__ring {
+    transform: scale(1.25);
+  }
 }
 .n-pin__beacon {
   position: absolute;
@@ -550,9 +721,13 @@ ol {
   transition: opacity 200ms var(--ease);
   pointer-events: none;
 }
-.n-pin:hover .n-pin__label,
 .n-pin:focus-visible .n-pin__label {
   opacity: 1;
+}
+@media (hover: hover) and (pointer: fine) {
+  .n-pin:hover .n-pin__label {
+    opacity: 1;
+  }
 }
 @keyframes n-ping {
   75%,
@@ -696,8 +871,10 @@ ol {
   text-shadow: var(--hero-shadow);
   transition: opacity 250ms var(--ease);
 }
-.n-hero__switch button:hover {
-  opacity: 0.8;
+@media (hover: hover) and (pointer: fine) {
+  .n-hero__switch button:hover {
+    opacity: 0.8;
+  }
 }
 .n-hero__switch button.on {
   opacity: 1;
@@ -748,7 +925,13 @@ ol {
      dissolve */
   .n-hero__sky {
     height: 72svh;
-    background: linear-gradient(180deg, var(--sky-top) 0svh, var(--sky-mid) 30svh, var(--sky-seam) 50svh, var(--sky-seam) 72svh);
+    background: linear-gradient(
+      180deg,
+      var(--sky-top) 0svh,
+      var(--sky-mid) 30svh,
+      var(--sky-seam) 50svh,
+      var(--sky-seam) 72svh
+    );
   }
   /* the photograph's sky darkens to the left; this band under the seam
      carries the same drift, fading in over the last 20svh above it */
@@ -759,9 +942,24 @@ ol {
     right: 0;
     top: 30svh;
     bottom: 0;
-    background: linear-gradient(to right, var(--sky-seam-l), var(--sky-seam-m) 50%, var(--sky-seam-r));
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 20svh, #000 100%);
-    mask-image: linear-gradient(to bottom, transparent 0, #000 20svh, #000 100%);
+    background: linear-gradient(
+      to right,
+      var(--sky-seam-l),
+      var(--sky-seam-m) 50%,
+      var(--sky-seam-r)
+    );
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      transparent 0,
+      #000 20svh,
+      #000 100%
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      transparent 0,
+      #000 20svh,
+      #000 100%
+    );
   }
   .n-hero__bg {
     top: 50svh;
@@ -967,7 +1165,8 @@ ol {
   font-size: 11.5px;
   letter-spacing: 0.26em;
   text-transform: uppercase;
-  opacity: 0.6;
+  /* measured on real pixels: .6 gave 4.34:1 on the cream ground; .65 -> 5.13 */
+  opacity: 0.65;
 }
 
 /* ---- 3 · PLACE (powder) — the reference's held screen after the dome: a
@@ -976,7 +1175,9 @@ ol {
    (middle), copy and kicker (bottom). Powder-blue ground, deep Aegean navy
    for type and rules. */
 .n-place {
-  --powder: var(--lake); /* the same blue as the dome band above, so the two meet without a seam */
+  --powder: var(
+    --lake
+  ); /* the same blue as the dome band above, so the two meet without a seam */
   --aegean: #152b3c;
   position: relative; /* positioned, so it paints above the hero's sticky stage as it follows the band */
   background: var(--powder);
@@ -1083,15 +1284,31 @@ ol {
   opacity: 0.8;
   transition: opacity 200ms var(--ease);
 }
-.n-place__ctl > button:hover {
-  opacity: 1;
+@media (hover: hover) and (pointer: fine) {
+  .n-place__ctl > button:hover {
+    opacity: 1;
+  }
+}
+/* the latched pause — the only stop control a touch visitor can reach */
+.n-place__hold {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  opacity: 0.8;
+  transition: opacity 200ms var(--ease);
 }
 .n-place__num {
   min-width: 1.2em;
   text-align: center;
 }
 .n-place__num--total {
-  opacity: 0.55;
+  /* .55 measured 2.86:1 on powder — the carousel's total is a control label,
+     not decoration */
+  opacity: 0.8;
 }
 .n-place__track {
   position: relative;
@@ -1185,7 +1402,12 @@ ol {
   inset: -6% 0; /* headroom for the drift */
   will-change: transform;
   /* the seam: the photograph's sky fades up into the band's blue */
-  -webkit-mask-image: linear-gradient(to bottom, transparent 4%, #000 22%, #000 100%);
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 4%,
+    #000 22%,
+    #000 100%
+  );
   mask-image: linear-gradient(to bottom, transparent 4%, #000 22%, #000 100%);
 }
 .n-pull__bg img {
@@ -1408,13 +1630,22 @@ ol {
   letter-spacing: 0.2em;
   line-height: 1.7;
   text-transform: uppercase;
-  transition: background 300ms var(--ease), color 300ms var(--ease), border-color 300ms var(--ease);
+  transition:
+    background 300ms var(--ease),
+    color 300ms var(--ease),
+    border-color 300ms var(--ease);
 }
-.n-loc__orb:hover,
 .n-loc__orb:focus-visible {
   background: var(--wine);
   border-color: var(--wine);
   color: var(--cream);
+}
+@media (hover: hover) and (pointer: fine) {
+  .n-loc__orb:hover {
+    background: var(--wine);
+    border-color: var(--wine);
+    color: var(--cream);
+  }
 }
 /* the ragged staircase: cell 8.5vw, gutter 1vw — measured */
 .n-loc__lines span:nth-child(1) {
@@ -1791,7 +2022,8 @@ ol {
   font-size: 11px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  opacity: 0.65;
+  /* .65 measured 4.22:1 on cream; .72 -> 5.07 */
+  opacity: 0.72;
 }
 .n-card__spec .v {
   font-family: var(--font-display);
@@ -1940,11 +2172,15 @@ ol {
   letter-spacing: 0.1em;
   line-height: 1;
   text-transform: uppercase;
-  transition: background 300ms var(--ease), color 300ms var(--ease);
+  transition:
+    background 300ms var(--ease),
+    color 300ms var(--ease);
 }
-.n-tycar__pill:hover {
-  background: var(--wine);
-  color: var(--cream);
+@media (hover: hover) and (pointer: fine) {
+  .n-tycar__pill:hover {
+    background: var(--wine);
+    color: var(--cream);
+  }
 }
 /* the photograph: a 3:4 portrait, most of the band's height, dead centre */
 .n-tycar__fig {
@@ -2034,11 +2270,15 @@ ol {
   height: 14px;
   transition: transform 0.35s var(--ease);
 }
-.n-tycar__nav.prev:hover svg {
-  transform: translateX(3.6px);
+@media (hover: hover) and (pointer: fine) {
+  .n-tycar__nav.prev:hover svg {
+    transform: translateX(3.6px);
+  }
 }
-.n-tycar__nav.next:hover svg {
-  transform: translateX(-3.6px);
+@media (hover: hover) and (pointer: fine) {
+  .n-tycar__nav.next:hover svg {
+    transform: translateX(-3.6px);
+  }
 }
 .n-tycar__nav .n {
   font-size: clamp(9px, 0.69vw, 12px);
@@ -2151,13 +2391,17 @@ ol {
   background: #fff;
   box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.25);
   opacity: 0.7;
-  transition: opacity 300ms var(--ease), transform 300ms var(--ease);
+  transition:
+    opacity 300ms var(--ease),
+    transform 300ms var(--ease);
 }
 .n-amsl__pin span {
   white-space: nowrap;
   opacity: 0;
   translate: -6px 0;
-  transition: opacity 350ms var(--ease), translate 350ms var(--ease);
+  transition:
+    opacity 350ms var(--ease),
+    translate 350ms var(--ease);
 }
 .n-amsl__pin[data-on] i {
   opacity: 1;
@@ -2206,8 +2450,10 @@ ol {
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
   transition: opacity 300ms var(--ease);
 }
-.n-amsl__tab:hover {
-  opacity: 0.75;
+@media (hover: hover) and (pointer: fine) {
+  .n-amsl__tab:hover {
+    opacity: 0.75;
+  }
 }
 .n-amsl__tab[aria-selected="true"] {
   opacity: 1;
@@ -2271,12 +2517,19 @@ ol {
   letter-spacing: 0.2em;
   line-height: 1.7;
   text-transform: uppercase;
-  transition: background 300ms var(--ease), color 300ms var(--ease);
+  transition:
+    background 300ms var(--ease),
+    color 300ms var(--ease);
 }
-.n-amsl__orb:hover,
 .n-amsl__orb:focus-visible {
   background: #fff;
   color: var(--wine);
+}
+@media (hover: hover) and (pointer: fine) {
+  .n-amsl__orb:hover {
+    background: #fff;
+    color: var(--wine);
+  }
 }
 .n-amsl :focus-visible {
   outline: 2px solid #fff;
@@ -2304,7 +2557,11 @@ ol {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, color-mix(in srgb, var(--wine) 62%, transparent), transparent 60%);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--wine) 62%, transparent),
+    transparent 60%
+  );
 }
 .n-amen__intro {
   position: relative;
@@ -2484,13 +2741,22 @@ ol {
   letter-spacing: 0.18em;
   line-height: 1.7;
   text-transform: uppercase;
-  transition: background 300ms var(--ease), color 300ms var(--ease), border-color 300ms var(--ease);
+  transition:
+    background 300ms var(--ease),
+    color 300ms var(--ease),
+    border-color 300ms var(--ease);
 }
-.n-inter__orb:hover,
 .n-inter__orb:focus-visible {
   background: var(--wine);
   border-color: var(--wine);
   color: var(--cream);
+}
+@media (hover: hover) and (pointer: fine) {
+  .n-inter__orb:hover {
+    background: var(--wine);
+    border-color: var(--wine);
+    color: var(--cream);
+  }
 }
 .n-inter__lists {
   display: grid;
@@ -2864,12 +3130,19 @@ ol {
   letter-spacing: 0.18em;
   line-height: 1.7;
   text-transform: uppercase;
-  transition: background 300ms var(--ease), color 300ms var(--ease);
+  transition:
+    background 300ms var(--ease),
+    color 300ms var(--ease);
 }
-.n-views__orb:hover,
 .n-views__orb:focus-visible {
   background: #fff;
   color: var(--wine);
+}
+@media (hover: hover) and (pointer: fine) {
+  .n-views__orb:hover {
+    background: #fff;
+    color: var(--wine);
+  }
 }
 /* the chapter's lead, on the wine the frame has opened */
 .n-views__note {
@@ -2942,8 +3215,10 @@ ol {
   transform: scaleX(0.82);
   transition: opacity 250ms var(--ease);
 }
-.n-creds__btn:hover {
-  opacity: 0.62;
+@media (hover: hover) and (pointer: fine) {
+  .n-creds__btn:hover {
+    opacity: 0.62;
+  }
 }
 .n-creds__btn i {
   font-style: normal;
@@ -2977,12 +3252,16 @@ ol {
   font-size: 14px;
   line-height: 1.6;
   color: var(--muted);
-  transition: visibility 0s 420ms, padding 420ms var(--ease);
+  transition:
+    visibility 0s 420ms,
+    padding 420ms var(--ease);
 }
 .n-creds__row[data-open] .n-creds__info > span {
   visibility: visible;
   padding: 6px 0 16px;
-  transition: visibility 0s, padding 420ms var(--ease);
+  transition:
+    visibility 0s,
+    padding 420ms var(--ease);
 }
 
 /* ---- 11 · CTA (wine) ---- */
@@ -3050,10 +3329,12 @@ ol {
   text-transform: uppercase;
   opacity: 0.75;
 }
-.n-foot__top:hover,
-.n-foot .links a:hover {
-  text-decoration: underline;
-  text-underline-offset: 3px;
+@media (hover: hover) and (pointer: fine) {
+  .n-foot__top:hover,
+  .n-foot .links a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
 }
 /* the emblem above the number, as the reference sets it */
 /* the footer's letter boxes — a word never breaks inside itself, and the
@@ -3278,11 +3559,17 @@ ol {
   letter-spacing: 0.14em;
   text-transform: uppercase;
   white-space: nowrap;
-  transition: background 220ms var(--ease), color 220ms var(--ease), border-color 220ms var(--ease), opacity 220ms var(--ease);
+  transition:
+    background 220ms var(--ease),
+    color 220ms var(--ease),
+    border-color 220ms var(--ease),
+    opacity 220ms var(--ease);
 }
-.hp-filter__opts button:hover:not(.on),
-.hp-filter__reset:hover:not(:disabled) {
-  border-color: var(--wine);
+@media (hover: hover) and (pointer: fine) {
+  .hp-filter__opts button:hover:not(.on),
+  .hp-filter__reset:hover:not(:disabled) {
+    border-color: var(--wine);
+  }
 }
 .hp-filter__opts button.on {
   background: var(--wine);
@@ -3332,18 +3619,26 @@ ol {
   display: grid;
   align-content: start;
   gap: clamp(8px, 1vh, 14px);
-  padding: clamp(22px, 3vw, 43px) clamp(16px, 2vw, 29px) clamp(14px, 1.5vw, 22px);
+  padding: clamp(22px, 3vw, 43px) clamp(16px, 2vw, 29px)
+    clamp(14px, 1.5vw, 22px);
   background: #fff;
   border-radius: 10px;
   color: inherit;
   text-decoration: none;
   box-shadow: 0 1px 2px rgba(51, 18, 31, 0.04);
-  transition: box-shadow 320ms var(--ease), transform 320ms var(--ease);
+  transition:
+    box-shadow 320ms var(--ease),
+    transform 320ms var(--ease);
 }
-.hp-card:hover,
 .hp-card:focus-visible {
   box-shadow: 0 18px 44px rgba(51, 18, 31, 0.1);
   transform: translateY(-3px);
+}
+@media (hover: hover) and (pointer: fine) {
+  .hp-card:hover {
+    box-shadow: 0 18px 44px rgba(51, 18, 31, 0.1);
+    transform: translateY(-3px);
+  }
 }
 .hp-card__head {
   display: grid;
@@ -3462,6 +3757,14 @@ ol {
   height: auto;
   overflow: visible;
 }
+/* the panel cut from the sheet: the drawing at its own landscape ratio, its
+   paper a shade warmer than the card so it reads as a sheet laid on it */
+.fp--sheet img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
 .fp figcaption {
   font-family: var(--font-sans);
   font-size: 8.5px;
@@ -3550,11 +3853,27 @@ body:has(.hp) .n-nav__cta {
   opacity: 0.55;
   transition: opacity 220ms var(--ease);
 }
-.hp-rail button:hover {
-  opacity: 0.85;
+@media (hover: hover) and (pointer: fine) {
+  .hp-rail button:hover {
+    opacity: 0.85;
+  }
 }
 .hp-rail button.on {
   opacity: 1;
+}
+/* the per-chip count: how many homes the tap would leave on screen */
+.hp-rail button > i,
+.hp-filter__opts button > i {
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.55;
+  margin-left: 0.5em;
+  letter-spacing: 0.04em;
+}
+.hp-rail button:disabled,
+.hp-filter__opts button:disabled {
+  opacity: 0.32;
+  cursor: default;
 }
 .hp-rail button.on::after {
   content: "";
@@ -3624,8 +3943,10 @@ body:has(.hp) .n-nav__cta {
   opacity: 0.8;
   transition: opacity 200ms var(--ease);
 }
-.hp-panel__act:hover {
-  opacity: 1;
+@media (hover: hover) and (pointer: fine) {
+  .hp-panel__act:hover {
+    opacity: 1;
+  }
 }
 
 /* --- closing chapter ---------------------------------------------------- */
@@ -3675,8 +3996,10 @@ body:has(.hp) .n-nav__cta {
   opacity: 0.85;
   text-underline-offset: 4px;
 }
-.hp-tail__back:hover {
-  text-decoration: underline;
+@media (hover: hover) and (pointer: fine) {
+  .hp-tail__back:hover {
+    text-decoration: underline;
+  }
 }
 .hp-tail__fig {
   width: min(100%, 76vw);
@@ -3716,10 +4039,12 @@ body:has(.hp) .n-nav__cta {
   opacity: 0.7;
   margin-bottom: clamp(14px, 3vh, 30px);
 }
-.hd-back:hover {
-  opacity: 1;
-  text-decoration: underline;
-  text-underline-offset: 4px;
+@media (hover: hover) and (pointer: fine) {
+  .hd-back:hover {
+    opacity: 1;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
 }
 .hd-typo {
   font-family: var(--font-sans);
@@ -3786,11 +4111,14 @@ body:has(.hp) .n-nav__cta {
 .hd-near {
   padding-bottom: clamp(40px, 8vh, 90px);
 }
+/* one drawing per row: the sheets' panels are landscape, and at the column's
+   full width their room labels are readable — side by side they were not */
 .hd-plans__grid {
   width: 100%;
+  max-width: 1100px;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(20px, 3vw, 60px);
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(28px, 4vw, 56px);
 }
 .fp.is-large figcaption {
   font-size: 10px;
@@ -3859,12 +4187,19 @@ body:has(.hp) .n-nav__cta {
   text-decoration: none;
   justify-items: center;
   text-align: center;
-  transition: box-shadow 320ms var(--ease), transform 320ms var(--ease);
+  transition:
+    box-shadow 320ms var(--ease),
+    transform 320ms var(--ease);
 }
-.hd-near__list a:hover,
 .hd-near__list a:focus-visible {
   box-shadow: 0 18px 44px rgba(51, 18, 31, 0.1);
   transform: translateY(-3px);
+}
+@media (hover: hover) and (pointer: fine) {
+  .hd-near__list a:hover {
+    box-shadow: 0 18px 44px rgba(51, 18, 31, 0.1);
+    transform: translateY(-3px);
+  }
 }
 .hd-near__plan {
   display: block;
@@ -3972,8 +4307,20 @@ body:has(.hp) .n-nav__cta {
 .n-dlg__veil {
   position: absolute;
   inset: 0;
-  background: color-mix(in srgb, var(--wine) 62%, transparent);
+  /* 62% left the pill fully legible through the veil and a real tap on it
+     CLOSED the dialog, discarding the typed form */
+  background: color-mix(in srgb, var(--wine) 88%, transparent);
   cursor: pointer;
+}
+/* the pill stayed fully legible through the veil and a tap on it closed the
+   dialog, discarding the typed form. It is not there to be tapped. */
+body:has(.n-dlg) .n-nav,
+body:has(.n-dlg) .n-seal,
+body:has(.n-sheet) .n-nav,
+body:has(.n-sheet) .n-seal {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms var(--ease);
 }
 .n-dlg__card {
   position: relative;
@@ -3984,7 +4331,8 @@ body:has(.hp) .n-nav__cta {
   background: var(--cream);
   color: var(--ink);
   border-radius: 24px;
-  padding: clamp(30px, 4.4vw, 54px) clamp(24px, 4vw, 58px) clamp(26px, 3.6vw, 44px);
+  padding: clamp(30px, 4.4vw, 54px) clamp(24px, 4vw, 58px)
+    clamp(26px, 3.6vw, 44px);
   text-align: center;
 }
 .n-dlg__x {
@@ -3999,8 +4347,10 @@ body:has(.hp) .n-nav__cta {
   border-radius: 50%;
   transition: background 200ms var(--ease);
 }
-.n-dlg__x:hover {
-  background: color-mix(in srgb, var(--ink) 8%, transparent);
+@media (hover: hover) and (pointer: fine) {
+  .n-dlg__x:hover {
+    background: color-mix(in srgb, var(--ink) 8%, transparent);
+  }
 }
 .n-dlg__kicker {
   display: block;
@@ -4068,14 +4418,17 @@ body:has(.hp) .n-nav__cta {
   color: color-mix(in srgb, var(--ink) 55%, transparent);
   pointer-events: none;
   transform-origin: left top;
-  transition: transform 240ms var(--ease), color 240ms var(--ease);
+  transition:
+    transform 240ms var(--ease),
+    color 240ms var(--ease);
 }
 .n-dlg__field input:focus + .lbl,
 .n-dlg__field textarea:focus + .lbl,
 .n-dlg__field input:not(:placeholder-shown) + .lbl,
 .n-dlg__field textarea:not(:placeholder-shown) + .lbl {
-  transform: translateY(-19px) scale(0.6);
-  color: var(--muted);
+  /* .6 collapsed the floating label to a 9.12px effective size at 3.92:1 */
+  transform: translateY(-19px) scale(0.78);
+  color: color-mix(in srgb, var(--ink) 70%, transparent);
 }
 .n-dlg__field .err {
   display: block;
@@ -4097,19 +4450,31 @@ body:has(.hp) .n-nav__cta {
 }
 .n-dlg__consent {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 10px;
   max-width: 40ch;
-  font-size: 12px;
+  min-height: 44px;
+  font-size: 13px;
   line-height: 1.55;
   color: var(--muted);
   cursor: pointer;
 }
 .n-dlg__consent input {
-  width: 18px;
-  height: 18px;
-  margin: 1px 0 0;
+  width: 22px;
+  height: 22px;
+  flex: none;
+  margin: 0;
   accent-color: var(--wine);
+}
+/* the privacy link, out of the consent label and given its own hit area */
+.n-dlg__privacy {
+  display: inline-block;
+  padding: 10px 8px;
+  margin: -10px -8px;
+  font-size: 13px;
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 .n-dlg__consent a {
   color: var(--ink);
@@ -4214,15 +4579,42 @@ body:has(.hp) .n-nav__cta {
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
-.n-stop nav a:not(.n-pill):hover {
-  text-decoration: underline;
-  text-underline-offset: 3px;
+@media (hover: hover) and (pointer: fine) {
+  .n-stop nav a:not(.n-pill):hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
 }
 
 /* ==========================================================================
    Small screens — single column, no pins (JS gates them too)
    ========================================================================== */
 @media (max-width: 860px) {
+  /* ---- the chrome's footprint ------------------------------------------
+     The seal and the pill are fixed and z220, so anything that ends level
+     with them is un-tappable: measured, the pill covered the footer mailto
+     80% at 390 and 99.8% at 360 at max scroll. Every container that can be
+     the last thing on screen reserves the lane, and scroll-padding keeps
+     anchors and focus out from under both. */
+  html {
+    scroll-padding-top: var(--chrome-top);
+    scroll-padding-bottom: var(--chrome-b);
+  }
+  .nv {
+    padding-bottom: var(--chrome-b);
+  }
+  .n-foot {
+    padding-bottom: calc(30px + var(--chrome-b));
+  }
+  /* The brief asked for this on .hp-card. Re-verified against the running
+     page: on a phone the catalogue is ONE column of ~400px-tall cards, so the
+     pill can never hide a whole card and per-card padding buys no reach — it
+     only added 64px x 12 to a page WP13 is trying to shorten. The grid's own
+     tail is the row that actually needs the lane. */
+  .hp-grid,
+  .hp-tail {
+    padding-bottom: var(--chrome-b);
+  }
   .n-nav {
     top: auto;
     bottom: calc(14px + env(safe-area-inset-bottom, 0px));
@@ -4242,32 +4634,177 @@ body:has(.hp) .n-nav__cta {
        screen and wrap its labels; size it to its content instead */
     width: max-content;
     max-width: calc(100vw - 2 * var(--gutter));
-    white-space: nowrap;
+    /* at 320 the nowrap pill ran 37px past the right edge; let it wrap onto
+       a second row there rather than hang off the screen */
+    white-space: normal;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    row-gap: 6px;
+    /* the away state slides it clear on a downward scroll */
+    transition: translate 320ms var(--ease);
+  }
+  .n-nav.is-away {
+    translate: 0 calc(100% + 14px + env(safe-area-inset-bottom, 0px));
+  }
+  /* ---- the pill becomes a real mobile nav ------------------------------
+     Measured: three 16px-tall labels inside a 36px pill — 65% of the pill was
+     dead zone that swallowed taps. The padding goes on the CONTROLS and is
+     pulled back out with a negative margin, so the targets reach 44px while
+     the pill stays 36px and the type is untouched. */
+  .n-nav > a:not(.n-nav__cta),
+  .n-nav > button {
+    padding-block: 14px;
+    margin-block: -14px;
+    display: inline-flex;
+    align-items: center;
+  }
+  /* The pill paints its OWN cream ground here, so the dark-band flip that
+     turns the chrome white made white-on-cream: measured 1.15-1.43:1 across
+     27% of the scroll, including the only CTA. Repeat the FULL compound
+     selector or the base .n-nav.is-dark rule wins. */
+  .n-nav.is-dark {
+    color: var(--wine);
+    mix-blend-mode: normal;
+    text-shadow: none;
+  }
+  .n-nav:not(.is-dark) {
+    text-shadow: none;
+  }
+  /* the chapter the visitor is actually standing in reads solid; the other
+     two sit back. Never below 4.5:1 — .72 of wine on cream measures 5.4:1. */
+  /* only dim when there IS a mark to make — the collections band has no label
+     in the pill, and dimming all three there would cost contrast for nothing */
+  .n-nav[data-at="approach"] > [data-band],
+  .n-nav[data-at="call"] > [data-band] {
+    opacity: 0.72;
+  }
+  .n-nav > [data-band] {
+    position: relative;
+  }
+  /* the mark is a drawn hairline, not text-decoration: the label lives inside
+     .n-roll, whose overflow:hidden (it clips the hover roll) eats an underline */
+  .n-nav[data-at="approach"] > [data-band="approach"],
+  .n-nav[data-at="collections"] > [data-band="collections"],
+  .n-nav[data-at="call"] > [data-band="call"] {
+    opacity: 1;
+  }
+  .n-nav[data-at="approach"] > [data-band="approach"]::after,
+  .n-nav[data-at="collections"] > [data-band="collections"]::after,
+  .n-nav[data-at="call"] > [data-band="call"]::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 9px;
+    height: 1px;
+    background: currentColor;
+  }
+  /* the page is 23.7 viewports and .n-rail is display:none here — the pill's
+     top edge carries the progress instead, written from the scroll rAF */
+  .n-nav::before {
+    content: "";
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    top: 0;
+    height: 2px;
+    border-radius: 999px;
+    background: currentColor;
+    opacity: 0.55;
+    transform: scaleX(var(--prog, 0));
+    transform-origin: left center;
   }
   .n-nav .phone {
-    display: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 36px;
+    margin-top: 0;
+  }
+  .n-nav .phone__txt {
+    /* the number is the accessible name via aria-label; the glyph is the cap */
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .n-nav .phone__ico {
+    display: block;
+    width: 19px;
+    height: 19px;
+  }
+  /* the index trigger: three hairlines, the site's own rule language */
+  .n-nav__idx {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    /* the glyph is only 9px tall; without this the padding leaves a 37px
+       target, three short of the floor */
+    min-height: 44px;
+    border: 0;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+  }
+  .n-nav__idx > span {
+    display: block;
+    width: 19px;
+    height: 9px;
+    border-top: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+    position: relative;
+  }
+  .n-nav__idx > span::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 3px;
+    height: 1px;
+    background: currentColor;
+  }
+  /* Five slots need 439px of pill; a 390px phone offers 350 inside the
+     gutters, so the pill wraps: the three labels, then the two glyphs
+     right-aligned beneath them. Its real height is measured back into
+     --chrome-b by Chrome.tsx, so the lane below is never guessed. */
+  .n-nav {
+    column-gap: 14px;
   }
   .n-chrome .n-seal {
-    width: 66px;
-    height: 66px;
+    /* 66px swallowed the carousel's Previous button whole (15/15 hit-test
+       points). 44px is the target floor and no larger. */
+    width: 44px;
+    height: 44px;
+    top: calc(12px + env(safe-area-inset-top, 0px));
+    left: 12px;
+  }
+  .n-chrome .n-seal.is-away {
+    translate: -120% 0;
   }
   /* the lockup scales up on a narrow screen; the anchors stack above the
      switch, which sits above the CTA pill on the bottom margin */
   .n-hero__place {
-    top: 100px; /* clear of the 66px seal in the corner */
+    top: 72px; /* clear of the 44px seal in the corner */
   }
   /* the crest text is set in the SVG's 1440-wide units; on a phone-width
      dome that scale would leave it 8px tall, so it is set larger here */
   .n-arc__promise text {
     font-size: 48px;
   }
-  .n-hero__mark .w1,
-  .n-hero__mark .w2 {
-    font-size: 17vw;
-  }
   .n-hero__mark .script {
     font-size: 12vw;
   }
+  /* ---- the hero's four text nodes over the photograph -------------------
+     Measured on real pixels (node hidden, photo sampled): the promise line
+     was SHRUNK here from 13px to 11px at 0.28em and 56% of its area fell
+     under 4.5:1; city names 10px failed over 100% of their area; the scroll
+     hint 8.5px over 99%; both switch states failed (1.58 / 2.32). The type is
+     set larger and opaque and carries its own shadow — the photograph is
+     never tinted. */
   .n-hero__meta {
     flex-direction: column;
     gap: 6px;
@@ -4275,15 +4812,59 @@ body:has(.hp) .n-nav__cta {
     text-align: center;
     height: auto;
     bottom: clamp(150px, 27vh, 210px);
-    font-size: 11px;
+    font-size: 13px;
+    letter-spacing: 0.16em;
+    color: #fff;
+    text-shadow:
+      0 1px 2px rgba(0, 25, 55, 0.6),
+      0 2px 12px rgba(0, 25, 55, 0.45);
   }
   .n-hero__meta span,
   .n-hero__titleB {
     flex: none;
     text-align: center;
   }
+  .n-hero__place {
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    color: #fff;
+    text-shadow:
+      0 1px 2px rgba(0, 25, 55, 0.6),
+      0 2px 12px rgba(0, 25, 55, 0.45);
+  }
+  .n-hero__hint {
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: #fff;
+    text-shadow:
+      0 1px 2px rgba(0, 25, 55, 0.6),
+      0 2px 12px rgba(0, 25, 55, 0.45);
+  }
   .n-hero__switch {
     bottom: clamp(86px, 16vh, 130px);
+    /* a scrim behind the two words only — the photograph itself is untouched
+       and the band fades out at both ends so it reads as light, not a bar */
+    padding-inline: 18px;
+    border-radius: 999px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(6, 16, 28, 0.55) 12%,
+      rgba(6, 16, 28, 0.55) 88%,
+      transparent
+    );
+  }
+  .n-hero__switch button {
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    opacity: 0.7;
+  }
+  .n-hero__switch button.on {
+    opacity: 1;
+  }
+  .n-hero__mark .w1,
+  .n-hero__mark .w2 {
+    font-size: 15vw;
   }
   .n-flower {
     display: none; /* the stamps are a wide-screen flourish */
@@ -4315,6 +4896,114 @@ body:has(.hp) .n-nav__cta {
     margin: 0;
     max-width: none;
   }
+  /* ---- WP5 · the concept statement was amputated -----------------------
+     text-wrap: nowrap at clamp(1.3rem, 3.3vw, 3rem) floors at 20.8px and
+     measured 477px wide inside a 350px overflow:clip panel — 150px of every
+     line was cut off at 390 ("NORATUN PLACES HOMES IN F…"). */
+  .n-loc__statement {
+    text-wrap: wrap;
+    text-wrap: balance;
+    line-height: 1.06;
+    font-size: clamp(1.15rem, 5.6vw, 1.6rem);
+    letter-spacing: -0.01em;
+  }
+  .n-loc__side {
+    max-width: 100%;
+    font-size: 0.94em;
+  }
+
+  /* ---- WP8 · contrast over photographs ---------------------------------
+     Measured on real rendered pixels: the pull quote sits on a pale sandstone
+     wall because of the mobile-only scale(1.6) — quote 2.10:1, byline 1.78:1;
+     the Dilijan coordinate line 1.76:1 on a bright rooftop. The photographs
+     are not tinted: a gradient rises only under the type that needs it. */
+  .n-pull {
+    position: relative;
+  }
+  .n-pull::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0;
+    height: 62%;
+    background: linear-gradient(to top, rgba(10, 26, 40, 0.62), transparent);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .n-pull__say {
+    z-index: 1;
+  }
+  .n-sky__place {
+    padding: 18px 20px;
+    border-radius: 2px;
+    background: linear-gradient(
+      to left,
+      color-mix(in srgb, var(--wine) 58%, transparent),
+      transparent
+    );
+  }
+  .n-sky__place i {
+    opacity: 1;
+  }
+
+  /* ---- WP9 · the typography floor --------------------------------------
+     Body was a fixed 15px at every width (x-height 7.95px), and the display
+     headings inherited line-height 1.6 from it — 27px of air between cap rows
+     put two words in a 134px block. */
+  body {
+    font-size: 16px;
+  }
+  /* two of the four rules that re-assert 15px are body copy and must follow;
+     .n-loc__route strong is a display-face city name and stays as set */
+  .n-place__copy,
+  .n-loc__note p {
+    font-size: 16px;
+  }
+  .n-card__name {
+    line-height: 0.92;
+  }
+  .n-card__name .place {
+    margin-top: -0.05em;
+  }
+  .n-amen__intro h2 {
+    line-height: 1.02;
+  }
+  .n-views__sub {
+    font-size: 13px;
+    letter-spacing: 0.2em;
+  }
+  .n-bloom__foot {
+    letter-spacing: 0.18em;
+  }
+  .n-amen__item p,
+  .n-card__body p,
+  .n-loc__foot,
+  .n-views__note p {
+    text-wrap: pretty;
+  }
+
+  /* ---- WP10 · touch targets in the footer and the credits --------------
+     Measured 17.6-35px. The padding grows the hit area and the negative
+     margin gives the space straight back, so the footer's rhythm is
+     unchanged (the technique the nav pill already uses). */
+  .n-foot__top,
+  .n-foot__col .links a,
+  .n-foot__col a.strong,
+  .n-foot__col .strong a {
+    display: inline-block;
+    /* 13px landed these on exactly 43.6 — a hair under the floor */
+    padding-block: 14px;
+    margin-block: -14px;
+  }
+  .n-foot__col .links {
+    gap: 20px;
+  }
+  .n-foot__phone {
+    padding-block: 6px;
+  }
+  /* four 37px accordion buttons with a 0px gap between them */
+  .n-creds__btn {
+    padding-block: 6px;
+  }
   /* room above for the fixed seal, room below for the nav pill */
   .n-loc__intro {
     display: grid;
@@ -4330,6 +5019,70 @@ body:has(.hp) .n-nav__cta {
   .n-sky__clouds {
     height: 46%;
   }
+  /* the tile is drawn at background-size 50%, i.e. 195 CSS px at 390 wide.
+     The 3996px strip is 63 KB of pixels for that; the 1170 cut is 12 KB and
+     still over-samples. Chosen by viewport, not DPR — phones have the highest
+     DPR and the smallest box, so an image-set would pick exactly wrong. */
+  .n-sky__drift {
+    background-image: url("/flora/clouds-tile-1170.webp");
+  }
+  /* ---- the two real horizontal overflows at 320 -------------------------
+     Measured with documentElement.scrollWidth vs clientWidth (NOT innerWidth,
+     which mobile emulation widens to the content): 357 against a 320 client.
+     The pill is fixed and contributes nothing to scrollWidth; the 37px came
+     from the route row and a further 15px from the architecture word. */
+
+  /* four cities space-between has a 337px min-content floor. One stop per
+     row, the drive time beneath it, and the route line runs down the left. */
+  .n-loc__route svg {
+    display: none;
+  }
+  .n-loc__route ol {
+    display: grid;
+    grid-auto-flow: row;
+    gap: 14px;
+    justify-items: start;
+    margin-top: 0;
+    position: relative;
+    padding-left: 22px;
+  }
+  .n-loc__route ol::before {
+    content: "";
+    position: absolute;
+    left: 3px;
+    top: 7px;
+    bottom: 7px;
+    width: 1px;
+    background: color-mix(in srgb, currentColor 34%, transparent);
+  }
+  .n-loc__route li {
+    position: relative;
+    justify-items: start;
+    text-align: left;
+  }
+  .n-loc__route i {
+    position: absolute;
+    left: -22px;
+    top: 6px;
+  }
+  /* the bougainvillea is scaled for a wide panel; over the stacked route it
+     lands squarely on TSAGHKADZOR. Pull it into the corner it belongs in. */
+  .n-loc__path .n-bloom__vine {
+    width: 150px;
+    opacity: 0.3;
+    right: -8%;
+    top: -6%;
+  }
+  /* the vine bleeds past the corner by design; the concept panel next door
+     already clips, and without this the bleed becomes 8px of document */
+  .n-loc__path {
+    overflow: clip;
+  }
+  /* "ARCHITECTURE" is nowrap and needs 8.2em of width; 11vw ran it 35px past
+     the gutter at 320 */
+  .n-archi__word {
+    font-size: min(10vw, 10rem);
+  }
   /* /homes: the place rail becomes a sticky chip row; grid single-column */
   .hp-rail {
     position: sticky;
@@ -4344,7 +5097,7 @@ body:has(.hp) .n-nav__cta {
     justify-content: flex-start;
     width: 100%;
     gap: 4px 10px;
-    padding: 12px var(--gutter) 12px 96px; /* clears the fixed seal */
+    padding: 12px var(--gutter) 12px 64px; /* clears the 44px fixed seal */
     overflow-x: auto;
     background: color-mix(in srgb, var(--cream) 90%, transparent);
     backdrop-filter: blur(8px);
@@ -4357,6 +5110,84 @@ body:has(.hp) .n-nav__cta {
   .hp-rail button.on::after {
     top: auto;
     bottom: 2px;
+  }
+  /* ---- WP6 · the chip rail --------------------------------------------
+     Measured: 9.5px chips at 3.74:1 inside 23px targets — the only controls
+     on the site under the 24px WCAG floor — clipped at the right with no
+     affordance that the row scrolls, and "ALL PLACES" slid 74% under the seal
+     after 82px of horizontal scroll. */
+  .hp-rail {
+    /* the right edge fades so the row reads as scrollable, and the left 56px
+       — the seal's lane — is blanked, because padding-left scrolls away in a
+       scroll container and chips were sliding under the seal */
+    mask-image: linear-gradient(
+      90deg,
+      transparent 0,
+      #000 56px,
+      #000 calc(100% - 28px),
+      transparent
+    );
+    scroll-snap-type: x proximity;
+  }
+  .hp-rail button:first-child {
+    /* ALL PLACES stays put clear of the seal instead of sliding under it */
+    position: sticky;
+    left: 56px;
+    z-index: 1;
+    background: var(--cream);
+  }
+  .hp-rail button {
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    opacity: 1;
+    min-height: 44px;
+    padding: 12px 8px;
+    color: color-mix(in srgb, var(--wine) 74%, var(--cream));
+    scroll-snap-align: start;
+  }
+  .hp-rail button.on {
+    color: var(--wine);
+  }
+  .hp-rail__soon {
+    font-size: 12px;
+    opacity: 1;
+    color: color-mix(in srgb, var(--wine) 62%, var(--cream));
+  }
+  .hp-filter__label {
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    opacity: 0.75;
+  }
+  .hp-filter__opts button,
+  .hp-filter__reset {
+    min-height: 44px;
+    padding: 13px 16px;
+  }
+  .hp-filter__opts {
+    gap: 10px;
+  }
+  /* the card's spec layer was 8.5px, its plan labels 9.07 / 7.90 */
+  .hp-card__typo,
+  .hp-card__completion,
+  .hp-card__meta,
+  .hp-card__status,
+  .fp figcaption {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+  }
+  .hp-card__meta {
+    opacity: 0.82;
+  }
+  /* viewBox units: 12.0px / 10.8px rendered at the measured 2.924x scale */
+  .fp-label text {
+    font-size: 4.1px;
+  }
+  .fp-label .fp-area {
+    font-size: 3.7px;
+    opacity: 0.78;
+  }
+  .hp-card {
+    scroll-margin-top: 76px;
   }
   .hp-rail__rule {
     width: 22px;
@@ -4428,6 +5259,35 @@ body:has(.hp) .n-nav__cta {
   }
 }
 
+/* A phone held sideways still matches the ≤860 block, where the lockup is
+   sized off the WIDTH: at 844x390 that put 143px lines into a 390px-tall
+   viewport with every layer stacked on top of the next. Here the display type
+   is capped against the height as well, and the bottom rail packs flat. */
+@media (max-width: 860px) and (max-height: 520px) {
+  .n-hero__mark .w1,
+  .n-hero__mark .w2 {
+    font-size: min(17vw, 13svh);
+  }
+  .n-hero__mark .script {
+    font-size: min(12vw, 9svh);
+  }
+  /* the bottom rail packs flat, but above the chrome lane: at 844x390 the
+     pill sits bottom-right and was covering BY NIGHT and the second title */
+  .n-hero__meta {
+    flex-direction: row;
+    bottom: calc(10px + var(--chrome-b));
+  }
+  .n-hero__switch {
+    bottom: calc(10px + var(--chrome-b));
+  }
+  .n-hero__hint {
+    bottom: calc(54px + var(--chrome-b));
+  }
+  .n-hero__place {
+    top: calc(10px + env(safe-area-inset-top, 0px));
+  }
+}
+
 /* reduced motion: everything visible, nothing pinned, dome edges rest flat.
    (The pin/pan media blocks all require no-preference, so under PRM every
    chapter is already its static single-screen form.) */
@@ -4441,10 +5301,21 @@ body:has(.hp) .n-nav__cta {
   .n-flower .spin {
     animation: none;
   }
+  /* the away STATE still applies — only its transition is removed, so a
+     reduced-motion visitor gets the same reach without the slide */
   .n-pill,
   .n-dlg__field .lbl,
+  .n-nav,
   .n-chrome .n-seal {
     transition: none;
+  }
+  .n-seal__ring {
+    animation: none;
+  }
+  /* the progress hairline rests full-width rather than tracking the scroll */
+  .n-nav::before {
+    transform: none;
+    opacity: 0.28;
   }
   /* the line is already assembled and already bold */
   .n-bloom__line {

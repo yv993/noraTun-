@@ -55,14 +55,19 @@ export default function InterGallery() {
       let started = false;
       let inView = false; // ahead of the arrival trigger — it can fire on create
 
-      const clipOf = (s: HTMLElement) => s.querySelector<HTMLElement>(".n-igal__clip");
-      const imgOf = (s: HTMLElement) => s.querySelector<HTMLElement>(".n-igal__clip img");
+      const clipOf = (s: HTMLElement) =>
+        s.querySelector<HTMLElement>(".n-igal__clip");
+      const imgOf = (s: HTMLElement) =>
+        s.querySelector<HTMLElement>(".n-igal__clip img");
 
       slides.forEach((s) => {
         gsap.set(s, { visibility: "hidden", zIndex: 0 });
         s.setAttribute("aria-hidden", "true");
         const c = clipOf(s);
-        if (c) gsap.set(c, { clipPath: "polygon(100% 0%, 100% 0%, 101% 100%, 125% 100%)" });
+        if (c)
+          gsap.set(c, {
+            clipPath: "polygon(100% 0%, 100% 0%, 101% 100%, 125% 100%)",
+          });
       });
       gsap.set(fill, { scaleX: 0, transformOrigin: "0% 50%" });
       gsap.set(pag, { autoAlpha: 0, y: 12 });
@@ -73,7 +78,12 @@ export default function InterGallery() {
         timer = gsap.fromTo(
           fill,
           { scaleX: 0 },
-          { scaleX: 1, duration: HOLD, ease: "none", onComplete: () => go((idx + 1) % slides.length) },
+          {
+            scaleX: 1,
+            duration: HOLD,
+            ease: "none",
+            onComplete: () => go((idx + 1) % slides.length),
+          },
         );
         if (!inView || document.hidden) timer.pause();
       };
@@ -96,7 +106,8 @@ export default function InterGallery() {
           out.setAttribute("aria-hidden", "true");
         }
         if (numPrev) numPrev.textContent = String(to + 1);
-        if (numNext) numNext.textContent = String(((to + 1) % slides.length) + 1);
+        if (numNext)
+          numNext.textContent = String(((to + 1) % slides.length) + 1);
         arm();
 
         const blade = { u: 1 };
@@ -108,18 +119,23 @@ export default function InterGallery() {
             const u = blade.u;
             if (incClip)
               incClip.style.clipPath = `polygon(${(100 * u).toFixed(3)}% 0%, 100% 0%, ${(100 + u).toFixed(3)}% 100%, ${(125 * u).toFixed(3)}% 100%)`;
-            if (incImg) incImg.style.transform = `translateX(${(0.25 * w * u).toFixed(2)}px) scale(${(1 + 0.5 * u).toFixed(4)})`;
+            if (incImg)
+              incImg.style.transform = `translateX(${(0.25 * w * u).toFixed(2)}px) scale(${(1 + 0.5 * u).toFixed(4)})`;
             if (outClip) {
               const v = 100 * u;
               outClip.style.clipPath = `polygon(0% 0%, ${v.toFixed(3)}% 0%, ${(1.25 * v).toFixed(3)}% 100%, 0% 100%)`;
             }
-            if (outImg) outImg.style.transform = `translateX(${(-0.25 * w * (1 - u)).toFixed(2)}px) scale(${(1 + 0.5 * (1 - u)).toFixed(4)})`;
+            if (outImg)
+              outImg.style.transform = `translateX(${(-0.25 * w * (1 - u)).toFixed(2)}px) scale(${(1 + 0.5 * (1 - u)).toFixed(4)})`;
           },
           onComplete: () => {
             if (out) {
               gsap.set(out, { visibility: "hidden", zIndex: 0 });
               if (outImg) outImg.style.transform = "";
-              if (outClip) gsap.set(outClip, { clipPath: "polygon(100% 0%, 100% 0%, 101% 100%, 125% 100%)" });
+              if (outClip)
+                gsap.set(outClip, {
+                  clipPath: "polygon(100% 0%, 100% 0%, 101% 100%, 125% 100%)",
+                });
             }
             idx = to;
             busy = false;
@@ -134,7 +150,13 @@ export default function InterGallery() {
         onEnter: () => {
           started = true;
           go(0, null);
-          gsap.to(pag, { autoAlpha: 1, y: 0, duration: 0.8, ease: eOut, delay: 0.3 });
+          gsap.to(pag, {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.8,
+            ease: eOut,
+            delay: 0.3,
+          });
         },
       });
 
@@ -142,9 +164,11 @@ export default function InterGallery() {
       const warm = new IntersectionObserver(
         ([e]) => {
           if (!e.isIntersecting) return;
-          el.querySelectorAll<HTMLImageElement>(".n-igal__clip img").forEach((im) => {
-            im.loading = "eager";
-          });
+          el.querySelectorAll<HTMLImageElement>(".n-igal__clip img").forEach(
+            (im) => {
+              im.loading = "eager";
+            },
+          );
           warm.disconnect();
         },
         { rootMargin: "100% 0px" },
@@ -168,7 +192,8 @@ export default function InterGallery() {
       };
       document.addEventListener("visibilitychange", onVis);
 
-      const prev = () => started && go((idx - 1 + slides.length) % slides.length);
+      const prev = () =>
+        started && go((idx - 1 + slides.length) % slides.length);
       const next = () => started && go((idx + 1) % slides.length);
       const bPrev = el.querySelector<HTMLElement>(".n-tycar__nav.prev");
       const bNext = el.querySelector<HTMLElement>(".n-tycar__nav.next");
@@ -205,7 +230,14 @@ export default function InterGallery() {
       <div className="n-igal-plain">
         {interiors.gallery.map((g) => (
           <figure key={g.alt}>
-            <Image placeholder="blur" src={g.src} alt={g.alt} fill sizes="(max-width: 860px) 92vw, 60vw" />
+            <Image
+              placeholder="blur"
+              quality={65}
+              src={g.src}
+              alt={g.alt}
+              fill
+              sizes="(max-width: 860px) 92vw, 60vw"
+            />
           </figure>
         ))}
       </div>
@@ -213,7 +245,12 @@ export default function InterGallery() {
   }
 
   return (
-    <div className="n-igal" ref={root} aria-roledescription="carousel" aria-label="Inside the homes">
+    <div
+      className="n-igal"
+      ref={root}
+      aria-roledescription="carousel"
+      aria-label="Inside the homes"
+    >
       <div className="n-igal__stage">
         {interiors.gallery.map((g, i) => (
           <figure
@@ -224,16 +261,32 @@ export default function InterGallery() {
             aria-label={`${i + 1} of ${interiors.gallery.length}`}
           >
             <div className="n-igal__clip">
-              <Image placeholder="blur" src={g.src} alt={g.alt} fill sizes="60vw" />
+              <Image
+                placeholder="blur"
+                quality={65}
+                src={g.src}
+                alt={g.alt}
+                fill
+                sizes="60vw"
+              />
             </div>
           </figure>
         ))}
       </div>
       {/* the pag row reuses the carousel's styled primitives */}
       <div className="n-igal__pag">
-        <button type="button" className="n-tycar__nav prev" aria-label="Previous photo">
+        <button
+          type="button"
+          className="n-tycar__nav prev"
+          aria-label="Previous photo"
+        >
           <svg viewBox="0 0 16 16" aria-hidden="true">
-            <path d="M10.5 2.5 5 8l5.5 5.5" fill="none" stroke="currentColor" strokeWidth="1.4" />
+            <path
+              d="M10.5 2.5 5 8l5.5 5.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.4"
+            />
           </svg>
           <span className="n" aria-hidden="true">
             1
@@ -242,12 +295,21 @@ export default function InterGallery() {
         <span className="n-tycar__track" aria-hidden="true">
           <span className="n-tycar__fill" />
         </span>
-        <button type="button" className="n-tycar__nav next" aria-label="Next photo">
+        <button
+          type="button"
+          className="n-tycar__nav next"
+          aria-label="Next photo"
+        >
           <span className="n" aria-hidden="true">
             2
           </span>
           <svg viewBox="0 0 16 16" aria-hidden="true">
-            <path d="M5.5 2.5 11 8l-5.5 5.5" fill="none" stroke="currentColor" strokeWidth="1.4" />
+            <path
+              d="M5.5 2.5 11 8l-5.5 5.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.4"
+            />
           </svg>
         </button>
       </div>

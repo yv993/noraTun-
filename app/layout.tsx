@@ -1,6 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Archivo, Bodoni_Moda, Montserrat, Pinyon_Script } from "next/font/google";
+import {
+  Archivo,
+  Bodoni_Moda,
+  Montserrat,
+  Pinyon_Script,
+} from "next/font/google";
 import "./globals.css";
+import Chrome from "@/components/Chrome";
 import SmoothScroll from "@/components/SmoothScroll";
 import { brand } from "@/lib/content";
 import { abs, site } from "@/lib/site";
@@ -22,7 +28,9 @@ const grotesk = Archivo({
 const bodoni = Bodoni_Moda({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-  style: ["normal", "italic"],
+  // no italic: the 30 KB italic face was preloaded at High priority and no
+  // rule in globals.css ever asks for it
+  style: ["normal"],
   variable: "--font-bodoni",
   display: "swap",
 });
@@ -52,7 +60,14 @@ export const metadata: Metadata = {
     url: "/",
     title: site.title,
     description: site.description,
-    images: [{ url: "/opengraph-image.png", width: 1200, height: 630, alt: site.legalName }],
+    images: [
+      {
+        url: "/opengraph-image.png",
+        width: 1200,
+        height: 630,
+        alt: site.legalName,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
@@ -80,7 +95,11 @@ export const viewport: Viewport = {
   themeColor: site.themeColor,
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   // .js before first paint gates motion-only CSS away from no-JS visitors
   const jsFlag = `document.documentElement.classList.add('js');`;
 
@@ -94,7 +113,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     url: site.url,
     telephone: brand.phone,
     email: `mailto:${brand.email}`,
-    address: { "@type": "PostalAddress", streetAddress: brand.office, addressLocality: site.city, addressCountry: site.country },
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: brand.office,
+      addressLocality: site.city,
+      addressCountry: site.country,
+    },
     areaServed: ["Yerevan", "Dilijan", "Sevan", "Tsaghkadzor"],
   };
 
@@ -106,13 +130,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: jsFlag }} />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgLd) }} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgLd) }}
+        />
       </head>
       <body>
         <a href="#main" className="n-skip">
           Skip to content
         </a>
         <SmoothScroll />
+        {/* the chrome is a banner OUTSIDE main: rendered inside it, "Skip to
+            content" landed before the chrome and skipped nothing, and the page
+            had no banner landmark at all */}
+        <header>
+          <Chrome />
+        </header>
         <main id="main">{children}</main>
       </body>
     </html>

@@ -14,14 +14,30 @@ export default function ScrollRail() {
   const fill = useRef<HTMLSpanElement | null>(null);
   const bar = useRef<HTMLDivElement | null>(null);
   const [near, setNear] = useState(false); // near the end → the arrow turns
+  // Below 861px the rail is display:none, but it still mounted and still read
+  // scrollHeight on every frame of every scroll. A live matchMedia state, so a
+  // rotation into tablet width brings it back rather than needing a reload.
+  const [wide, setWide] = useState(false);
 
   useEffect(() => {
+    const mq = window.matchMedia("(min-width: 861px)");
+    const on = () => setWide(mq.matches);
+    on();
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, []);
+
+  useEffect(() => {
+    if (!wide) return;
     let raf = 0;
     let last = -1;
     const read = () => {
       raf = 0;
       const max = document.documentElement.scrollHeight - window.innerHeight;
-      const pct = max > 0 ? Math.min(100, Math.max(0, Math.round((window.scrollY / max) * 100))) : 0;
+      const pct =
+        max > 0
+          ? Math.min(100, Math.max(0, Math.round((window.scrollY / max) * 100)))
+          : 0;
       if (pct === last) return;
       last = pct;
       if (num.current) num.current.textContent = String(pct).padStart(2, "0");
@@ -40,7 +56,7 @@ export default function ScrollRail() {
       window.removeEventListener("resize", onScroll);
       if (raf) cancelAnimationFrame(raf);
     };
-  }, []);
+  }, [wide]);
 
   // one screen forward — or, near the end, back to the top
   const go = () => {
@@ -49,6 +65,8 @@ export default function ScrollRail() {
     if (lenis) lenis.scrollTo(target, {});
     else window.scrollTo({ top: target, behavior: "smooth" });
   };
+
+  if (!wide) return null;
 
   return (
     <div className="n-rail" aria-hidden={undefined}>
@@ -77,8 +95,20 @@ export default function ScrollRail() {
       >
         <span className="txt">{near ? "TOP" : "SCROLL"}</span>
         <svg viewBox="0 0 10 56" aria-hidden="true" data-up={near || undefined}>
-          <line x1="5" y1="2" x2="5" y2="48" stroke="currentColor" strokeWidth="1.2" />
-          <path d="M1.5 44 L5 52 L8.5 44" fill="none" stroke="currentColor" strokeWidth="1.2" />
+          <line
+            x1="5"
+            y1="2"
+            x2="5"
+            y2="48"
+            stroke="currentColor"
+            strokeWidth="1.2"
+          />
+          <path
+            d="M1.5 44 L5 52 L8.5 44"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.2"
+          />
         </svg>
       </button>
     </div>

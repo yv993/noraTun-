@@ -91,11 +91,15 @@ export default function TypeCarousel() {
       let started = false;
       let inView = false; // kept ahead of the arrival trigger — onEnter can fire synchronously on create when the page restores scroll past the band
 
-      const clipOf = (s: HTMLElement) => s.querySelector<HTMLElement>(".n-tycar__clip");
-      const imgOf = (s: HTMLElement) => s.querySelector<HTMLElement>(".n-tycar__clip img");
+      const clipOf = (s: HTMLElement) =>
+        s.querySelector<HTMLElement>(".n-tycar__clip");
+      const imgOf = (s: HTMLElement) =>
+        s.querySelector<HTMLElement>(".n-tycar__clip img");
       // the spec and copy lines, and the title's letters, move on their own clocks
-      const linesOf = (s: HTMLElement) => s.querySelectorAll<HTMLElement>(".n-tycar__mid .n-tycar__li");
-      const lettersOf = (s: HTMLElement) => s.querySelectorAll<HTMLElement>(".n-tycar__name .n-tycar__li");
+      const linesOf = (s: HTMLElement) =>
+        s.querySelectorAll<HTMLElement>(".n-tycar__mid .n-tycar__li");
+      const lettersOf = (s: HTMLElement) =>
+        s.querySelectorAll<HTMLElement>(".n-tycar__name .n-tycar__li");
 
       /** a slide leaves the accessibility tree and tab order when it leaves the stage */
       const setLive = (s: HTMLElement, live: boolean) => {
@@ -109,7 +113,10 @@ export default function TypeCarousel() {
       slides.forEach((s, i) => {
         gsap.set(s, { visibility: "hidden", zIndex: 0 });
         const c = clipOf(s);
-        if (c) gsap.set(c, { clipPath: "polygon(100% 0%, 100% 0%, 101% 100%, 125% 100%)" });
+        if (c)
+          gsap.set(c, {
+            clipPath: "polygon(100% 0%, 100% 0%, 101% 100%, 125% 100%)",
+          });
         gsap.set(linesOf(s), { yPercent: 110 });
         gsap.set(lettersOf(s), { yPercent: 110 });
         setLive(s, false);
@@ -124,7 +131,12 @@ export default function TypeCarousel() {
         timer = gsap.fromTo(
           fill,
           { scaleX: 0 },
-          { scaleX: 1, duration: HOLD, ease: "none", onComplete: () => go((idx + 1) % slides.length) },
+          {
+            scaleX: 1,
+            duration: HOLD,
+            ease: "none",
+            onComplete: () => go((idx + 1) % slides.length),
+          },
         );
         if (!inView || document.hidden) timer.pause();
       };
@@ -147,7 +159,8 @@ export default function TypeCarousel() {
 
         // numbers read (current, coming) — measured: at slide 1 they show 1 / 2
         if (numPrev) numPrev.textContent = String(to + 1);
-        if (numNext) numNext.textContent = String(((to + 1) % slides.length) + 1);
+        if (numNext)
+          numNext.textContent = String(((to + 1) % slides.length) + 1);
 
         arm(); // their fill resets as the blade starts, not after
 
@@ -162,12 +175,14 @@ export default function TypeCarousel() {
             const u = blade.u;
             if (incClip)
               incClip.style.clipPath = `polygon(${(100 * u).toFixed(3)}% 0%, 100% 0%, ${(100 + u).toFixed(3)}% 100%, ${(125 * u).toFixed(3)}% 100%)`;
-            if (incImg) incImg.style.transform = `translateX(${(0.25 * w * u).toFixed(2)}px) scale(${(1 + 0.5 * u).toFixed(4)})`;
+            if (incImg)
+              incImg.style.transform = `translateX(${(0.25 * w * u).toFixed(2)}px) scale(${(1 + 0.5 * u).toFixed(4)})`;
             if (outClip) {
               const v = 100 * u;
               outClip.style.clipPath = `polygon(0% 0%, ${v.toFixed(3)}% 0%, ${(1.25 * v).toFixed(3)}% 100%, 0% 100%)`;
             }
-            if (outImg) outImg.style.transform = `translateX(${(-0.25 * w * (1 - u)).toFixed(2)}px) scale(${(1 + 0.5 * (1 - u)).toFixed(4)})`;
+            if (outImg)
+              outImg.style.transform = `translateX(${(-0.25 * w * (1 - u)).toFixed(2)}px) scale(${(1 + 0.5 * (1 - u)).toFixed(4)})`;
           },
           onComplete: () => {
             if (out) {
@@ -181,19 +196,43 @@ export default function TypeCarousel() {
           },
         });
 
-        if (out) gsap.to(linesOf(out), { yPercent: -110, duration: 0.5, ease: eIn, stagger: 0.03 });
+        if (out)
+          gsap.to(linesOf(out), {
+            yPercent: -110,
+            duration: 0.5,
+            ease: eIn,
+            stagger: 0.03,
+          });
         gsap.fromTo(
           linesOf(inc),
           { yPercent: 110 },
-          { yPercent: 0, duration: 0.9, ease: eOut, stagger: 0.07, delay: 0.25 },
+          {
+            yPercent: 0,
+            duration: 0.9,
+            ease: eOut,
+            stagger: 0.07,
+            delay: 0.25,
+          },
         );
         // the title, letter by letter from its first: the old one lifts away,
         // the new one rises into place
-        if (out) gsap.to(lettersOf(out), { yPercent: -110, duration: 0.45, ease: eIn, stagger: 0.02 });
+        if (out)
+          gsap.to(lettersOf(out), {
+            yPercent: -110,
+            duration: 0.45,
+            ease: eIn,
+            stagger: 0.02,
+          });
         gsap.fromTo(
           lettersOf(inc),
           { yPercent: 110 },
-          { yPercent: 0, duration: 0.8, ease: eOut, stagger: 0.035, delay: 0.3 },
+          {
+            yPercent: 0,
+            duration: 0.8,
+            ease: eOut,
+            stagger: 0.035,
+            delay: 0.3,
+          },
         );
       };
 
@@ -205,7 +244,13 @@ export default function TypeCarousel() {
         onEnter: () => {
           started = true;
           go(0, null);
-          gsap.to(pag, { autoAlpha: 1, y: 0, duration: 0.8, ease: eOut, delay: 0.3 });
+          gsap.to(pag, {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.8,
+            ease: eOut,
+            delay: 0.3,
+          });
         },
       });
 
@@ -227,7 +272,8 @@ export default function TypeCarousel() {
       };
       document.addEventListener("visibilitychange", onVis);
 
-      const prev = () => started && go((idx - 1 + slides.length) % slides.length);
+      const prev = () =>
+        started && go((idx - 1 + slides.length) % slides.length);
       const next = () => started && go((idx + 1) % slides.length);
       const bPrev = el.querySelector<HTMLElement>(".n-tycar__nav.prev");
       const bNext = el.querySelector<HTMLElement>(".n-tycar__nav.next");
@@ -268,7 +314,12 @@ export default function TypeCarousel() {
   const shown = collections.filter((c) => c.status !== "soon");
 
   return (
-    <section className="n-tycar" ref={root} aria-roledescription="carousel" aria-label="The collections">
+    <section
+      className="n-tycar"
+      ref={root}
+      aria-roledescription="carousel"
+      aria-label="The collections"
+    >
       <div className="n-tycar__in">
         <div className="n-tycar__stage">
           {shown.map((c, i) => (
@@ -299,7 +350,11 @@ export default function TypeCarousel() {
                     <p>{c.copy}</p>
                   </L>
                   <L>
-                    <button type="button" className="n-tycar__pill" onClick={call}>
+                    <button
+                      type="button"
+                      className="n-tycar__pill"
+                      onClick={call}
+                    >
                       Ask about {c.place}
                     </button>
                   </L>
@@ -307,7 +362,14 @@ export default function TypeCarousel() {
               </div>
               <figure className="n-tycar__fig">
                 <div className="n-tycar__clip">
-                  <Image placeholder="blur" src={c.img} alt={c.alt} fill sizes="(max-width: 860px) 1px, 36vw" />
+                  <Image
+                    placeholder="blur"
+                    quality={65}
+                    src={c.img}
+                    alt={c.alt}
+                    fill
+                    sizes="(max-width: 860px) 1px, 36vw"
+                  />
                 </div>
                 {/* the title rides the photograph's bottom edge — baseline on
                     the edge, letters over the picture — each letter in its
@@ -328,9 +390,18 @@ export default function TypeCarousel() {
           ))}
         </div>
         <div className="n-tycar__pag">
-          <button type="button" className="n-tycar__nav prev" aria-label="Previous collection">
+          <button
+            type="button"
+            className="n-tycar__nav prev"
+            aria-label="Previous collection"
+          >
             <svg viewBox="0 0 16 16" aria-hidden="true">
-              <path d="M10.5 2.5 5 8l5.5 5.5" fill="none" stroke="currentColor" strokeWidth="1.4" />
+              <path
+                d="M10.5 2.5 5 8l5.5 5.5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.4"
+              />
             </svg>
             <span className="n" aria-hidden="true">
               1
@@ -339,12 +410,21 @@ export default function TypeCarousel() {
           <span className="n-tycar__track" aria-hidden="true">
             <span className="n-tycar__fill" />
           </span>
-          <button type="button" className="n-tycar__nav next" aria-label="Next collection">
+          <button
+            type="button"
+            className="n-tycar__nav next"
+            aria-label="Next collection"
+          >
             <span className="n" aria-hidden="true">
               2
             </span>
             <svg viewBox="0 0 16 16" aria-hidden="true">
-              <path d="M5.5 2.5 11 8l-5.5 5.5" fill="none" stroke="currentColor" strokeWidth="1.4" />
+              <path
+                d="M5.5 2.5 11 8l-5.5 5.5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.4"
+              />
             </svg>
           </button>
         </div>

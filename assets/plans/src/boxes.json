@@ -1,0 +1,434 @@
+{
+ "v01": {
+  "file": "v01-sheet.jpg",
+  "W": 2464,
+  "H": 1696,
+  "captions": [
+   "Ground floor",
+   "Basement"
+  ],
+  "panels": [
+   {
+    "x": 34,
+    "y": 128,
+    "w": 2412,
+    "h": 796
+   },
+   {
+    "x": 406,
+    "y": 976,
+    "w": 2040,
+    "h": 616
+   }
+  ],
+  "bandsFound": 2,
+  "manual": false
+ },
+ "v02": {
+  "file": "v02-sheet.jpg",
+  "W": 2464,
+  "H": 1696,
+  "captions": [
+   "Ground floor",
+   "Basement"
+  ],
+  "panels": [
+   {
+    "x": 54,
+    "y": 144,
+    "w": 2392,
+    "h": 712
+   },
+   {
+    "x": 406,
+    "y": 976,
+    "w": 2040,
+    "h": 624
+   }
+  ],
+  "bandsFound": 2,
+  "manual": false
+ },
+ "v03": {
+  "file": "v03-sheet.jpg",
+  "W": 2464,
+  "H": 1696,
+  "captions": [
+   "Ground floor",
+   "Second floor"
+  ],
+  "panels": [
+   {
+    "x": 185,
+    "y": 205,
+    "w": 2265,
+    "h": 635
+   },
+   {
+    "x": 160,
+    "y": 945,
+    "w": 2290,
+    "h": 625
+   }
+  ],
+  "bandsFound": 1,
+  "manual": true
+ },
+ "v04": {
+  "file": "v04-sheet.jpg",
+  "W": 2464,
+  "H": 1696,
+  "captions": [
+   "Upper ground",
+   "Lower ground"
+  ],
+  "panels": [
+   {
+    "x": 130,
+    "y": 208,
+    "w": 2212,
+    "h": 660
+   },
+   {
+    "x": 134,
+    "y": 976,
+    "w": 2164,
+    "h": 600
+   }
+  ],
+  "bandsFound": 2,
+  "manual": true
+ },
+ "v05": {
+  "file": "v05-sheet.jpg",
+  "W": 2464,
+  "H": 1696,
+  "captions": [
+   "Ground floor",
+   "Basement"
+  ],
+  "panels": [
+   {
+    "x": 34,
+    "y": 136,
+    "w": 2384,
+    "h": 720
+   },
+   {
+    "x": 398,
+    "y": 948,
+    "w": 1972,
+    "h": 632
+   }
+  ],
+  "bandsFound": 2,
+  "manual": false
+ },
+ "v06": {
+  "file": "v06-sheet.jpg",
+  "W": 2464,
+  "H": 1696,
+  "captions": [
+   "Ground floor",
+   "Basement"
+  ],
+  "panels": [
+   {
+    "x": 158,
+    "y": 184,
+    "w": 2184,
+    "h": 670
+   },
+   {
+    "x": 422,
+    "y": 976,
+    "w": 1876,
+    "h": 600
+   }
+  ],
+  "bandsFound": 2,
+  "manual": true
+ },
+ "v07": {
+  "file": "v07-sheet.jpg",
+  "W": 2464,
+  "H": 1696,
+  "captions": [
+   "Ground floor",
+   "Basement"
+  ],
+  "panels": [
+   {
+    "x": 330,
+    "y": 192,
+    "w": 1916,
+    "h": 600
+   },
+   {
+    "x": 342,
+    "y": 900,
+    "w": 1724,
+    "h": 692
+   }
+  ],
+  "bandsFound": 2,
+  "manual": true
+ },
+ "v08": {
+  "file": "v08-sheet.jpg",
+  "W": 2464,
+  "H": 1696,
+  "captions": [
+   "Ground floor",
+   "Basement"
+  ],
+  "panels": [
+   {
+    "x": 362,
+    "y": 168,
+    "w": 1736,
+    "h": 652
+   },
+   {
+    "x": 466,
+    "y": 952,
+    "w": 1632,
+    "h": 632
+   }
+  ],
+  "bandsFound": 2,
+  "manual": false
+ },
+ "v09": {
+  "file": "v09-sheet.jpg",
+  "W": 2464,
+  "H": 1696,
+  "captions": [
+   "Ground floor",
+   "Basement"
+  ],
+  "panels": [
+   {
+    "x": 338,
+    "y": 116,
+    "w": 1792,
+    "h": 688
+   },
+   {
+    "x": 474,
+    "y": 976,
+    "w": 1656,
+    "h": 588
+   }
+  ],
+  "bandsFound": 2,
+  "manual": false
+ },
+ "v10": {
+  "file": "v10-sheet.jpg",
+  "W": 2464,
+  "H": 1696,
+  "captions": [
+   "Ground floor",
+   "Basement"
+  ],
+  "panels": [
+   {
+    "x": 154,
+    "y": 216,
+    "w": 2172,
+    "h": 608
+   },
+   {
+    "x": 74,
+    "y": 1012,
+    "w": 2328,
+    "h": 540
+   }
+  ],
+  "bandsFound": 2,
+  "manual": false
+ },
+ "v11": {
+  "file": "v11-sheet.jpg",
+  "W": 2464,
+  "H": 1696,
+  "captions": [
+   "Ground floor",
+   "Basement"
+  ],
+  "panels": [
+   {
+    "x": 494,
+    "y": 216,
+    "w": 1496,
+    "h": 604
+   },
+   {
+    "x": 462,
+    "y": 992,
+    "w": 1528,
+    "h": 564
+   }
+  ],
+  "bandsFound": 2,
+  "manual": false
+ },
+ "v12": {
+  "file": "v12-sheet.jpg",
+  "W": 2464,
+  "H": 1696,
+  "captions": [
+   "Ground floor",
+   "Basement"
+  ],
+  "panels": [
+   {
+    "x": 314,
+    "y": 232,
+    "w": 1820,
+    "h": 645
+   },
+   {
+    "x": 514,
+    "y": 1028,
+    "w": 1616,
+    "h": 560
+   }
+  ],
+  "bandsFound": 2,
+  "manual": true
+ },
+ "v13": {
+  "file": "v13-sheet.jpg",
+  "W": 2464,
+  "H": 1696,
+  "captions": [
+   "Ground floor",
+   "Basement"
+  ],
+  "panels": [
+   {
+    "x": 579,
+    "y": 179,
+    "w": 1331,
+    "h": 622
+   },
+   {
+    "x": 579,
+    "y": 949,
+    "w": 1331,
+    "h": 591
+   }
+  ],
+  "bandsFound": 3,
+  "manual": true
+ },
+ "v14": {
+  "file": "v14-sheet.jpg",
+  "W": 2816,
+  "H": 1536,
+  "captions": [
+   "Ground floor",
+   "Basement",
+   "Structure"
+  ],
+  "panels": [
+   {
+    "x": 85,
+    "y": 225,
+    "w": 1323,
+    "h": 575
+   },
+   {
+    "x": 85,
+    "y": 860,
+    "w": 1323,
+    "h": 580
+   },
+   {
+    "x": 1422,
+    "y": 275,
+    "w": 1380,
+    "h": 1236
+   }
+  ],
+  "bandsFound": 2,
+  "manual": true
+ },
+ "v15": {
+  "file": "v15-sheet.jpg",
+  "W": 2464,
+  "H": 1696,
+  "captions": [
+   "Ground floor",
+   "Basement"
+  ],
+  "panels": [
+   {
+    "x": 406,
+    "y": 156,
+    "w": 1536,
+    "h": 680
+   },
+   {
+    "x": 578,
+    "y": 948,
+    "w": 1380,
+    "h": 584
+   }
+  ],
+  "bandsFound": 2,
+  "manual": true
+ },
+ "v16": {
+  "file": "v16-sheet.jpg",
+  "W": 2464,
+  "H": 1696,
+  "captions": [
+   "Ground floor",
+   "Basement"
+  ],
+  "panels": [
+   {
+    "x": 410,
+    "y": 160,
+    "w": 1532,
+    "h": 660
+   },
+   {
+    "x": 590,
+    "y": 948,
+    "w": 1368,
+    "h": 568
+   }
+  ],
+  "bandsFound": 2,
+  "manual": true
+ },
+ "v17": {
+  "file": "v17-sheet.jpg",
+  "W": 2464,
+  "H": 1696,
+  "captions": [
+   "Ground floor",
+   "Basement"
+  ],
+  "panels": [
+   {
+    "x": 74,
+    "y": 203,
+    "w": 1158,
+    "h": 536
+   },
+   {
+    "x": 148,
+    "y": 838,
+    "w": 1084,
+    "h": 505
+   }
+  ],
+  "bandsFound": 3,
+  "manual": true
+ }
+}

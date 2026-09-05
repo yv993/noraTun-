@@ -48,16 +48,25 @@ export default function AmenitySlider() {
   // the hairline sits beside the active tab and slides to the next
   useEffect(() => {
     if (!live) return;
-    const tab = tabsRef.current?.querySelectorAll<HTMLElement>(".n-amsl__tab")[idx];
+    const tab =
+      tabsRef.current?.querySelectorAll<HTMLElement>(".n-amsl__tab")[idx];
     const line = lineRef.current;
     if (!tab || !line) return;
-    gsap.to(line, { top: tab.offsetTop, height: tab.offsetHeight, duration: 0.5, ease: eOut });
+    gsap.to(line, {
+      top: tab.offsetTop,
+      height: tab.offsetHeight,
+      duration: 0.5,
+      ease: eOut,
+    });
   }, [idx, live]);
 
   const onKey = (e: React.KeyboardEvent) => {
     if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
     e.preventDefault();
-    const n = e.key === "ArrowDown" ? (idx + 1) % items.length : (idx - 1 + items.length) % items.length;
+    const n =
+      e.key === "ArrowDown"
+        ? (idx + 1) % items.length
+        : (idx - 1 + items.length) % items.length;
     setIdx(n);
     tabsRef.current?.querySelectorAll<HTMLElement>(".n-amsl__tab")[n]?.focus();
   };
@@ -66,61 +75,73 @@ export default function AmenitySlider() {
   if (!live) return null;
 
   return (
-    <section className="n-amsl" ref={root} aria-label={amenities.title} data-dark>
+    <section
+      className="n-amsl"
+      ref={root}
+      aria-label={amenities.title}
+      data-dark
+    >
       {/* the screen holds for a second viewport of scroll while the next
           band's cream crown rises over it */}
       <div className="n-amsl__screen">
-      <figure className="n-amsl__bg">
-        <Image placeholder="blur" src={amenities.img} alt={amenities.alt} fill sizes="(max-width: 860px) 1px, 100vw" />
-        {items.map((a, i) => (
-          <button
-            type="button"
-            className="n-amsl__pin"
-            key={a.label}
-            style={{ left: a.x, top: a.y }}
-            data-on={i === idx || undefined}
-            onClick={() => setIdx(i)}
-            aria-label={a.label}
-            tabIndex={-1}
-          >
-            <i aria-hidden="true" />
-            <span aria-hidden="true">{a.label}</span>
-          </button>
-        ))}
-      </figure>
+        <figure className="n-amsl__bg">
+          <Image
+            placeholder="blur"
+            quality={65}
+            src={amenities.img}
+            alt={amenities.alt}
+            fill
+            sizes="(max-width: 860px) 1px, 100vw"
+          />
+          {items.map((a, i) => (
+            <button
+              type="button"
+              className="n-amsl__pin"
+              key={a.label}
+              style={{ left: a.x, top: a.y }}
+              data-on={i === idx || undefined}
+              onClick={() => setIdx(i)}
+              aria-label={a.label}
+              tabIndex={-1}
+            >
+              <i aria-hidden="true" />
+              <span aria-hidden="true">{a.label}</span>
+            </button>
+          ))}
+        </figure>
 
-      <div
-        className="n-amsl__tabs"
-        role="tablist"
-        aria-orientation="vertical"
-        aria-label={amenities.title}
-        ref={tabsRef}
-        onKeyDown={onKey}
-      >
-        <span className="n-amsl__line" aria-hidden="true" ref={lineRef} />
-        {items.map((a, i) => (
-          <button
-            type="button"
-            role="tab"
-            className="n-amsl__tab"
-            key={a.label}
-            aria-selected={i === idx}
-            tabIndex={i === idx ? 0 : -1}
-            onClick={() => setIdx(i)}
-          >
-            {a.label}
-          </button>
-        ))}
-        <p className="n-amsl__note" key={idx} aria-live="polite">
-          {items[idx].note}
-        </p>
-      </div>
+        <div
+          className="n-amsl__tabs"
+          role="tablist"
+          aria-orientation="vertical"
+          aria-label={amenities.title}
+          ref={tabsRef}
+          onKeyDown={onKey}
+        >
+          <span className="n-amsl__line" aria-hidden="true" ref={lineRef} />
+          {items.map((a, i) => (
+            <button
+              type="button"
+              role="tab"
+              className="n-amsl__tab"
+              key={a.label}
+              aria-selected={i === idx}
+              tabIndex={i === idx ? 0 : -1}
+              onClick={() => setIdx(i)}
+            >
+              {a.label}
+            </button>
+          ))}
+          <p className="n-amsl__note" key={idx} aria-live="polite">
+            {items[idx].note}
+          </p>
+        </div>
 
-      <p className="n-amsl__say">{amenities.statement}</p>
+        <p className="n-amsl__say">{amenities.statement}</p>
 
-      <button type="button" className="n-amsl__orb" onClick={call}>
-        {amenities.cta}
-      </button>
+        <button type="button" className="n-amsl__orb" onClick={call}>
+          {amenities.cta}
+        </button>
       </div>
     </section>
   );

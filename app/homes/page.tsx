@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Chrome from "@/components/Chrome";
 import HomesView from "@/components/HomesView";
 import { brand, listings } from "@/lib/content";
 import { abs } from "@/lib/site";
@@ -7,11 +6,12 @@ import { abs } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Available homes",
   description:
-    "The current NORATUN list: apartments in Yerevan, houses in Dilijan, lake houses at Sevan — bedrooms, areas and indicative plans, updated weekly.",
+    "The current NORATUN list: town houses in Yerevan, forest houses in Dilijan, lake houses at Sevan — every home with its plan sheets, bedrooms and areas read from the drawing, updated weekly.",
   alternates: { canonical: abs("/homes") },
   openGraph: {
     title: `Available homes — ${brand.full}`,
-    description: "Apartments in Yerevan, houses in Dilijan, lake houses at Sevan — the list moves weekly.",
+    description:
+      "Apartments in Yerevan, houses in Dilijan, lake houses at Sevan — the list moves weekly.",
     url: abs("/homes"),
   },
 };
@@ -30,9 +30,11 @@ export default function HomesPage() {
   };
   return (
     <>
-      <Chrome />
       <HomesView />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
     </>
   );
 }

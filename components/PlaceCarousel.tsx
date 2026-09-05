@@ -20,13 +20,23 @@ export default function PlaceCarousel({
   interval,
   label,
   kicker,
+  pauseLabel,
+  playLabel,
 }: {
   slides: Slide[];
   interval: number;
   label: string;
   kicker: string[];
+  pauseLabel: string;
+  playLabel: string;
 }) {
   const [idx, setIdx] = useState(0);
+  // A touch visitor could not reach the pause: it was pointerenter only. This
+  // is the latched one — a control, and any touch inside the frame.
+  const [held, setHeld] = useState(false);
+  // The live region announced every automatic tick. It now carries text only
+  // after the visitor themselves changed the slide.
+  const [say, setSay] = useState("");
   const n = slides.length;
   const root = useRef<HTMLDivElement | null>(null);
   const line = useRef<HTMLSpanElement | null>(null);
@@ -38,7 +48,10 @@ export default function PlaceCarousel({
   const restart = useRef<() => void>(() => {});
   const drag = useRef<number | null>(null);
 
-  const letters = () => (line.current ? Array.from(line.current.querySelectorAll<HTMLElement>(".l")) : []);
+  const letters = () =>
+    line.current
+      ? Array.from(line.current.querySelectorAll<HTMLElement>(".l"))
+      : [];
 
   // Reveal the current title from its first letter, and the copy after it.
   // The pair of moves is kept under ~1.2s on the longest title so a two-second
@@ -47,9 +60,21 @@ export default function PlaceCarousel({
     gsap.fromTo(
       letters(),
       { yPercent: 110, autoAlpha: 0 },
-      { yPercent: 0, autoAlpha: 1, duration: 0.42, ease: "power3.out", stagger: 0.018, onComplete: () => (busy.current = false) },
+      {
+        yPercent: 0,
+        autoAlpha: 1,
+        duration: 0.42,
+        ease: "power3.out",
+        stagger: 0.018,
+        onComplete: () => (busy.current = false),
+      },
     );
-    if (copyEl.current) gsap.fromTo(copyEl.current, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.34, ease: "power2.out", delay: 0.16 });
+    if (copyEl.current)
+      gsap.fromTo(
+        copyEl.current,
+        { autoAlpha: 0, y: 10 },
+        { autoAlpha: 1, y: 0, duration: 0.34, ease: "power2.out", delay: 0.16 },
+      );
   };
 
   // change slides: lift the title away from its first letter, then swap;
@@ -74,17 +99,27 @@ export default function PlaceCarousel({
         setIdx(next);
       },
     });
-    if (copyEl.current) gsap.to(copyEl.current, { autoAlpha: 0, y: -8, duration: 0.2, ease: "power2.in" });
+    if (copyEl.current)
+      gsap.to(copyEl.current, {
+        autoAlpha: 0,
+        y: -8,
+        duration: 0.2,
+        ease: "power2.in",
+      });
   };
   const pickAndRestart = (to: number) => {
+    const next = ((to % n) + n) % n;
     go(to);
     restart.current();
+    setSay(`${next + 1} of ${n}: ${slides[next].title}`);
   };
 
   // hide the title before first sight (motion only), so the first reveal
   // can play when the screen comes into view
   useLayoutEffect(() => {
-    still.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    still.current = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
     if (still.current) return;
     gsap.set(letters(), { yPercent: 110, autoAlpha: 0 });
     if (copyEl.current) gsap.set(copyEl.current, { autoAlpha: 0 });
@@ -111,7 +146,7 @@ export default function PlaceCarousel({
     };
     const start = () => {
       stop();
-      if (still.current || paused || !onScreen) return;
+      if (still.current || paused || held || !onScreen) return;
       timer = window.setInterval(() => go(idxRef.current + 1), interval);
     };
     restart.current = start;
@@ -150,9 +185,11 @@ export default function PlaceCarousel({
       host.removeEventListener("focusout", resume);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [interval]);
+  }, [interval, held]);
 
   const onPointerDown = (e: React.PointerEvent<HTMLElement>) => {
+    // a finger on the frame means "I am reading this one"
+    if (e.pointerType === "touch") setHeld(true);
     drag.current = e.clientX;
     e.currentTarget.setPointerCapture(e.pointerId);
   };
@@ -170,7 +207,14 @@ export default function PlaceCarousel({
 
   const s = slides[idx];
   return (
-    <div className="n-place__unit" ref={root} role="region" aria-roledescription="carousel" aria-label={label} onKeyDown={onKey}>
+    <div
+      className="n-place__unit"
+      ref={root}
+      role="region"
+      aria-roledescription="carousel"
+      aria-label={label}
+      onKeyDown={onKey}
+    >
       <h2 className="n-place__title" id="n-place-title" aria-label={s.title}>
         {/* each word is a no-wrap box of letter boxes, with plain spaces
             between the words: the letters animate one by one, and where the
@@ -202,6 +246,7 @@ export default function PlaceCarousel({
             <Image
               key={sl.alt}
               placeholder="blur"
+              quality={65}
               src={sl.img}
               alt={sl.alt}
               fill
@@ -213,19 +258,41 @@ export default function PlaceCarousel({
           ))}
         </figure>
         <div className="n-place__ctl">
-          <button type="button" onClick={() => pickAndRestart(idx - 1)} aria-label="Previous">
+          <button
+            type="button"
+            onClick={() => pickAndRestart(idx - 1)}
+            aria-label="Previous"
+          >
             ‹
           </button>
           <span className="n-place__num" aria-hidden="true">
             {idx + 1}
           </span>
           <span className="n-place__track" aria-hidden="true">
-            <i style={{ width: `${100 / n}%`, transform: `translateX(${idx * 100}%)` }} />
+            <i
+              style={{
+                width: `${100 / n}%`,
+                transform: `translateX(${idx * 100}%)`,
+              }}
+            />
           </span>
           <span className="n-place__num n-place__num--total" aria-hidden="true">
             {n}
           </span>
-          <button type="button" onClick={() => pickAndRestart(idx + 1)} aria-label="Next">
+          <button
+            type="button"
+            className="n-place__hold"
+            aria-label={held ? playLabel : pauseLabel}
+            aria-pressed={held}
+            onClick={() => setHeld((h) => !h)}
+          >
+            <span aria-hidden="true">{held ? "▸" : "❙❙"}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => pickAndRestart(idx + 1)}
+            aria-label="Next"
+          >
             ›
           </button>
         </div>
@@ -243,7 +310,7 @@ export default function PlaceCarousel({
       </div>
 
       <p className="n-sr" aria-live="polite">
-        {`${idx + 1} of ${n}: ${s.title}`}
+        {say}
       </p>
     </div>
   );

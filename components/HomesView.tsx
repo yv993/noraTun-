@@ -1,12 +1,20 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { FloorPlan } from "@/components/ui/FloorPlan";
 import { BotanicalCrestIcon } from "@/components/ui/BotanicalCrestIcon";
-import { brand, footer, homesPage, listings, TYPOLOGIES, type Listing, type Typology } from "@/lib/content";
+import {
+  brand,
+  footer,
+  homesPage,
+  listings,
+  TYPOLOGIES,
+  type Listing,
+  type Typology,
+} from "@/lib/content";
 
 // ============================================================================
 // /homes — the catalogue. Anatomy MEASURED off the reference's listing page
@@ -43,14 +51,50 @@ type Place = (typeof PLACES)[number] | "all";
 type Beds = "any" | "1" | "2" | "3plus";
 type Sort = "relevant" | "smallest" | "largest";
 
+/** The bed / area line, printed from what the sheet actually gives. A null
+ *  bedroom count or area is OMITTED — never shown as 0, never invented. Shared
+ *  by the catalogue card and the detail page so the two can never disagree. */
+export function Facts({ l }: { l: Listing }) {
+  const bits: React.ReactNode[] = [];
+  if (l.bedrooms !== null)
+    bits.push(<Fragment key="b">{l.bedrooms} bed</Fragment>);
+  if (l.area !== null)
+    bits.push(
+      <Fragment key="a">
+        {l.area} m<sup>2</sup>
+      </Fragment>,
+    );
+  return (
+    <>
+      {bits.map((b, i) => (
+        <Fragment key={i}>
+          {i ? " / " : ""}
+          {b}
+        </Fragment>
+      ))}
+    </>
+  );
+}
+
 function Card({ l }: { l: Listing }) {
+  const spec = [
+    l.bedrooms === null
+      ? null
+      : `${l.bedrooms} bedroom${l.bedrooms === 1 ? "" : "s"}`,
+    l.area === null ? null : `${l.area} square metres`,
+    l.terrace ? `${l.terrace} square metre terrace` : null,
+  ].filter(Boolean);
   const label =
-    `${l.name}, ${l.typology.toLowerCase()} in ${l.place} — ` +
-    `${l.bedrooms} bedroom${l.bedrooms === 1 ? "" : "s"}, ${l.area} square metres` +
-    (l.terrace ? `, ${l.terrace} square metre terrace` : "") +
+    `${l.name}, ${l.typology.toLowerCase()} in ${l.place}` +
+    (spec.length ? ` — ${spec.join(", ")}` : "") +
     `. ${homesPage.statusLabel[l.status]}.`;
   return (
-    <a className="hp-card" href={`/homes/${l.id}`} data-status={l.status} aria-label={label}>
+    <a
+      className="hp-card"
+      href={`/homes/${l.id}`}
+      data-status={l.status}
+      aria-label={label}
+    >
       <span className="hp-card__head">
         <span className="hp-card__typo">{l.typology}</span>
         <span className="hp-card__completion">
@@ -59,8 +103,17 @@ function Card({ l }: { l: Listing }) {
       </span>
 
       <span className="hp-card__plans" aria-hidden="true">
-        {l.levels.map((lv) => (
-          <FloorPlan key={lv.caption} rooms={lv.rooms} caption={lv.caption} title={l.name} />
+        {/* the two floors, stacked as the reference stacks them; a sheet's
+            structural section (v14) belongs on the home's own page, not here */}
+        {l.levels.slice(0, 2).map((lv) => (
+          <FloorPlan
+            key={lv.caption}
+            img={lv.img}
+            alt={lv.alt}
+            rooms={lv.rooms}
+            caption={lv.caption}
+            title={l.name}
+          />
         ))}
       </span>
 
@@ -70,7 +123,7 @@ function Card({ l }: { l: Listing }) {
         <span>{l.floor}</span>
       </span>
       <span className="hp-card__big">
-        {l.bedrooms} bed / {l.area} m<sup>2</sup>
+        <Facts l={l} />
       </span>
       {l.terrace > 0 && (
         <span className="hp-card__sub">
@@ -89,7 +142,11 @@ export default function HomesView() {
   const [beds, setBeds] = useState<Beds>("any");
   const [sort, setSort] = useState<Sort>("relevant");
 
-  const dirty = place !== "all" || typology !== "all" || beds !== "any" || sort !== "relevant";
+  const dirty =
+    place !== "all" ||
+    typology !== "all" ||
+    beds !== "any" ||
+    sort !== "relevant";
   const reset = () => {
     setPlace("all");
     setTypology("all");
@@ -102,21 +159,81 @@ export default function HomesView() {
       (l) =>
         (place === "all" || l.place === place) &&
         (typology === "all" || l.typology === typology) &&
-        (beds === "any" || (beds === "3plus" ? l.bedrooms >= 3 : l.bedrooms === Number(beds))),
+        (beds === "any" ||
+          (beds === "3plus"
+            ? (l.bedrooms ?? 0) >= 3
+            : l.bedrooms === Number(beds))),
     );
-    // "relevant" keeps the curated order; the other two sort by interior area
-    if (sort === "smallest") return [...out].sort((a, b) => a.area - b.area);
-    if (sort === "largest") return [...out].sort((a, b) => b.area - a.area);
+    // "relevant" keeps the curated order; the other two sort by interior area.
+    // A sheet that numbers too few rooms leaves area null — those sort last in
+    // both directions rather than pretending to be 0 m².
+    if (sort === "smallest")
+      return [...out].sort(
+        (a, b) => (a.area ?? Infinity) - (b.area ?? Infinity),
+      );
+    if (sort === "largest")
+      return [...out].sort(
+        (a, b) => (b.area ?? -Infinity) - (a.area ?? -Infinity),
+      );
     return out;
   }, [place, typology, beds, sort]);
 
+  // Per-chip counts, each computed against the OTHER axes. 38 of the 80
+  // filter combinations returned nothing with no warning before this; a chip
+  // that would empty the grid now says so and cannot be tapped.
+  const countWith = (o: {
+    place?: Place;
+    typology?: Typology | "all";
+    beds?: Beds;
+  }) => {
+    const P = o.place ?? place;
+    const T = o.typology ?? typology;
+    const B = o.beds ?? beds;
+    return listings.filter(
+      (l) =>
+        (P === "all" || l.place === P) &&
+        (T === "all" || l.typology === T) &&
+        (B === "any" ||
+          (B === "3plus" ? (l.bedrooms ?? 0) >= 3 : l.bedrooms === Number(B))),
+    ).length;
+  };
+
   // photo tiles take grid slots after the 4th and 9th card
   const cells = useMemo(() => {
-    const out: Array<{ kind: "card"; l: Listing } | { kind: "tile"; i: number }> = shown.map((l) => ({ kind: "card", l }));
+    const out: Array<
+      { kind: "card"; l: Listing } | { kind: "tile"; i: number }
+    > = shown.map((l) => ({ kind: "card", l }));
     if (out.length > 8) out.splice(8, 0, { kind: "tile", i: 1 });
     if (out.length > 4) out.splice(4, 0, { kind: "tile", i: 0 });
     return out;
   }, [shown]);
+
+  // A filter tap collapses the document (measured 12,975 -> 5,671px). The
+  // browser clamps scrollY to the new height and the visitor lands in the
+  // FOOTER with no cards on screen. After every filter commit, if they were
+  // below the grid's top, put them back on the first card.
+  const firstFilterRun = useRef(true);
+  useEffect(() => {
+    if (firstFilterRun.current) {
+      firstFilterRun.current = false;
+      return;
+    }
+    const grid = root.current?.querySelector<HTMLElement>(".hp-grid");
+    if (!grid) return;
+    const top = window.scrollY + grid.getBoundingClientRect().top - 76;
+    if (window.scrollY > top) {
+      const lenis = (
+        window as unknown as {
+          __lenis?: { scrollTo: (t: number, o?: object) => void };
+        }
+      ).__lenis;
+      if (lenis) lenis.scrollTo(top, { immediate: true });
+      else window.scrollTo(0, top);
+    }
+    // the grid's height just changed under every trigger below it
+    const r = requestAnimationFrame(() => ScrollTrigger.refresh());
+    return () => cancelAnimationFrame(r);
+  }, [place, typology, beds, sort]);
 
   useEffect(() => {
     const el = root.current;
@@ -131,11 +248,21 @@ export default function HomesView() {
     const panel = el.querySelector<HTMLElement>(".hp-panel");
     const tail = el.querySelector<HTMLElement>(".hp-tail");
     let railRaf = 0;
+    const grid = el.querySelector<HTMLElement>(".hp-grid");
     const railCheck = () => {
       railRaf = 0;
-      if (!tail) return;
-      const r = tail.getBoundingClientRect();
-      const over = r.top < window.innerHeight * 0.7 && r.bottom > 0;
+      // stand down over the wine tail, AND whenever the grid the rail filters
+      // is not on screen at all — a place rail floating over the opening copy
+      // or the footer only steals taps
+      let over = false;
+      if (tail) {
+        const r = tail.getBoundingClientRect();
+        over = r.top < window.innerHeight * 0.7 && r.bottom > 0;
+      }
+      if (!over && grid) {
+        const g = grid.getBoundingClientRect();
+        over = g.bottom < 40 || g.top > window.innerHeight - 40;
+      }
       rail?.toggleAttribute("data-off", over);
       panel?.toggleAttribute("data-off", over);
     };
@@ -147,28 +274,60 @@ export default function HomesView() {
     window.addEventListener("resize", onRailScroll, { passive: true });
 
     // ---- wide + motion only: the scrubbed, position-dependent work ---------
-    mm.add("(min-width: 861px) and (prefers-reduced-motion: no-preference)", () => {
-      el.querySelectorAll<HTMLElement>(".n-arch").forEach((band) => {
+    mm.add(
+      "(min-width: 861px) and (prefers-reduced-motion: no-preference)",
+      () => {
+        el.querySelectorAll<HTMLElement>(".n-arch").forEach((band) => {
+          gsap.fromTo(
+            band,
+            { "--dome": "50% 12vh" },
+            {
+              "--dome": "0% 0vh",
+              ease: "none",
+              scrollTrigger: {
+                trigger: band,
+                start: "top 96%",
+                end: "top 22%",
+                scrub: 1,
+              },
+            },
+          );
+        });
+        // photo tiles + the tail photo drift ±15% (the reference's rate)
+        el.querySelectorAll<HTMLElement>(
+          ".hp-tilewrap img, .hp-tail__fig img",
+        ).forEach((im) => {
+          gsap.fromTo(
+            im,
+            { yPercent: -15 },
+            {
+              yPercent: 15,
+              ease: "none",
+              scrollTrigger: {
+                trigger: im.closest("figure"),
+                start: "top bottom",
+                end: "bottom top",
+                scrub: 0.5,
+              },
+            },
+          );
+        });
         gsap.fromTo(
-          band,
-          { "--dome": "50% 12vh" },
-          { "--dome": "0% 0vh", ease: "none", scrollTrigger: { trigger: band, start: "top 96%", end: "top 22%", scrub: 1 } },
+          ".hp-flower",
+          { yPercent: -10 },
+          {
+            yPercent: 10,
+            ease: "none",
+            scrollTrigger: {
+              trigger: ".hp-flower",
+              start: "top 125%",
+              end: "bottom -25%",
+              scrub: 0.5,
+            },
+          },
         );
-      });
-      // photo tiles + the tail photo drift ±15% (the reference's rate)
-      el.querySelectorAll<HTMLElement>(".hp-tilewrap img, .hp-tail__fig img").forEach((im) => {
-        gsap.fromTo(
-          im,
-          { yPercent: -15 },
-          { yPercent: 15, ease: "none", scrollTrigger: { trigger: im.closest("figure"), start: "top bottom", end: "bottom top", scrub: 0.5 } },
-        );
-      });
-      gsap.fromTo(".hp-flower", { yPercent: -10 }, {
-        yPercent: 10,
-        ease: "none",
-        scrollTrigger: { trigger: ".hp-flower", start: "top 125%", end: "bottom -25%", scrub: 0.5 },
-      });
-    });
+      },
+    );
 
     // ---- all widths, motion allowed: in-flow arrivals ---------------------
     mm.add("(prefers-reduced-motion: no-preference)", () => {
@@ -179,7 +338,11 @@ export default function HomesView() {
           duration: 0.7,
           delay: (i % 3) * 0.07,
           ease: "power3.out",
-          scrollTrigger: { trigger: n, start: "top 92%", toggleActions: "play none none none" },
+          scrollTrigger: {
+            trigger: n,
+            start: "top 92%",
+            toggleActions: "play none none none",
+          },
         });
       });
       el.querySelectorAll<HTMLElement>("[data-rise]").forEach((n) => {
@@ -188,7 +351,11 @@ export default function HomesView() {
           opacity: 0,
           duration: 0.8,
           ease: "power3.out",
-          scrollTrigger: { trigger: n, start: "top 86%", toggleActions: "play none none none" },
+          scrollTrigger: {
+            trigger: n,
+            start: "top 86%",
+            toggleActions: "play none none none",
+          },
         });
       });
     });
@@ -217,14 +384,27 @@ export default function HomesView() {
     <div className="hp" ref={root}>
       {/* the reference's fixed side index — here it filters by place */}
       <nav className="hp-rail" aria-label="Places">
-        <button type="button" className={place === "all" ? "on" : ""} onClick={() => setPlace("all")}>
-          {homesPage.placeAll}
-        </button>
-        {PLACES.map((p) => (
-          <button key={p} type="button" className={place === p ? "on" : ""} onClick={() => setPlace(p)}>
-            {p}
-          </button>
-        ))}
+        {(
+          [
+            ["all", homesPage.placeAll],
+            ...PLACES.map((p) => [p, p] as const),
+          ] as ReadonlyArray<readonly [Place, string]>
+        ).map(([v, lab]) => {
+          const c = countWith({ place: v });
+          return (
+            <button
+              key={v}
+              type="button"
+              className={place === v ? "on" : ""}
+              aria-pressed={place === v}
+              disabled={c === 0 && place !== v}
+              onClick={() => setPlace(v)}
+            >
+              {lab}
+              <i aria-hidden="true">{c}</i>
+            </button>
+          );
+        })}
         <i className="hp-rail__rule" aria-hidden="true" />
         <span className="hp-rail__soon">{homesPage.soon}</span>
       </nav>
@@ -233,125 +413,207 @@ export default function HomesView() {
           place rail on the left keeps a lane of its own and the panel sticks
           beside the grid instead of floating over the opening copy */}
       <div className="hp-body">
-      <section className="hp-list" aria-label="Available homes">
-        <div className="hp-flower n-flower is-page" aria-hidden="true">
-          <svg viewBox="0 0 200 200">
-            <g className="spin">
-              <circle cx="100" cy="100" r="70" fill="none" stroke="currentColor" strokeWidth="0.9" />
-              <ellipse cx="100" cy="100" rx="96" ry="34" fill="none" stroke="currentColor" strokeWidth="0.9" />
-              <ellipse cx="100" cy="100" rx="34" ry="96" fill="none" stroke="currentColor" strokeWidth="0.9" />
-              <circle cx="100" cy="100" r="8" fill="currentColor" />
-            </g>
-          </svg>
-        </div>
-
-        <span className="n-label" data-rise>
-          {homesPage.kicker}
-        </span>
-        <h1 className="hp-title" data-rise>
-          {homesPage.title}
-        </h1>
-        <p className="hp-sub" data-rise>
-          {homesPage.sub}
-        </p>
-
-        {/* three intro blocks, the reference's own device */}
-        <div className="hp-intro" data-rise>
-          {homesPage.intro.map((b) => (
-            <div key={b.title}>
-              <h2>{b.title}</h2>
-              <p>{b.copy}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="hp-filter" data-rise>
-          <div className="hp-filter__set" role="group" aria-labelledby="hp-typo-label">
-            <span className="hp-filter__label" id="hp-typo-label">
-              {homesPage.typologyLabel}
-            </span>
-            <div className="hp-filter__opts">
-              <button type="button" className={typology === "all" ? "on" : ""} aria-pressed={typology === "all"} onClick={() => setTypology("all")}>
-                {homesPage.allLabel}
-              </button>
-              {TYPOLOGIES.map((t) => (
-                <button key={t} type="button" className={typology === t ? "on" : ""} aria-pressed={typology === t} onClick={() => setTypology(t)}>
-                  {t}
-                </button>
-              ))}
-            </div>
+        <section className="hp-list" aria-label="Available homes">
+          <div className="hp-flower n-flower is-page" aria-hidden="true">
+            <svg viewBox="0 0 200 200">
+              <g className="spin">
+                <circle
+                  cx="100"
+                  cy="100"
+                  r="70"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="0.9"
+                />
+                <ellipse
+                  cx="100"
+                  cy="100"
+                  rx="96"
+                  ry="34"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="0.9"
+                />
+                <ellipse
+                  cx="100"
+                  cy="100"
+                  rx="34"
+                  ry="96"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="0.9"
+                />
+                <circle cx="100" cy="100" r="8" fill="currentColor" />
+              </g>
+            </svg>
           </div>
 
-          <div className="hp-filter__set" role="group" aria-labelledby="hp-beds-label">
-            <span className="hp-filter__label" id="hp-beds-label">
-              {homesPage.bedsLabel}
-            </span>
-            <div className="hp-filter__opts">
-              {bedChoices.map((b) => (
-                <button key={b.v} type="button" className={beds === b.v ? "on" : ""} aria-pressed={beds === b.v} onClick={() => setBeds(b.v)}>
-                  {b.label}
-                </button>
-              ))}
-            </div>
+          <span className="n-label" data-rise>
+            {homesPage.kicker}
+          </span>
+          <h1 className="hp-title" data-rise>
+            {homesPage.title}
+          </h1>
+          <p className="hp-sub" data-rise>
+            {homesPage.sub}
+          </p>
+
+          {/* three intro blocks, the reference's own device */}
+          <div className="hp-intro" data-rise>
+            {homesPage.intro.map((b) => (
+              <div key={b.title}>
+                <h2>{b.title}</h2>
+                <p>{b.copy}</p>
+              </div>
+            ))}
           </div>
 
-          <div className="hp-filter__set" role="group" aria-labelledby="hp-sort-label">
-            <span className="hp-filter__label" id="hp-sort-label">
-              {homesPage.sortLabel}
-            </span>
-            <div className="hp-filter__opts">
-              {homesPage.sortOptions.map((s) => (
-                <button key={s.v} type="button" className={sort === s.v ? "on" : ""} aria-pressed={sort === s.v} onClick={() => setSort(s.v)}>
-                  {s.label}
-                </button>
-              ))}
+          <div className="hp-filter" data-rise>
+            <div
+              className="hp-filter__set"
+              role="group"
+              aria-labelledby="hp-typo-label"
+            >
+              <span className="hp-filter__label" id="hp-typo-label">
+                {homesPage.typologyLabel}
+              </span>
+              <div className="hp-filter__opts">
+                {(
+                  ["all", ...TYPOLOGIES] as ReadonlyArray<Typology | "all">
+                ).map((t) => {
+                  const c = countWith({ typology: t });
+                  return (
+                    <button
+                      key={t}
+                      type="button"
+                      className={typology === t ? "on" : ""}
+                      aria-pressed={typology === t}
+                      disabled={c === 0 && typology !== t}
+                      onClick={() => setTypology(t)}
+                    >
+                      {t === "all" ? homesPage.allLabel : t}
+                      <i aria-hidden="true">{c}</i>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
+
+            <div
+              className="hp-filter__set"
+              role="group"
+              aria-labelledby="hp-beds-label"
+            >
+              <span className="hp-filter__label" id="hp-beds-label">
+                {homesPage.bedsLabel}
+              </span>
+              <div className="hp-filter__opts">
+                {bedChoices.map((b) => {
+                  const c = countWith({ beds: b.v });
+                  return (
+                    <button
+                      key={b.v}
+                      type="button"
+                      className={beds === b.v ? "on" : ""}
+                      aria-pressed={beds === b.v}
+                      disabled={c === 0 && beds !== b.v}
+                      onClick={() => setBeds(b.v)}
+                    >
+                      {b.label}
+                      <i aria-hidden="true">{c}</i>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div
+              className="hp-filter__set"
+              role="group"
+              aria-labelledby="hp-sort-label"
+            >
+              <span className="hp-filter__label" id="hp-sort-label">
+                {homesPage.sortLabel}
+              </span>
+              <div className="hp-filter__opts">
+                {homesPage.sortOptions.map((s) => (
+                  <button
+                    key={s.v}
+                    type="button"
+                    className={sort === s.v ? "on" : ""}
+                    aria-pressed={sort === s.v}
+                    onClick={() => setSort(s.v)}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className="hp-filter__reset"
+              onClick={reset}
+              disabled={!dirty}
+            >
+              {homesPage.resetLabel}
+            </button>
           </div>
 
-          <button type="button" className="hp-filter__reset" onClick={reset} disabled={!dirty}>
-            {homesPage.resetLabel}
+          <p className="hp-count" role="status">
+            {homesPage.shown(shown.length, listings.length)}
+          </p>
+          <p className="hp-legend">{homesPage.legend}</p>
+
+          {shown.length > 0 ? (
+            <ol className="hp-grid">
+              {cells.map((c) =>
+                c.kind === "card" ? (
+                  <li key={c.l.id}>
+                    <Card l={c.l} />
+                  </li>
+                ) : (
+                  <li
+                    key={`tile-${c.i}`}
+                    className="hp-tilecell"
+                    aria-hidden="true"
+                  >
+                    <figure className="hp-tilewrap">
+                      <Image
+                        placeholder="blur"
+                        quality={65}
+                        src={homesPage.tiles[c.i].img}
+                        alt=""
+                        fill
+                        sizes="(max-width: 860px) 92vw, 28vw"
+                      />
+                    </figure>
+                  </li>
+                ),
+              )}
+            </ol>
+          ) : (
+            <p className="hp-empty">{homesPage.empty}</p>
+          )}
+        </section>
+
+        <aside className="hp-panel" aria-label="Enquire">
+          <p className="hp-panel__title">
+            {homesPage.panel.title.map((t) => (
+              <span key={t}>{t}</span>
+            ))}
+          </p>
+          <button
+            type="button"
+            className="hp-panel__act"
+            onClick={() => window.dispatchEvent(new Event("noratun:call"))}
+          >
+            {homesPage.panel.call}
           </button>
-        </div>
-
-        <p className="hp-count" role="status">
-          {homesPage.shown(shown.length, listings.length)}
-        </p>
-        <p className="hp-legend">{homesPage.legend}</p>
-
-        {shown.length > 0 ? (
-          <ol className="hp-grid">
-            {cells.map((c) =>
-              c.kind === "card" ? (
-                <li key={c.l.id}>
-                  <Card l={c.l} />
-                </li>
-              ) : (
-                <li key={`tile-${c.i}`} className="hp-tilecell" aria-hidden="true">
-                  <figure className="hp-tilewrap">
-                    <Image placeholder="blur" src={homesPage.tiles[c.i].img} alt="" fill sizes="(max-width: 860px) 92vw, 28vw" />
-                  </figure>
-                </li>
-              ),
-            )}
-          </ol>
-        ) : (
-          <p className="hp-empty">{homesPage.empty}</p>
-        )}
-      </section>
-
-      <aside className="hp-panel" aria-label="Enquire">
-        <p className="hp-panel__title">
-          {homesPage.panel.title.map((t) => (
-            <span key={t}>{t}</span>
-          ))}
-        </p>
-        <button type="button" className="hp-panel__act" onClick={() => window.dispatchEvent(new Event("noratun:call"))}>
-          {homesPage.panel.call}
-        </button>
-        <a className="hp-panel__act" href={`mailto:${brand.email}`}>
-          {homesPage.panel.contact}
-        </a>
-      </aside>
+          <a className="hp-panel__act" href={`mailto:${brand.email}`}>
+            {homesPage.panel.contact}
+          </a>
+        </aside>
       </div>
 
       {/* closing chapter */}
@@ -370,7 +632,11 @@ export default function HomesView() {
           {homesPage.tail.copy}
         </p>
         <div className="hp-tail__row" data-rise>
-          <button type="button" className="n-pill is-light" onClick={() => window.dispatchEvent(new Event("noratun:call"))}>
+          <button
+            type="button"
+            className="n-pill is-light"
+            onClick={() => window.dispatchEvent(new Event("noratun:call"))}
+          >
             {homesPage.tail.button} <span aria-hidden>→</span>
           </button>
           <a className="hp-tail__back" href="/#collections">
@@ -378,7 +644,14 @@ export default function HomesView() {
           </a>
         </div>
         <figure className="hp-tail__fig n-media" data-rise>
-          <Image placeholder="blur" src={homesPage.tail.img} alt={homesPage.tail.alt} fill sizes="(max-width: 860px) 92vw, 76vw" />
+          <Image
+            placeholder="blur"
+            quality={65}
+            src={homesPage.tail.img}
+            alt={homesPage.tail.alt}
+            fill
+            sizes="(max-width: 860px) 92vw, 76vw"
+          />
         </figure>
       </section>
 
@@ -389,7 +662,10 @@ export default function HomesView() {
             {footer.toTop} ↑
           </a>
           <BotanicalCrestIcon className="n-foot__mark" />
-          <a className="n-foot__phone" href={`tel:${brand.phone.replace(/[^\d+]/g, "")}`}>
+          <a
+            className="n-foot__phone"
+            href={`tel:${brand.phone.replace(/[^\d+]/g, "")}`}
+          >
             {brand.phone}
           </a>
           <p className="n-foot__office">
