@@ -10,6 +10,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { eEase, eHor, eIn, eInOut, eOut } from "@/lib/eases";
 import TypeCarousel from "@/components/TypeCarousel";
 import AmenitySlider from "@/components/AmenitySlider";
+import AmenityBand from "@/components/AmenityBand";
 import InterGallery from "@/components/InterGallery";
 import {
   amenities,
@@ -134,6 +135,53 @@ export default function HomeView() {
   // visitor 145 KB at opacity 0. It mounts on the first tap of BY NIGHT and
   // stays mounted after, so the toggle only pays once.
   const [wasNight, setWasNight] = useState(false);
+
+  // the phone architecture pair closes its gap once, on entry
+  useEffect(() => {
+    const pair = root.current?.querySelector<HTMLElement>(".n-archi__pair");
+    if (!pair) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      pair.dataset.joined = "";
+      return;
+    }
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (!e.isIntersecting) return;
+        io.disconnect();
+        pair.dataset.joined = "";
+      },
+      { threshold: 0.35 },
+    );
+    io.observe(pair);
+    // this content mounts after hydration and adds height to the document
+    const r = requestAnimationFrame(() => ScrollTrigger.refresh());
+    return () => {
+      io.disconnect();
+      cancelAnimationFrame(r);
+    };
+  }, []);
+
+  // which collection the phone rail is showing — an observer on the cards,
+  // not a scroll calculation, so it is right whether the rail was swiped,
+  // flung, or reached by keyboard
+  const cards = useRef<HTMLDivElement | null>(null);
+  const [card, setCard] = useState(0);
+  useEffect(() => {
+    const el = cards.current;
+    if (!el) return;
+    const kids = Array.from(el.children);
+    const io = new IntersectionObserver(
+      (rows) => {
+        const hit = rows
+          .filter((r) => r.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (hit) setCard(kids.indexOf(hit.target));
+      },
+      { root: el, threshold: [0.5, 0.75] },
+    );
+    kids.forEach((k) => io.observe(k));
+    return () => io.disconnect();
+  }, []);
 
   // the credits screen: any number of lines may stand open at once
   const [creds, setCreds] = useState<number[]>([]);
@@ -1299,7 +1347,11 @@ export default function HomeView() {
             </span>
           ))}
         </h2>
-        <div className="n-cards">
+        {/* On a phone the four collections stacked into 3,285px — 3.9
+            viewports of near-identical blocks where a wide screen gets one
+            pinned screen. Below 861px the CSS turns this into a snapped
+            horizontal rail; the readout under it says where you are. */}
+        <div className="n-cards" ref={cards}>
           {collections.map((c) => (
             <article className="n-card" key={c.slug}>
               <div className="n-card__spec">
@@ -1344,41 +1396,26 @@ export default function HomeView() {
             </article>
           ))}
         </div>
+        <p className="n-cards__at" aria-hidden="true">
+          <span className="n">{String(card + 1).padStart(2, "0")}</span>
+          <span className="bar">
+            <i
+              style={{
+                transform: `scaleX(${(card + 1) / collections.length})`,
+              }}
+            />
+          </span>
+          <span className="t">
+            {String(collections.length).padStart(2, "0")}
+          </span>
+        </p>
       </section>
 
       {/* the reference's type carousel (its rail 51) — MOVED layer only; the
           stacked cards above are the same four collections for phones/PRM/no-JS */}
       <TypeCarousel />
 
-      <section
-        className="n-amen"
-        id="amenities"
-        aria-label={amenities.title}
-        data-dark
-      >
-        <figure className="n-amen__bg">
-          <Image
-            placeholder="blur"
-            quality={65}
-            src={amenities.img}
-            alt={amenities.alt}
-            fill
-            sizes="100vw"
-          />
-        </figure>
-        <div className="n-amen__intro">
-          <span className="n-label">{amenities.kicker}</span>
-          <h2>{amenities.title}</h2>
-        </div>
-        <div className="n-amen__list">
-          {amenities.items.map((a) => (
-            <div className="n-amen__item" key={a.label}>
-              <h3>{a.label}</h3>
-              <p>{a.note}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      <AmenityBand id="amenities" />
 
       {/* the reference's tab-driven amenity slider — MOVED layer only; the
           static band above is the same six amenities for phones/PRM/no-JS */}
@@ -1515,29 +1552,17 @@ export default function HomeView() {
                 picture at the pair's full width and offsets it by its own
                 position, so when the gap closes the halves fall into
                 register and read as a single picture */}
+            {/* backgrounds, not next/Image: the sequence is display:none below
+                861px but a hidden lazy <Image> still FETCHES (measured), so
+                every phone was paying for two copies of a photograph it never
+                saw. A background declared inside the desktop media query is
+                only fetched where that query applies. GSAP animates the
+                panels and the pair, never these, so nothing else changes. */}
             <figure className="n-archseq__panel is-l">
-              <div className="n-archseq__slide">
-                <Image
-                  placeholder="blur"
-                  quality={65}
-                  src={architecture.frame.src}
-                  alt=""
-                  fill
-                  sizes="110vw"
-                />
-              </div>
+              <div className="n-archseq__slide" />
             </figure>
             <figure className="n-archseq__panel is-r">
-              <div className="n-archseq__slide">
-                <Image
-                  placeholder="blur"
-                  quality={65}
-                  src={architecture.frame.src}
-                  alt=""
-                  fill
-                  sizes="110vw"
-                />
-              </div>
+              <div className="n-archseq__slide" />
             </figure>
           </div>
           <h2 className="n-archseq__word" aria-label={architecture.word}>
@@ -1550,9 +1575,29 @@ export default function HomeView() {
         </div>
         <div className="n-archscreen">
           <section className="n-archi" id="architecture">
-            <div className="n-archi__word" aria-hidden="true">
-              {architecture.word}
+            <h2 className="n-archi__word">{architecture.word}</h2>
+            {/* The chapter was 212px of one word on cream below 861px — the
+                sequence that carries its photograph is desktop-only. This is
+                the same device at phone scale: one photograph through two
+                windows, the gap closing once on entry.
+
+                The picture is a CSS BACKGROUND, not a next/Image. Both
+                standing rules apply here and only this satisfies both: a
+                JS-off phone must still see the photograph (so it cannot be
+                gated on matchMedia), and a wide screen must not pay for it
+                (measured: a display:none lazy next/Image DOES fetch — the
+                desktop build made four place-complex requests). A background
+                declared inside the phone media query is never fetched at a
+                width where the rule does not apply. */}
+            <div className="n-archi__pair" aria-hidden="true">
+              <figure className="n-archseq__panel is-l">
+                <div className="n-archseq__slide" />
+              </figure>
+              <figure className="n-archseq__panel is-r">
+                <div className="n-archseq__slide" />
+              </figure>
             </div>
+            <p className="n-archi__copy">{architecture.copy}</p>
           </section>
         </div>
       </div>

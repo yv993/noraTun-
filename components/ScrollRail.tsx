@@ -14,13 +14,17 @@ export default function ScrollRail() {
   const fill = useRef<HTMLSpanElement | null>(null);
   const bar = useRef<HTMLDivElement | null>(null);
   const [near, setNear] = useState(false); // near the end → the arrow turns
-  // Below 861px the rail is display:none, but it still mounted and still read
+  // Below 701px the rail is display:none, but it still mounted and still read
   // scrollHeight on every frame of every scroll. A live matchMedia state, so a
   // rotation into tablet width brings it back rather than needing a reload.
-  const [wide, setWide] = useState(false);
+  //
+  // It starts TRUE so the server renders the rail and a wide screen never sees
+  // it pop in after hydration; the effect below corrects it on the first tick,
+  // which is early enough that a phone attaches no scroll work.
+  const [wide, setWide] = useState(true);
 
   useEffect(() => {
-    const mq = window.matchMedia("(min-width: 861px)");
+    const mq = window.matchMedia("(min-width: 701px)");
     const on = () => setWide(mq.matches);
     on();
     mq.addEventListener("change", on);

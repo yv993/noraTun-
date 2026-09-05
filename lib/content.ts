@@ -23,6 +23,7 @@ import phInteriorBedroom from "@/assets/photos/interior-bedroom.jpg";
 import phInteriorBath from "@/assets/photos/interior-bath.jpg";
 import phBalcony from "@/assets/photos/balcony.jpg";
 import phCourtyard from "@/assets/photos/courtyard.jpg";
+import phTailColonnade from "@/assets/photos/homes-tail-colonnade.jpg";
 import phPool from "@/assets/photos/pool.jpg";
 import phPlaceGarden from "@/assets/photos/place-garden.jpg";
 import phPlaceTerrace from "@/assets/photos/place-terrace.jpg";
@@ -549,6 +550,18 @@ export type Listing = {
   completion: string; // "2Q 2027"
   level: string; // "Floor 4" | "Plot 5.5 a"
   status: "available" | "reserved";
+  // The study sheet these plans were cut from ("v15"), served whole at
+  // public/sheets/v15.jpg — the reference's "PDF", ours being the drawing
+  // the facts above were actually read off.
+  sheet: string;
+  // Cars the sheet draws bays for. Null where it draws none, or draws them
+  // without making the count legible — never a guess.
+  parking: number | null;
+  // One or two sentences naming ONLY rooms the sheet draws.
+  description: string;
+  // Six to eight things the sheet draws. No brands, no ratings, no claims
+  // about a building nobody has photographed yet.
+  benefits: string[];
   note: string;
   levels: Level[];
 };
@@ -602,6 +615,24 @@ export const homeGallery: Record<
       alt: "A pale stone bathroom with a freestanding bath and a lit recess",
     },
   ],
+};
+
+// The closing band's photograph on a home's own page. One per place, so a
+// town house never closes on a lake. Alts are verbatim from where each of
+// these photographs already appears on the site.
+export const placeClose: Record<
+  Listing["place"],
+  { src: StaticImageData; alt: string }
+> = {
+  Yerevan: {
+    src: phTerrace,
+    alt: "A roof terrace with a long bench and low timber tables",
+  },
+  Dilijan: {
+    src: phDilijanForest,
+    alt: "Pine forest climbing a ridge at sundown",
+  },
+  Sevan: { src: phSevanLake, alt: "A wooden jetty reaching into a still lake" },
 };
 
 // the seventeen homes live in lib/listings.ts, one entry per plan sheet
@@ -659,10 +690,26 @@ export const homesPage = {
   // /homes/[id]
   detail: {
     back: "All homes",
-    plansLabel: "The plans",
+    code: (c: string) => `No. ${c}`,
+    completion: "Completion",
+    tabs: { info: "Info", benefits: "Benefits" },
+    request: "Submit a request",
+    // the round button beside the request pill. The reference's says PDF and
+    // opens a brochure; ours opens the study sheet itself.
+    sheet: "Sheet",
+    sheetTitle: (name: string) => `Open the study sheet for ${name} (JPEG)`,
+    similar: "Similar options",
+    similarSub: ["Other homes", "that might suit you"],
+    viewAll: "View all",
+    // the closing band. The one-pager closes on the lake; a home's page
+    // closes on the list, which is true wherever the home is.
+    closeTitle: ["THE WHOLE", "LIST"],
+    closeSub: "Yerevan · Dilijan · Sevan",
+    closeCta: "See every home",
+    crumbs: ["Home", "Select a home"],
+    levels: "Levels",
     specLabel: "The schedule",
     galleryLabel: "The finish",
-    nearbyLabel: "Other homes here",
     callLabel: "Ask about this home",
     callCopy:
       "Fifteen minutes on the phone settles whether this one fits how you actually live — and what else is coming to the list.",
@@ -680,6 +727,7 @@ export const homesPage = {
       // what the schedule says when the sheet does not give the figure
       unnumbered: "Not numbered on the sheet",
       undrawn: "No bed drawn on the sheet",
+      parking: "Parking spaces",
     },
   },
   tiles: [
@@ -697,8 +745,8 @@ export const homesPage = {
     copy: "Fifteen minutes on the phone settles which of the places fits how you live — and what is genuinely coming to the list next.",
     button: "Book a call",
     back: "The four collections",
-    img: phCourtyard,
-    alt: "Terraced planting and clipped hedges beside a residential block",
+    img: phTailColonnade,
+    alt: "A stone colonnade of arches and columns hung with bougainvillea, lavender in the beds beneath and the sea beyond the trees",
   },
 };
 

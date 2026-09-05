@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import HomeDetailView from "@/components/HomeDetailView";
-import { brand, listings } from "@/lib/content";
+import { brand, homesPage, listings } from "@/lib/content";
 import { abs } from "@/lib/site";
 
 type Params = { params: Promise<{ id: string }> };
@@ -27,12 +27,24 @@ const facts = (l: (typeof listings)[number]) =>
     .filter(Boolean)
     .join(", ");
 
+// a search result is cut at ~160 characters; cut at a full stop so the last
+// thing a reader sees is a finished sentence, not half of one
+const clip = (s: string, max = 160) => {
+  const t = s.replace(/\s+/g, " ").trim();
+  if (t.length <= max) return t;
+  const cut = t.slice(0, max);
+  const stop = cut.lastIndexOf(". ");
+  return stop > 70 ? cut.slice(0, stop + 1) : `${cut.replace(/\s+\S*$/, "")}…`;
+};
+
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const l = find((await params).id);
   if (!l) return { title: "Home not found" };
   const f = facts(l);
   const title = `${l.name} — ${f ? `${f}, ` : ""}${l.place}`;
-  const description = `${l.typology} in ${l.place}.${f ? ` ${f}.` : ""} ${l.note}.`;
+  const description = clip(
+    `${l.typology} in ${l.place}.${f ? ` ${f}.` : ""} ${l.description}`,
+  );
   return {
     title,
     description,
@@ -49,11 +61,18 @@ export default async function HomePage({ params }: Params) {
   const l = find((await params).id);
   if (!l) notFound();
 
-  // other homes in the same place, then anywhere, capped at three
-  const nearby = [
-    ...listings.filter((n) => n.id !== l.id && n.place === l.place),
-    ...listings.filter((n) => n.id !== l.id && n.place !== l.place),
-  ].slice(0, 3);
+  // Six homes to show under "Similar options", in the order a buyer looking at
+  // this one would want them: the same place at the same size first, then the
+  // same place, then the same size anywhere, then the rest of the list.
+  const rank = (n: (typeof listings)[number]) => {
+    const place = n.place === l.place;
+    const beds = n.bedrooms !== null && n.bedrooms === l.bedrooms;
+    return place && beds ? 0 : place ? 1 : beds ? 2 : 3;
+  };
+  const similar = listings
+    .filter((n) => n.id !== l.id)
+    .sort((a, b) => rank(a) - rank(b) || a.code.localeCompare(b.code))
+    .slice(0, 6);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -61,13 +80,19 @@ export default async function HomePage({ params }: Params) {
     name: l.name,
     identifier: l.code,
     url: abs(`/homes/${l.id}`),
-    description: l.note,
+    description: l.description,
     // the structured data carries exactly what the sheet gives, nothing more
     ...(l.bedrooms != null
       ? { numberOfRooms: l.bedrooms, numberOfBedrooms: l.bedrooms }
       : {}),
     ...(l.area != null
-      ? { floorSize: { "@type": "QuantitativeValue", value: l.area, unitCode: "MTK" } }
+      ? {
+          floorSize: {
+            "@type": "QuantitativeValue",
+            value: l.area,
+            unitCode: "MTK",
+          },
+        }
       : {}),
     address: {
       "@type": "PostalAddress",
@@ -83,12 +108,32 @@ export default async function HomePage({ params }: Params) {
     },
   };
 
+  // the same trail the rail down the left margin shows
+  const crumbsLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { name: homesPage.detail.crumbs[0], item: abs("/") },
+      { name: homesPage.detail.crumbs[1], item: abs("/homes") },
+      { name: l.name, item: abs(`/homes/${l.id}`) },
+    ].map((x, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: x.name,
+      item: x.item,
+    })),
+  };
+
   return (
     <>
-      <HomeDetailView listing={l} nearby={nearby} />
+      <HomeDetailView listing={l} similar={similar} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(crumbsLd) }}
       />
     </>
   );

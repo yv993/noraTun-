@@ -57,7 +57,13 @@ import v16l from "@/assets/plans/v16-lower.webp";
 import v17g from "@/assets/plans/v17-ground.webp";
 import v17l from "@/assets/plans/v17-lower.webp";
 
-export const listings: Listing[] = [
+// The facts each sheet gives, level by level (above), and what it DRAWS
+// (below). Nothing here is inferred from a photograph or a brochure — every
+// item names something the drawing puts on the page.
+const base: Omit<
+  Listing,
+  "sheet" | "parking" | "description" | "benefits"
+>[] = [
   {
     // sheet v01 · "variation 17": 12 + 10 + 11 + 16 + 16 + 6 + 18 + 6 + 4 + 1.5 + 2 = 102.5
     id: "Y-A9", code: "001", name: "Orran A9", place: "Yerevan", kind: "House",
@@ -247,3 +253,299 @@ export const listings: Listing[] = [
     ],
   },
 ];
+
+// ============================================================================
+// WHAT EACH SHEET DRAWS — the home page's description, its benefit list, the
+// parking count and the sheet the panels were cut from.
+//
+// Every sentence and every item below is READ OFF THE DRAWING, the same way
+// the areas above were: if the sheet does not draw it, it is not here. A
+// parking count is null unless the sheet draws bays and makes the count
+// legible — "parking with a charging point" gives no number, so it gets none.
+// Nothing describes a finish, a view, a material or a service, because the
+// sheets do not show those and nobody has photographed these houses.
+// ============================================================================
+type Detail = Pick<Listing, "sheet" | "parking" | "description" | "benefits">;
+
+const DETAIL: Record<string, Detail> = {
+  "Y-A9": {
+    sheet: "v01",
+    parking: 2,
+    description:
+      "Three bedrooms on one level — the master with its own bathroom and walk-in closet — a living and dining room, a second living area, and two front decks. Below, a two-car garage with an EV charging point, a workshop, a cold cellar and a mud room.",
+    benefits: [
+      "Two-car garage",
+      "EV charging point",
+      "Walk-in closet",
+      "Cold cellar",
+      "Storage and workshop",
+      "Two front decks",
+      "Mechanical room",
+      "Mud room",
+    ],
+  },
+  "D-HS": {
+    sheet: "v15",
+    parking: 4,
+    description:
+      "Three bedrooms, one of them a suite with its own bathroom, an island kitchen open to the living and dining room, and a wide terrace off the porch. Below, parking for four cars, a laundry and utility room, a pantry with dry storage and two technical rooms.",
+    benefits: [
+      "Parking for four cars",
+      "Master suite",
+      "Island kitchen",
+      "Wide terrace",
+      "Porch",
+      "Pantry and dry storage",
+      "Two technical rooms",
+      "Laundry and utility room",
+    ],
+  },
+  "S-T2": {
+    sheet: "v16",
+    parking: 3,
+    description:
+      "Two bedrooms with closets, a bathroom with a tub, and an island kitchen open to the living room, with a porch and a large terrace beyond. Below, a further room, a sala, three parking areas and two laundries.",
+    benefits: [
+      "Three parking areas",
+      "Large terrace",
+      "Island kitchen",
+      "Porch",
+      "Bath with tub",
+      "Sala below",
+      "Two laundries",
+      "A closet to each bedroom",
+    ],
+  },
+  "Y-P7": {
+    sheet: "v02",
+    parking: null,
+    description:
+      "Three bedrooms around a central courtyard, a living and dining room, a kitchen with a study and pantry beside it, and the entrance from the wood decking. Below, a home gym and parking with an EV charging point, two utility rooms and consolidated storage.",
+    benefits: [
+      "Central courtyard",
+      "Home gym",
+      "EV charging point",
+      "Study",
+      "Wood decking",
+      "Two utility rooms",
+      "Consolidated storage",
+      "Two laundry rooms",
+    ],
+  },
+  "D-5": {
+    sheet: "v03",
+    parking: 2,
+    description:
+      "An island kitchen and dining room, a central living room and a patio garden on the ground floor, with a two-vehicle garage and bicycle parking. Upstairs, a master suite with a walk-in closet, two further bedrooms — one with a study nook — and a balcony cantilevered along the front.",
+    benefits: [
+      "Two-vehicle garage",
+      "Bicycle parking",
+      "Patio garden",
+      "Master suite",
+      "Walk-in closet",
+      "Study nook",
+      "Cantilevered balcony",
+      "Linen closet",
+    ],
+  },
+  "Y-B2": {
+    sheet: "v05",
+    parking: 3,
+    description:
+      "Two bedrooms, each with its own bathroom, a kitchen and living area, and a gravel court with wood decking. Below, parking for three cars with an EV charging point, two storage rooms and a pantry.",
+    benefits: [
+      "Parking for three cars",
+      "EV charging point",
+      "A bathroom to each bedroom",
+      "Gravel court",
+      "Wood decking",
+      "Two storage rooms",
+      "Utility and pantry",
+      "Powder room",
+    ],
+  },
+  "D-3": {
+    sheet: "v13",
+    parking: null,
+    description:
+      "Two bedrooms, a bathroom with a tub, and a living room with an island kitchen, with a pool and a deck along the side of the house. Below, a decked terrace, storage rooms and a bathroom.",
+    benefits: [
+      "Pool",
+      "Deck along the side",
+      "Island kitchen",
+      "Bath with tub",
+      "Decked terrace below",
+      "Storage rooms",
+    ],
+  },
+  "S-E1": {
+    sheet: "v17",
+    parking: null,
+    description:
+      "Two bedrooms, a living room with dining, a separate kitchen and a utility room, with a porch and a terrace. Below, two salas, a patio, a bathroom, storage and a laundry.",
+    benefits: [
+      "Two salas below",
+      "Patio",
+      "Terrace",
+      "Porch",
+      "Separate kitchen",
+      "Utility room",
+      "Storage",
+      "Laundry",
+    ],
+  },
+  "Y-C12": {
+    sheet: "v07",
+    parking: 2,
+    description:
+      "Two bedrooms, a dining room and living area, and a pool with a wood deck. Below, a sala, a reading nook, two parking areas and storage.",
+    benefits: [
+      "Pool",
+      "Wood deck",
+      "EV charging point",
+      "Two parking areas",
+      "Reading nook",
+      "Sala below",
+      "Storage",
+      "Laundry",
+    ],
+  },
+  "D-SL1": {
+    sheet: "v04",
+    parking: 2,
+    description:
+      "Kitchen, dining and living rooms stepped across a split level, with an exterior terrace, two decked areas and an outdoor kitchen with a grill. A level down, the bedroom suite with its bathroom and closet, a garage for two cars and a light-well garden.",
+    benefits: [
+      "Garage for two cars",
+      "Outdoor kitchen and grill",
+      "Light-well garden",
+      "Bedroom suite",
+      "Two decked areas",
+      "Exterior terrace",
+      "Gravel court",
+      "Pantry shelving",
+    ],
+  },
+  "S-T1": {
+    sheet: "v09",
+    parking: 2,
+    description:
+      "One open dining and living room with the kitchen along its wall, two further rooms and a bathroom, opening to a patio and a terrace. Below, parking for two cars, a decked area, storage rooms and a bathroom.",
+    benefits: [
+      "Parking for two cars",
+      "Patio",
+      "Terrace",
+      "Decked area below",
+      "One open living level",
+      "Storage rooms",
+      "Two bathrooms",
+    ],
+  },
+  "Y-A4": {
+    sheet: "v06",
+    parking: 3,
+    description:
+      "A living-kitchen with an island and a long table, one bedroom with a wardrobe, a laundry and utility room, a porch and a terrace. Below, a sala, three parking bays and a utility unit with a charging point.",
+    benefits: [
+      "Three parking bays",
+      "Charging point",
+      "Island kitchen",
+      "Terrace",
+      "Porch",
+      "Sala below",
+      "Wardrobe",
+      "Storage",
+    ],
+  },
+  "D-PL7": {
+    sheet: "v10",
+    parking: 2,
+    description:
+      "An island kitchen open to the living and dining areas, one bedroom and bathroom, a laundry and service room, and a terrace. Below, a two-car garage, a workshop, two storage rooms and a pantry.",
+    benefits: [
+      "Two-car garage",
+      "Workshop",
+      "Two storage rooms",
+      "Pantry",
+      "Island kitchen",
+      "Terrace",
+      "Two technical rooms",
+      "Service room",
+    ],
+  },
+  "S-T3": {
+    sheet: "v11",
+    parking: 2,
+    description:
+      "A living-kitchen with an island and a dining table, one bedroom with a closet, a bathroom with a tub, and a porch. Below, a family room, two parking spaces and an exterior patio.",
+    benefits: [
+      "Family room below",
+      "Two parking spaces",
+      "Exterior patio",
+      "Porch",
+      "Bath with tub",
+      "Island kitchen",
+      "Two closets",
+      "Laundry and utility",
+    ],
+  },
+  "Y-K9": {
+    sheet: "v08",
+    // the sheet draws a car in the interior patio but numbers no bay
+    parking: null,
+    description:
+      "One bedroom with a wardrobe, a living-kitchen with an island, an entrance hall and a second entrance, with a porch and a patio. Below, two salas, an interior patio with room for a car, a bathroom and storage.",
+    benefits: [
+      "Two salas below",
+      "Interior patio",
+      "Room for a car",
+      "Second entrance",
+      "Porch",
+      "Patio",
+      "Two closets",
+      "Storage",
+    ],
+  },
+  "D-FG2": {
+    sheet: "v14",
+    parking: 2,
+    description:
+      "A living-dining room with an island kitchen, one bedroom and bathroom, a porch and a terrace. Below, parking for two cars, two storage rooms and a mechanical room. The sheet draws the structure as well: timber trusses over insulated roof panels, on concrete walls with steel columns and glulam beams.",
+    benefits: [
+      "Parking for two cars",
+      "Timber roof trusses",
+      "Insulated roof panels",
+      "Reinforced concrete walls",
+      "Glulam beams",
+      "Two storage rooms",
+      "Terrace",
+      "Porch",
+    ],
+  },
+  "Y-S5": {
+    sheet: "v12",
+    // "garage and storage area" — drawn, but with no bay count on it
+    parking: null,
+    description:
+      "A living-kitchen with an island and a dining table, one bedroom, a bathroom with a tub, and a patio with wood decking. Below, a garage and storage area, a second patio, a technical room and a pantry.",
+    benefits: [
+      "Garage",
+      "Two patios",
+      "Wood decking",
+      "Bath with tub",
+      "Island kitchen",
+      "Pantry and storage",
+      "Technical room",
+      "Restroom",
+    ],
+  },
+};
+
+// One home per sheet, and a missing DETAIL row is a build error rather than a
+// page that quietly renders without its description.
+export const listings: Listing[] = base.map((l) => {
+  const detail = DETAIL[l.id];
+  if (!detail) throw new Error(`lib/listings.ts: no DETAIL row for ${l.id}`);
+  return { ...l, ...detail };
+});
+

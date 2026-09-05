@@ -3755,8 +3755,7 @@ ol {
   text-align: center;
 }
 .hp-card__big sup,
-.hd-big sup,
-.hd-near__spec sup {
+.hp-card__sub sup {
   font-size: 0.55em;
   vertical-align: super;
   line-height: 0;
@@ -4067,251 +4066,1069 @@ body:has(.hp) .n-nav__cta {
     text-decoration: underline;
   }
 }
-.hp-tail__fig {
-  width: min(100%, 76vw);
-  height: clamp(280px, 56vh, 540px);
+/* ---- the closing screen, the main page's rail-93 device -----------------
+   The photograph fills the viewport with the type climbing over it at its own
+   rate; then it pulls back into a frame and the wine opens on all four sides,
+   running on unbroken into the footer. Same construction as .n-views. */
+.hp-tail__hold {
+  /* out through the band's own gutter: the picture is full-bleed, as it is
+     at rail 93 where the section carries no side padding */
+  width: calc(100% + 2 * var(--gutter));
+  margin-inline: calc(-1 * var(--gutter));
+  justify-self: stretch;
   margin-top: clamp(16px, 3vh, 30px);
+}
+.hp-tail__screen {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  overflow: clip;
+}
+.hp-tail__bg {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  will-change: clip-path;
+}
+.hp-tail__bg img {
+  object-fit: cover;
+  will-change: transform;
+}
+/* This colonnade is a far brighter picture than the one at rail 93 — white
+   type over it measured 1.62:1 on the script and 2.64:1 on the copy. The
+   photograph is NOT tinted: a soft band rises only behind the type, the same
+   device the pull quote uses, and fades out well before the arches. */
+.hp-tail__screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  /* the band exists to carry the type; once the type has gone and the picture
+     has pulled back into its frame, it goes with it (the timeline tweens
+     --scrim). At rest — phone, tablet, PRM, no-JS — it stays at 1, because
+     there the type is on the picture the whole time. */
+  opacity: var(--scrim, 1);
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 18%,
+    rgba(8, 22, 36, 0.5) 40%,
+    rgba(8, 22, 36, 0.56) 72%,
+    rgba(8, 22, 36, 0.48) 100%
+  );
+}
+.hp-tail__fore {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: clamp(16px, 3vh, 34px);
+  padding: 0 var(--gutter);
+  text-align: center;
+  pointer-events: none;
+  will-change: transform;
+}
+/* the photograph is shown as it was made — legibility comes from the type's
+   own shadow, never from tinting the picture */
+.hp-tail__fore h2 {
+  text-shadow: 0 4px 30px rgba(0, 20, 40, 0.42);
+}
+.hp-tail__fore .hp-tail__copy {
+  text-shadow: 0 2px 16px rgba(0, 20, 40, 0.5);
+  opacity: 1;
+}
+.hp-tail__orb {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(-90px, -7vh, -50px);
+  translate: -50% 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: clamp(200px, 17vw, 260px);
+  height: clamp(200px, 17vw, 260px);
+  padding: 0 44px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  text-align: center;
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  line-height: 1.7;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background 300ms var(--ease),
+    color 300ms var(--ease);
+}
+.hp-tail__orb:focus-visible {
+  background: #fff;
+  color: var(--wine);
+}
+@media (hover: hover) and (pointer: fine) {
+  .hp-tail__orb:hover {
+    background: #fff;
+    color: var(--wine);
+  }
+}
+/* the onward link sits on the wine the frame has opened, clear of the orb */
+.hp-tail__row {
+  margin-top: clamp(80px, 12vh, 150px);
+}
+@media (min-width: 861px) and (prefers-reduced-motion: no-preference) {
+  /* two screens of travel: the type climbs through the first, the frame
+     closes through the second — the rail-93 timing exactly */
+  .hp-tail__hold {
+    height: 220svh;
+  }
+  .hp-tail__screen {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+  }
 }
 
 /* ==========================================================================
-   /homes/[id] — one home
+   /homes/[id] — ONE HOME
+   Anatomy measured off the reference's apartment page at 1440x900 and
+   390x844 (2026-09-05), band by band: a sticky info panel beside a media
+   column that scrolls through it, a scroll-driven amenities screen, the
+   similar-options grid, a closing band over one drifting photograph.
+   Nothing is pinned — sticky positioning and scrubbed transforms only.
+
+   TYPE (reference 1440 / 390 → ours)
+     code            86.4 / 52.5  400  -0.024em  lh 0.91   display, condensed
+     name, line       8.1 / 8.44  700  0.32em              sans
+     cell label       9.9 / 8.44  400  0.048em  lh 1.45    sans
+     cell value        36 / 26.25 400  -0.008em lh 1       display
+     tabs             9.9 / 10.3  700  0.048em             sans
+     info copy       11.7 / 12.19 400  -0.024em lh 1.38    body
+     pills, orbs      9.9        700   0.048em             sans
+     close title    172.8 / 90   400   -0.024em lh 0.87    display, condensed
+   Ink is the brand wine, not the reference's navy.
    ========================================================================== */
 .hd {
   background: var(--cream);
   color: var(--wine);
 }
-.hd-head,
-.hd-plans,
-.hd-spec,
-.hd-gal,
-.hd-near {
-  padding: 0 var(--gutter);
+
+/* the phone chrome sits over the top of the page; the head clears it */
+.hd-lot {
+  padding: var(--chrome-top) var(--gutter) clamp(40px, 8vh, 90px);
   display: grid;
+  gap: clamp(24px, 5vh, 48px);
+}
+.hd-lot__media {
+  display: grid;
+  /* minmax(0, 1fr), never auto: an auto track takes its width from the drawing
+     inside it (1400px intrinsic), so on a phone the plans blew the column out
+     to 691px inside a 350px container */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 15px;
+  min-width: 0;
+}
+
+/* ---- the head: the code set huge, the name and the line beneath --------- */
+.hd-lot__head,
+.hd-lot__late {
+  display: grid;
+  gap: 3px;
   justify-items: start;
-  gap: clamp(10px, 1.6vh, 18px);
-  max-width: 1400px;
-  margin-inline: auto;
 }
-.hd-head {
-  padding-top: clamp(90px, 15vh, 160px);
-  padding-bottom: clamp(30px, 6vh, 70px);
+.hd-code {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  /* 52.5px at 390 → 86.4px at 1440, the reference's own two measurements */
+  font-size: clamp(52.5px, 2.494rem + 3.2286vw, 86.4px);
+  line-height: 0.91;
+  letter-spacing: -0.024em;
+  text-transform: uppercase;
+  font-variant-numeric: lining-nums;
 }
-.hd-back {
+.hd-name,
+.hd-line {
+  margin: 0;
   font-family: var(--font-sans);
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  opacity: 0.7;
-  margin-bottom: clamp(14px, 3vh, 30px);
-}
-@media (hover: hover) and (pointer: fine) {
-  .hd-back:hover {
-    opacity: 1;
-    text-decoration: underline;
-    text-underline-offset: 4px;
-  }
-}
-.hd-typo {
-  font-family: var(--font-sans);
-  font-size: 8.5px;
-  font-weight: 700;
   letter-spacing: 0.32em;
+  line-height: 1.33;
   text-transform: uppercase;
 }
-.hd-title {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: clamp(2.4rem, 8vw, 7rem);
-  line-height: 0.92;
-  letter-spacing: -0.022em;
-  text-transform: uppercase;
-}
-.hd-meta {
+.hd-line {
   display: flex;
   flex-wrap: wrap;
-  gap: 0 1.8em;
-  font-family: var(--font-sans);
-  font-size: 8.5px;
+  gap: 0 1.4em;
   font-weight: 400;
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
   opacity: 0.72;
 }
-/* NOT flex: a flex container would make the <sup> its own item and the gap
-   would push the squared sign away from the M */
-.hd-big {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: clamp(1.6rem, 3.4vw, 3.2rem);
-  line-height: 1;
-  letter-spacing: -0.008em;
-  text-transform: uppercase;
+
+/* ---- the drawings ------------------------------------------------------ */
+.fp.is-lot {
+  width: 100%;
+  max-width: 691px;
 }
-.hd-big em {
-  display: inline-block;
-  margin-left: 0.7em;
-  font-family: var(--font-sans);
-  font-style: normal;
+.fp.is-lot figcaption {
   font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.048em;
-  vertical-align: middle;
 }
-.hd-note {
-  max-width: 48ch;
-  color: var(--muted);
-}
-.hd-h2 {
+
+/* ---- the schedule, under the drawings it describes ---------------------- */
+.hd-lbl {
+  margin: 0 0 12px;
   font-family: var(--font-sans);
   font-size: 8.5px;
   font-weight: 700;
   letter-spacing: 0.32em;
   text-transform: uppercase;
   opacity: 0.6;
-  margin-bottom: clamp(10px, 2vh, 22px);
 }
-.hd-plans,
-.hd-spec,
-.hd-gal,
-.hd-near {
-  padding-bottom: clamp(40px, 8vh, 90px);
+.hd-sched {
+  margin-top: clamp(16px, 3vh, 34px);
 }
-/* one drawing per row: the sheets' panels are landscape, and at the column's
-   full width their room labels are readable — side by side they were not */
-.hd-plans__grid {
-  width: 100%;
-  max-width: 1100px;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: clamp(28px, 4vw, 56px);
-}
-.fp.is-large figcaption {
-  font-size: 10px;
-}
-.hd-spec__list {
-  width: 100%;
-  max-width: 720px;
-  display: grid;
-  gap: 0;
+.hd-sched dl {
   margin: 0;
+  max-width: 620px;
 }
-.hd-spec__list div {
+.hd-sched dl > div {
   display: flex;
   justify-content: space-between;
   gap: 20px;
-  padding: 12px 0;
+  padding: 11px 0;
   border-bottom: 1px solid color-mix(in srgb, var(--wine) 14%, transparent);
 }
-.hd-spec__list dt {
+.hd-sched dt {
   font-family: var(--font-sans);
-  font-size: 10px;
+  font-size: 9.9px;
   font-weight: 400;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   opacity: 0.62;
 }
-.hd-spec__list dd {
+.hd-sched dd {
   margin: 0;
   font-family: var(--font-display);
   font-size: 15.5px;
   letter-spacing: 0.03em;
   text-align: right;
 }
-.hd-gal__grid {
-  width: 100%;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(10px, 1vw, 16px);
+.hd-sched .hp-legend {
+  margin-top: 14px;
 }
-.hd-gal__grid figure {
-  position: relative;
+
+/* ---- the photographs --------------------------------------------------- */
+.hd-lot__gal {
+  margin-top: clamp(16px, 3vh, 34px);
+}
+.hd-lot__photos {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 15px;
   margin: 0;
-  height: clamp(220px, 34vh, 380px);
-  border-radius: 10px;
-  overflow: clip;
-}
-.hd-gal__grid img {
-  object-fit: cover;
-}
-.hd-near__list {
-  width: 100%;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(10px, 1vw, 16px);
-  list-style: none;
   padding: 0;
-  margin: 0;
+  list-style: none;
 }
-.hd-near__list a {
-  display: grid;
-  gap: 8px;
-  padding: clamp(16px, 2vw, 28px);
-  background: #fff;
-  border-radius: 10px;
-  color: inherit;
-  text-decoration: none;
-  justify-items: center;
-  text-align: center;
-  transition:
-    box-shadow 320ms var(--ease),
-    transform 320ms var(--ease);
-}
-.hd-near__list a:focus-visible {
-  box-shadow: 0 18px 44px rgba(51, 18, 31, 0.1);
-  transform: translateY(-3px);
-}
-@media (hover: hover) and (pointer: fine) {
-  .hd-near__list a:hover {
-    box-shadow: 0 18px 44px rgba(51, 18, 31, 0.1);
-    transform: translateY(-3px);
-  }
-}
-.hd-near__plan {
+.hd-lot__photos img {
   display: block;
   width: 100%;
+  height: auto;
+  border-radius: 4px;
 }
-.hd-near__name {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: clamp(1rem, 1.4vw, 1.35rem);
+
+/* ---- the info panel ---------------------------------------------------- */
+.hd-lot__info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+/* the panel's own copy of the head, for once the real one has scrolled away.
+   It is rendered on wide screens only — a phone never has it beside the
+   drawings — and it is aria-hidden, so nothing is said twice. */
+.hd-lot__late {
+  display: none;
+}
+.hd-cells {
+  margin: 0;
+  display: grid;
+  gap: clamp(14px, 3.1vh, 28px);
+}
+.hd-cells > div {
+  display: grid;
+  gap: 7px;
+}
+.hd-cells dt {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.048em;
+  line-height: 1.45;
   text-transform: uppercase;
-  letter-spacing: -0.01em;
 }
-.hd-near__spec {
+.hd-cells dd {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  /* 26.25px at 390 → 36px at 1440 */
+  font-size: clamp(26.25px, 1.414rem + 0.9286vw, 36px);
+  line-height: 1;
+  letter-spacing: -0.008em;
+  text-transform: uppercase;
+  font-variant-numeric: lining-nums;
+}
+.hd-cells sup {
+  font-size: 0.55em;
+  vertical-align: super;
+  line-height: 0;
+}
+
+/* ---- Info / Benefits --------------------------------------------------- */
+.hd-tabs {
+  position: relative;
+  margin-top: 22px;
+  display: flex;
+  gap: 24px;
+}
+.hd-tabs::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: color-mix(in srgb, var(--wine) 12%, transparent);
+}
+.hd-tabs [role="tab"] {
+  position: relative;
+  padding: 0 0 8px;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 10.3px;
+  font-weight: 700;
+  letter-spacing: 0.048em;
+  line-height: 1.45;
+  text-transform: uppercase;
+  opacity: 0.4;
+  transition: opacity 220ms var(--ease);
+}
+/* the label is 30px tall at most; the tap target is 44 */
+.hd-tabs [role="tab"]::before {
+  content: "";
+  position: absolute;
+  inset: -14px -10px -8px;
+}
+.hd-tabs [aria-selected="true"] {
+  opacity: 1;
+}
+.hd-tabs [aria-selected="true"]::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--wine);
+  z-index: 1;
+}
+.hd-panels {
+  margin-top: 14px;
+}
+/* the panel headings exist for a reader with no JS, where both panels show
+   and the tab row above them cannot work */
+.hd-panel__h {
+  margin: 0 0 8px;
   font-family: var(--font-sans);
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.32em;
   text-transform: uppercase;
-  opacity: 0.7;
 }
-.hd-cta {
+html.js .hd-panel__h {
+  display: none;
+}
+html:not(.js) .hd-tabs {
+  display: none;
+}
+html:not(.js) .hd-panel[hidden] {
+  display: block;
+}
+html:not(.js) .hd-panel + .hd-panel {
+  margin-top: 20px;
+}
+.hd-info {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 12.19px;
+  font-weight: 400;
+  line-height: 1.38;
+  letter-spacing: -0.024em;
+}
+.hd-benefits {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  columns: 2;
+  column-gap: 20px;
+  font-family: var(--font-sans);
+  font-size: 10.3px;
+  font-weight: 400;
+  letter-spacing: 0.048em;
+  line-height: 2.4;
+  text-transform: uppercase;
+}
+
+/* ---- the levels diagram ------------------------------------------------ */
+.hd-levels {
+  display: none;
+}
+.hd-levels__face {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.hd-levels__edge {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  opacity: 0.4;
+  vector-effect: non-scaling-stroke;
+}
+.hd-levels [data-on] .hd-levels__face {
+  fill: color-mix(in srgb, var(--wine) 14%, transparent);
+}
+.hd-levels [data-on] .hd-levels__edge {
+  opacity: 1;
+}
+
+/* ---- the request pill and the sheet button ----------------------------- */
+.hd-lot__actions {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hd-pill,
+.hd-round {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  border: 1px solid var(--wine);
+  border-radius: 36px;
+  background: none;
+  color: var(--wine);
+  cursor: pointer;
+  text-decoration: none;
+  font-family: var(--font-sans);
+  font-size: 9.9px;
+  font-weight: 700;
+  letter-spacing: 0.048em;
+  line-height: 1;
+  text-transform: uppercase;
+  transition:
+    background 220ms var(--ease),
+    color 220ms var(--ease);
+}
+.hd-pill {
+  padding: 0 20px;
+}
+.hd-round {
+  width: 36px;
+  padding: 0;
+  font-size: 8.1px;
+  letter-spacing: 0.06em;
+}
+/* 36px is the reference's height and below WCAG 2.5.8 — the look stays, the
+   target grows to 44 */
+.hd-pill::before,
+.hd-round::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+}
+.hd-pill:focus-visible,
+.hd-round:focus-visible {
   background: var(--wine);
-  color: var(--on-wine);
-  text-align: center;
-  padding: clamp(56px, min(15vh, 14vw), 180px) var(--gutter);
-  display: grid;
-  gap: clamp(20px, 3.4vh, 40px);
-  justify-items: center;
+  color: var(--cream);
 }
-.hd-cta h2 {
+@media (hover: hover) and (pointer: fine) {
+  .hd-pill:hover,
+  .hd-round:hover {
+    background: var(--wine);
+    color: var(--cream);
+  }
+}
+.hd-pill.is-centre {
+  display: flex;
+  width: 97px;
+  margin: 28px auto 0;
+}
+
+/* ---- the breadcrumb rail (wide screens only, see the min-width block) --- */
+.hd-crumbs {
+  display: none;
+}
+
+/* ---- AMENITIES, the scroll deck ---------------------------------------- */
+.hd-amen {
+  position: relative;
+  z-index: 1;
+  height: 340svh;
+  background: var(--wine);
+  color: #fff;
+}
+.hd-amen__screen {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: clip;
+}
+.hd-amen__slide {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  clip-path: inset(100% 0 0 0);
+  will-change: clip-path;
+}
+.hd-amen__slide:first-of-type {
+  clip-path: inset(0 0 0 0);
+}
+.hd-amen__slide img {
+  object-fit: cover;
+  will-change: transform;
+}
+/* THE SCRIM. It belongs to the screen, not to a slide, so it does not wipe
+   with the picture. Measured against our own photographs (bright interiors,
+   white ceilings): white type needs the ground under it at 88% wine to clear
+   4.5:1, which is why the band is this strong and this shallow — the top half
+   of every picture is untouched. */
+.hd-amen__screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    /* the foot, under the band of type */
+    linear-gradient(
+      0deg,
+      color-mix(in srgb, var(--wine) 93%, transparent) 0%,
+      color-mix(in srgb, var(--wine) 89%, transparent) 27%,
+      color-mix(in srgb, var(--wine) 42%, transparent) 41%,
+      transparent 57%
+    ),
+    /* the head, under the site chrome, which flips to white over this band.
+       MEASURED: the nav's lowest link sits at 17.4% of the screen and needs
+       the ground at 88% wine to clear 4.5:1 over a white ceiling. */
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--wine) 88%, transparent) 0%,
+      color-mix(in srgb, var(--wine) 88%, transparent) 18%,
+      color-mix(in srgb, var(--wine) 55%, transparent) 25%,
+      color-mix(in srgb, var(--wine) 22%, transparent) 32%,
+      transparent 42%
+    );
+}
+/* the band: the line on the left, the six names on the right, the call at the
+   end of the row — all of it inside the scrim */
+.hd-amen__foot {
+  position: absolute;
+  z-index: 2;
+  left: calc(var(--gutter) + 116px);
+  right: var(--gutter);
+  bottom: 43px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: clamp(24px, 4vw, 64px);
+}
+.hd-amen__say {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 640px;
+}
+.hd-amen__say .lbl {
+  display: block;
+  margin-bottom: 16px;
+  font-family: var(--font-sans);
+  font-size: 9.9px;
+  font-weight: 700;
+  letter-spacing: 0.048em;
+  text-transform: uppercase;
+}
+.hd-amen__say p {
+  margin: 0;
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: clamp(1.8rem, 4vw, 3.6rem);
-  line-height: 1.1;
-  letter-spacing: 0.04em;
+  font-size: 36px;
+  line-height: 1;
+  text-transform: uppercase;
+  transform: scaleX(0.72);
+  transform-origin: 0 50%;
+  animation: hd-say 320ms var(--ease) both;
 }
-.hd-cta p {
-  max-width: 52ch;
-  opacity: 0.85;
+@keyframes hd-say {
+  from {
+    opacity: 0;
+    transform: scaleX(0.72) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(0.72) translateY(0);
+  }
+}
+.hd-amen__list {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-align: right;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 25.2px;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+.hd-amen__list li {
+  display: block;
+  opacity: 0.45;
+  transform: scaleX(0.72);
+  transform-origin: 100% 50%;
+  transition: opacity 320ms var(--ease);
+}
+.hd-amen__list li[data-on] {
+  opacity: 1;
+}
+.n-amsl__orb.is-187 {
+  position: relative;
+  flex: 0 0 auto;
+  right: auto;
+  bottom: auto;
+  width: 187px;
+  height: 187px;
+  padding: 0 26px;
+  font-size: 9.9px;
+  letter-spacing: 0.048em;
+  line-height: 1.5;
+}
+
+.hd-amen :focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+/* ---- SIMILAR OPTIONS --------------------------------------------------- */
+.hd-sim {
+  position: relative;
+  z-index: 2;
+  background: var(--cream);
+  padding: clamp(80px, 14vh, 144px) 0 44px;
+}
+/* the cream dome climbs over the still-held amenities screen. 60svh, not a
+   full one: at 100svh it reached the deck's type band while the sixth amenity
+   was still the active slide (measured 33px of clear reading; now ~490). */
+.hd[data-deck] .hd-sim {
+  margin-top: -60svh;
+}
+.hd-sim__head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-height: clamp(280px, 42vh, 576px);
+  padding: 0 var(--gutter);
+}
+.hd-sim__title,
+.hd-close__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.024em;
+  text-transform: uppercase;
+}
+.hd-sim__title {
+  font-size: clamp(52.5px, 2.494rem + 3.2286vw, 86.4px);
+  line-height: 0.91;
+}
+/* condensed about its own middle, so a centred line stays centred */
+.hd-sim__title .hp-title__word,
+.hd-close__title .hp-title__word {
+  transform-origin: 50% 50%;
+}
+.hd-sim__rule {
+  display: block;
+  width: 1px;
+  height: clamp(60px, 12vh, 130px);
+  margin-top: clamp(30px, 6vh, 68px);
+  background: color-mix(in srgb, var(--wine) 22%, transparent);
+}
+.hd-sim__sub {
+  margin: auto 0 0;
+  padding-top: 40px;
+  display: grid;
+  gap: 2px;
+  font-family: var(--font-sans);
+  font-size: 9.9px;
+  font-weight: 700;
+  letter-spacing: 0.048em;
+  line-height: 1.45;
+  text-transform: uppercase;
+}
+.hd-sim__grid {
+  width: 806px;
+  max-width: calc(100% - 2 * var(--gutter));
+  margin: 43px auto 0;
+  display: grid;
+  grid-template-columns: repeat(2, 396px);
+  gap: 14.4px;
+  justify-content: center;
+  list-style: none;
+  padding: 0;
+}
+.hd-sim__grid > li {
+  display: flex;
+  min-width: 0;
+}
+
+/* ---- THE CLOSE --------------------------------------------------------- */
+.hd-close {
+  position: relative;
+  overflow: clip;
+  min-height: 120svh;
+  background: var(--wine);
+  color: #fff;
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  text-align: center;
+  padding: 20px var(--gutter) clamp(60px, 12vh, 140px);
+}
+/* the headroom the drift needs: -8% to +8% never shows an edge */
+.hd-close__bg {
+  position: absolute;
+  inset: -12% 0;
+  margin: 0;
+}
+.hd-close__bg img {
+  object-fit: cover;
+  will-change: transform;
+}
+.hd-close__bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--wine) 74%, transparent),
+    color-mix(in srgb, var(--wine) 44%, transparent) 46%,
+    color-mix(in srgb, var(--wine) 72%, transparent)
+  );
+}
+.hd-close__lead,
+.hd-close__sub,
+.hd-close__title,
+.hd-close .n-views__orb {
+  position: relative;
+  z-index: 1;
+}
+.hd-close__lead {
+  margin: 0;
+  max-width: 60ch;
+  font-family: var(--font-sans);
+  font-size: 9.9px;
+  font-weight: 700;
+  letter-spacing: 0.048em;
+  line-height: 1.9;
+  text-transform: uppercase;
+}
+.hd-close__title {
+  margin-top: clamp(90px, 23vh, 311px);
+  /* 90px at 390 → 172.8px at 1440 */
+  font-size: clamp(90px, 3.703rem + 7.8857vw, 172.8px);
+  line-height: 0.87;
+  text-shadow: 0 4px 30px rgba(20, 6, 12, 0.35);
+}
+.hd-close__title .line {
+  display: block;
+}
+.hd-close__sub {
+  margin: clamp(18px, 3vh, 29px) 0 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(14px, 0.6777rem + 0.80952vw, 22.5px);
+  line-height: 1.1;
+  letter-spacing: 0.8em;
+  text-indent: 0.8em;
+  text-transform: uppercase;
+}
+.n-views__orb.is-187 {
+  position: relative;
+  left: auto;
+  bottom: auto;
+  translate: none;
+  margin-top: clamp(40px, 7vh, 62px);
+  width: 160px;
+  height: 160px;
+  padding: 0 22px;
+  font-size: 9.9px;
+  letter-spacing: 0.048em;
+}
+.hd-close :focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+/* the note a screen reader needs and the eye does not */
+.hd-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ==========================================================================
+   /homes/[id] — WIDE SCREENS: the two-column lot, the sticky panel, the rail
+   ========================================================================== */
+@media (min-width: 861px) {
+  .hd-lot {
+    /* the left lane belongs to the crumb rail, as the reference's does */
+    padding: 0 var(--gutter) 43px calc(var(--gutter) + 116px);
+    max-width: 1560px;
+    margin-inline: auto;
+    grid-template-columns: minmax(0, 1fr) clamp(240px, 19.1vw, 275px);
+    column-gap: clamp(20px, 2vw, 29px);
+    align-items: start;
+  }
+  .hd-lot__media {
+    grid-column: 1;
+    max-width: 770px;
+  }
+  /* the head is inset inside its column, the drawings less so — the
+     reference's 115px and 36px at 1440 */
+  /* the head is the section's own child, so the panel spans both of the
+     left column's rows beside it */
+  .hd-lot__head {
+    grid-column: 1;
+    padding: 27px 0 73px clamp(20px, 8vw, 115px);
+  }
+  .fp.is-lot {
+    margin-left: clamp(0px, 2.5vw, 36px);
+  }
+  .hd-name,
+  .hd-line {
+    font-size: 8.5px;
+  }
+  .hd-lot__info {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    padding: 27px 0 43px;
+    /* only ever scrolls on a short viewport; on 900 it never does */
+    overflow-y: auto;
+  }
+  .hd-lot__late {
+    display: grid;
+    align-content: end;
+    height: 187px;
+    /* the fixed nav ends at y157; this row's content starts below it */
+    padding-top: 130px;
+    flex: none;
+    opacity: 0;
+    transition: opacity 400ms var(--ease);
+  }
+  .hd-lot__late.is-late {
+    opacity: 1;
+  }
+  /* the copy is revealed by a scroll trigger that only runs where motion is
+     allowed; without it nothing ever reveals it, so it does not hold a row */
+  @media (prefers-reduced-motion: reduce) {
+    .hd-lot__late {
+      display: none;
+    }
+  }
+  .hd-lot__late .hd-code {
+    font-size: 28px;
+    line-height: 1;
+    letter-spacing: -0.01em;
+  }
+  .hd-cells {
+    margin-top: 27px;
+  }
+  .hd-cells dt {
+    font-size: 9.9px;
+  }
+  .hd-tabs [role="tab"] {
+    font-size: 9.9px;
+  }
+  .hd-info {
+    font-size: 11.7px;
+  }
+  .hd-benefits {
+    font-size: 9.9px;
+    line-height: 2.8;
+  }
+  .hd-levels {
+    display: block;
+    margin-top: auto;
+    align-self: flex-end;
+    color: var(--wine);
+  }
+  .hd-sched {
+    margin-top: clamp(20px, 4vh, 44px);
+    padding-left: clamp(0px, 2.5vw, 36px);
+  }
+  .hd-lot__gal {
+    padding-left: clamp(0px, 2.5vw, 36px);
+  }
+  .n-views__orb.is-187 {
+    width: 187px;
+    height: 187px;
+    padding: 0 26px;
+  }
+
+  /* the crumb rail: down the left margin, reading upward */
+  .hd-crumbs {
+    display: block;
+    position: fixed;
+    left: var(--gutter);
+    top: 180px;
+    z-index: 210;
+    color: var(--wine);
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    transition: opacity 260ms var(--ease);
+  }
+  /* over photography the rail would need a third of the picture darkened to
+     stay legible; it stands down instead, and returns over the cream */
+  .hd-crumbs.is-dark {
+    opacity: 0;
+    visibility: hidden; /* out of the tab order, not merely invisible */
+    pointer-events: none;
+    transition:
+      opacity 260ms var(--ease),
+      visibility 0s 260ms;
+  }
+  .hd-crumbs ol {
+    display: flex;
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--font-sans);
+    font-size: 9.9px;
+    font-weight: 700;
+    letter-spacing: 0.048em;
+    text-transform: uppercase;
+  }
+  .hd-crumbs a {
+    position: relative;
+    color: inherit;
+    text-decoration: none;
+  }
+  /* 12px of vertical type is under WCAG 2.5.8; the target reaches into the
+     margin beside it, where there is nothing else to hit */
+  .hd-crumbs a::before {
+    content: "";
+    position: absolute;
+    inset: -6px -16px;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .hd-crumbs a:hover {
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+  }
+  .hd-crumbs li + li::before {
+    content: "/";
+    margin-inline-end: 14px;
+    opacity: 0.4;
+  }
+  .hd-crumbs [aria-current] {
+    opacity: 0.62;
+  }
+  /* the call dialog owns the screen while it is open */
+  body[style*="overflow: hidden"] .hd-crumbs {
+    visibility: hidden;
+  }
+}
+
+/* ==========================================================================
+   /homes/[id] — PHONES: one column, the photographs as a snap row
+   ========================================================================== */
+@media (max-width: 860px) {
+  .hd-lot {
+    padding-bottom: clamp(30px, 6vh, 60px);
+  }
+  /* the identity first, then the figures and the call, then the drawings */
+  .hd-lot__head {
+    order: 1;
+    padding-bottom: 8px;
+  }
+  .hd-lot__media {
+    order: 3;
+  }
+  .hd-lot__info {
+    order: 2;
+  }
+  .hd-cells {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+  .hd-benefits {
+    line-height: 2.2;
+  }
+  .hd-sim__grid {
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+  }
+  /* the photographs scroll sideways, 312 square, as the reference's do */
+  .hd-lot__photos {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--gutter);
+    margin-inline: calc(-1 * var(--gutter));
+    padding-inline: var(--gutter);
+    padding-bottom: 4px;
+  }
+  .hd-lot__photos li {
+    flex: 0 0 312px;
+    max-width: 78vw;
+    scroll-snap-align: start;
+  }
+  .hd-lot__photos img {
+    aspect-ratio: 1;
+    object-fit: cover;
+  }
+}
+@media (max-width: 1100px) and (min-width: 861px) {
+  .hd-sim__grid {
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 /* ---- narrow screens: one column, rails become in-flow rows -------------- */
 @media (max-width: 1100px) {
-  .hp-grid,
-  .hd-gal__grid,
-  .hd-near__list {
+  .hp-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .hp-intro {
@@ -4335,10 +5152,7 @@ body:has(.hp) .n-nav__cta {
 }
 @media (max-width: 860px) {
   .hp-grid,
-  .hd-gal__grid,
-  .hd-near__list,
-  .hp-intro,
-  .hd-plans__grid {
+  .hp-intro {
     grid-template-columns: minmax(0, 1fr);
   }
   /* the rail becomes a sticky chip row below, so the body needs no lane */
@@ -4681,6 +5495,26 @@ body:has(.n-sheet) .n-seal {
   .hp-grid,
   .hp-tail {
     padding-bottom: var(--chrome-b);
+  }
+  /* the orb hangs off the screen's foot on a wide window; on a phone that
+     puts its label behind the fixed pill, so it sits inside the screen and
+     clear of the chrome lane instead */
+  .hp-tail__orb {
+    bottom: calc(var(--chrome-b) - 45px);
+    width: 190px;
+    height: 190px;
+  }
+  /* and the onward link no longer needs room for an overhanging circle */
+  .hp-tail__row {
+    margin-top: clamp(28px, 5vh, 60px);
+  }
+  /* 19px and 16px tall — the padding grows the target and the negative
+     margin hands the space straight back, as in the footer */
+  .hp-tail__back,
+  .hp-panel__act {
+    display: inline-block;
+    padding-block: 14px;
+    margin-block: -14px;
   }
   .n-nav {
     top: auto;
@@ -5342,7 +6176,10 @@ body:has(.n-sheet) .n-seal {
       #000 calc(100% - 28px),
       transparent
     );
-    scroll-snap-type: x proximity;
+    /* NO scroll-snap here. Measured: snap plus the sticky first chip drove
+       the container's initial scrollLeft from 120 to its 245px maximum, so
+       the row opened on its last chip with ALL PLACES off-screen. */
+    overscroll-behavior-x: contain;
   }
   .hp-rail button:first-child {
     /* ALL PLACES stays put clear of the seal instead of sliding under it */
@@ -5358,7 +6195,6 @@ body:has(.n-sheet) .n-seal {
     min-height: 44px;
     padding: 12px 8px;
     color: color-mix(in srgb, var(--wine) 74%, var(--cream));
-    scroll-snap-align: start;
   }
   .hp-rail button.on {
     color: var(--wine);

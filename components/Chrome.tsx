@@ -6,6 +6,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { brand, callModal, chapters, nav, navCta } from "@/lib/content";
 import type Lenis from "lenis";
+import { under } from "@/lib/under";
 import { BotanicalCrestIcon } from "@/components/ui/BotanicalCrestIcon";
 
 /** Letters in their own boxes, each carrying its position, so a hover can
@@ -67,21 +68,6 @@ export default function Chrome() {
     ) as HTMLElement[];
     if (!pieces.length) return;
 
-    const under = (p: HTMLElement) => {
-      const r = p.getBoundingClientRect();
-      const x = Math.round(r.left + r.width / 2);
-      const y = Math.round(r.top + r.height / 2);
-      if (x < 0 || y < 0 || x > window.innerWidth || y > window.innerHeight)
-        return false;
-      // walk the paint stack, skipping the chrome itself
-      for (const el of document.elementsFromPoint(x, y)) {
-        if (el.closest(".n-chrome")) continue;
-        const hit = el.closest<HTMLElement>("[data-dark],[data-light]");
-        if (!hit) return false;
-        return hit.hasAttribute("data-dark");
-      }
-      return false;
-    };
 
     // Scroll direction drives `.is-away`. On a phone the chrome is fixed over
     // the content and was measured covering live CTAs at a third of all scroll
@@ -249,7 +235,12 @@ export default function Chrome() {
   const lastFocus = useRef<HTMLElement | null>(null);
   const openedAt = useRef(0);
 
-  const openCall = (trigger?: HTMLElement | null) => {
+  // A home's page asks about THAT home: the pill hands over its name, and
+  // the message field opens with it already written. Everything else on the
+  // site opens the dialog with a blank message, exactly as before.
+  const [about, setAbout] = useState("");
+  const openCall = (trigger?: HTMLElement | null, subject = "") => {
+    setAbout(subject);
     lastFocus.current =
       trigger ?? (document.activeElement as HTMLElement | null);
     setState("idle");
@@ -260,7 +251,8 @@ export default function Chrome() {
 
   // any CTA on the page can summon the dialog without importing Chrome
   useEffect(() => {
-    const h = () => openCall();
+    const h = (e: Event) =>
+      openCall(null, (e as CustomEvent<{ about?: string }>).detail?.about ?? "");
     window.addEventListener("noratun:call", h);
     return () => window.removeEventListener("noratun:call", h);
   }, []);
@@ -731,6 +723,7 @@ export default function Chrome() {
               <label className="n-dlg__field n-dlg__stage is-area">
                 <textarea
                   name="message"
+                  defaultValue={about ? `About ${about}.` : undefined}
                   rows={2}
                   placeholder=" "
                   aria-label={callModal.fields.message}

@@ -1,11 +1,12 @@
 "use client";
 
-import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { FloorPlan } from "@/components/ui/FloorPlan";
+import { Card } from "@/components/ui/HomeCard";
 import { BotanicalCrestIcon } from "@/components/ui/BotanicalCrestIcon";
+import { eInOut } from "@/lib/eases";
 import {
   brand,
   footer,
@@ -51,89 +52,6 @@ type Place = (typeof PLACES)[number] | "all";
 type Beds = "any" | "1" | "2" | "3plus";
 type Sort = "relevant" | "smallest" | "largest";
 
-/** The bed / area line, printed from what the sheet actually gives. A null
- *  bedroom count or area is OMITTED — never shown as 0, never invented. Shared
- *  by the catalogue card and the detail page so the two can never disagree. */
-export function Facts({ l }: { l: Listing }) {
-  const bits: React.ReactNode[] = [];
-  if (l.bedrooms !== null)
-    bits.push(<Fragment key="b">{l.bedrooms} bed</Fragment>);
-  if (l.area !== null)
-    bits.push(
-      <Fragment key="a">
-        {l.area} m<sup>2</sup>
-      </Fragment>,
-    );
-  return (
-    <>
-      {bits.map((b, i) => (
-        <Fragment key={i}>
-          {i ? " / " : ""}
-          {b}
-        </Fragment>
-      ))}
-    </>
-  );
-}
-
-function Card({ l }: { l: Listing }) {
-  const spec = [
-    l.bedrooms === null
-      ? null
-      : `${l.bedrooms} bedroom${l.bedrooms === 1 ? "" : "s"}`,
-    l.area === null ? null : `${l.area} square metres`,
-    l.terrace ? `${l.terrace} square metre terrace` : null,
-  ].filter(Boolean);
-  const label =
-    `${l.name}, ${l.typology.toLowerCase()} in ${l.place}` +
-    (spec.length ? ` — ${spec.join(", ")}` : "") +
-    `. ${homesPage.statusLabel[l.status]}.`;
-  return (
-    <a
-      className="hp-card"
-      href={`/homes/${l.id}`}
-      data-status={l.status}
-      aria-label={label}
-    >
-      <span className="hp-card__head">
-        <span className="hp-card__typo">{l.typology}</span>
-        <span className="hp-card__completion">
-          {homesPage.completionLabel}: {l.completion}
-        </span>
-      </span>
-
-      <span className="hp-card__plans" aria-hidden="true">
-        {/* the two floors, stacked as the reference stacks them; a sheet's
-            structural section (v14) belongs on the home's own page, not here */}
-        {l.levels.slice(0, 2).map((lv) => (
-          <FloorPlan
-            key={lv.caption}
-            img={lv.img}
-            alt={lv.alt}
-            rooms={lv.rooms}
-            caption={lv.caption}
-            title={l.name}
-          />
-        ))}
-      </span>
-
-      <span className="hp-card__meta">
-        <span>№ {l.code}</span>
-        <span>Block {l.block}</span>
-        <span>{l.floor}</span>
-      </span>
-      <span className="hp-card__big">
-        <Facts l={l} />
-      </span>
-      {l.terrace > 0 && (
-        <span className="hp-card__sub">
-          + {l.terrace} m<sup>2</sup> {homesPage.terraceLabel}
-        </span>
-      )}
-      <span className="hp-card__status">{homesPage.statusLabel[l.status]}</span>
-    </a>
-  );
-}
 
 export default function HomesView() {
   const root = useRef<HTMLDivElement | null>(null);
@@ -245,6 +163,17 @@ export default function HomesView() {
     // legibility, not motion, so never PRM-gated. Read with a plain rect
     // check: immune to refresh order and to scroll restoration.
     const rail = el.querySelector<HTMLElement>(".hp-rail");
+    // The row must open on ALL PLACES. Measured on the running page: the
+    // container comes up already scrolled — 76px with none of the phone rules
+    // applied, 245px (its maximum) with them, and the same with JS disabled,
+    // so it is the browser's own initial scroll position, not our code. It is
+    // also re-triggered when the display face swaps and the chips resize, so
+    // this runs again on fonts.ready.
+    const railHome = () => {
+      if (rail && rail.scrollLeft !== 0) rail.scrollLeft = 0;
+    };
+    railHome();
+    document.fonts?.ready.then(railHome).catch(() => {});
     const panel = el.querySelector<HTMLElement>(".hp-panel");
     const tail = el.querySelector<HTMLElement>(".hp-tail");
     let railRaf = 0;
@@ -294,9 +223,7 @@ export default function HomesView() {
           );
         });
         // photo tiles + the tail photo drift ±15% (the reference's rate)
-        el.querySelectorAll<HTMLElement>(
-          ".hp-tilewrap img, .hp-tail__fig img",
-        ).forEach((im) => {
+        el.querySelectorAll<HTMLElement>(".hp-tilewrap img").forEach((im) => {
           gsap.fromTo(
             im,
             { yPercent: -15 },
@@ -326,6 +253,64 @@ export default function HomesView() {
             },
           },
         );
+
+        // ---- the closing screen — the main page's rail 93, beat for beat:
+        // the type climbs faster than the picture beneath it; then the
+        // picture pulls back into a frame and the wine opens on all four
+        // sides, and the type and the orb stand down so the wine carries on
+        // alone into the footer.
+        const hold = el.querySelector<HTMLElement>(".hp-tail__hold");
+        if (hold) {
+          const ttl = gsap.timeline({
+            scrollTrigger: {
+              trigger: hold,
+              start: "top top",
+              end: "bottom bottom",
+              scrub: 0.6,
+              invalidateOnRefresh: true,
+            },
+          });
+          ttl
+            .fromTo(
+              ".hp-tail__fore",
+              { yPercent: 10 },
+              { yPercent: -32, ease: "none", duration: 1 },
+              0,
+            )
+            .fromTo(
+              ".hp-tail__bg img",
+              { scale: 1.14 },
+              { scale: 1, ease: "none", duration: 1 },
+              0,
+            )
+            .fromTo(
+              ".hp-tail__bg",
+              { clipPath: "inset(0svh 0vw 0svh 0vw)" },
+              {
+                clipPath: "inset(11svh 15vw 11svh 15vw)",
+                ease: eInOut,
+                duration: 0.4,
+              },
+              0.55,
+            )
+            .to(
+              ".hp-tail__orb",
+              { autoAlpha: 0, ease: "none", duration: 0.12 },
+              0.5,
+            )
+            .to(
+              ".hp-tail__fore",
+              { autoAlpha: 0, ease: "none", duration: 0.16 },
+              0.6,
+            )
+            // the scrim is there for the type; it leaves with it, so the
+            // framed picture is shown exactly as it was made
+            .to(
+              ".hp-tail__screen",
+              { "--scrim": 0, ease: "none", duration: 0.2 },
+              0.6,
+            );
+        }
       },
     );
 
@@ -661,42 +646,52 @@ export default function HomesView() {
       </div>
 
       {/* closing chapter */}
+      {/* The closing band carries the same device as the main page's rail 93:
+          the photograph fills the screen and the type climbs over it at its
+          own rate, then the picture pulls back into a frame and the wine
+          opens on all four sides, running on unbroken into the footer. */}
       <section className="n-arch hp-tail" data-dark>
         <p className="n-running" data-rise>
           {homesPage.tail.running}
         </p>
-        <h2 data-rise>
-          {homesPage.tail.lines.map((l) => (
-            <span key={l}>{l}</span>
-          ))}
-          <em className="script">{homesPage.tail.script}</em>
-          <span>{homesPage.tail.tailWord}</span>
-        </h2>
-        <p className="hp-tail__copy" data-rise>
-          {homesPage.tail.copy}
-        </p>
-        <div className="hp-tail__row" data-rise>
-          <button
-            type="button"
-            className="n-pill is-light"
-            onClick={() => window.dispatchEvent(new Event("noratun:call"))}
-          >
-            {homesPage.tail.button} <span aria-hidden>→</span>
-          </button>
+        {/* the sticky screen needs travel to stick through: this holder is
+            the two screens of scroll the frame closes across */}
+        <div className="hp-tail__hold">
+          <div className="hp-tail__screen">
+            <figure className="hp-tail__bg">
+              <Image
+                placeholder="blur"
+                quality={65}
+                src={homesPage.tail.img}
+                alt={homesPage.tail.alt}
+                fill
+                sizes="100vw"
+              />
+            </figure>
+            <div className="hp-tail__fore">
+              <h2>
+                {homesPage.tail.lines.map((l) => (
+                  <span key={l}>{l}</span>
+                ))}
+                <em className="script">{homesPage.tail.script}</em>
+                <span>{homesPage.tail.tailWord}</span>
+              </h2>
+              <p className="hp-tail__copy">{homesPage.tail.copy}</p>
+            </div>
+            <button
+              type="button"
+              className="hp-tail__orb"
+              onClick={() => window.dispatchEvent(new Event("noratun:call"))}
+            >
+              {homesPage.tail.button}
+            </button>
+          </div>
+        </div>
+        <div className="hp-tail__row">
           <a className="hp-tail__back" href="/#collections">
             {homesPage.tail.back} <span aria-hidden>→</span>
           </a>
         </div>
-        <figure className="hp-tail__fig n-media" data-rise>
-          <Image
-            placeholder="blur"
-            quality={65}
-            src={homesPage.tail.img}
-            alt={homesPage.tail.alt}
-            fill
-            sizes="(max-width: 860px) 92vw, 76vw"
-          />
-        </figure>
       </section>
 
       {/* footer — the one-pager's anatomy */}
