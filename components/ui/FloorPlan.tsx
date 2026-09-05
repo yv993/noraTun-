@@ -47,7 +47,7 @@ export function FloorPlan({
           src={img}
           alt={alt ?? `${caption} plan of ${title}`}
           placeholder="blur"
-          quality={70}
+          quality={75} // must be one of next.config images.qualities — the optimizer rejects any other value in production
           sizes={sizes ?? CARD_SIZES}
           priority={priority}
         />
