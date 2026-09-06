@@ -18,10 +18,18 @@ export default function SmoothScroll() {
     // stop() preventDefaults every vertical touchmove — so in landscape the
     // dialog's own 598px-tall card could not be finger-scrolled to its submit
     // button at all. Body overflow:hidden holds the page on its own.
+    //
+    // .hd-lot__info is on the list for the same reason: a home's info panel is
+    // one viewport tall with its own overflow, and Lenis was taking every
+    // wheel event over it and scrolling the PAGE instead — the panel could not
+    // be scrolled at all, so the schedule and the description under the pinned
+    // request were unreachable. Left to the browser it scrolls natively and
+    // still chains to the page once it reaches its end.
     const lenis = new Lenis({
       lerp: 0.12,
       wheelMultiplier: 1,
-      prevent: (node) => !!(node as HTMLElement).closest?.(".n-dlg, .n-sheet"),
+      prevent: (node) =>
+        !!(node as HTMLElement).closest?.(".n-dlg, .n-sheet, .hd-lot__info"),
     });
     (window as unknown as { __lenis?: Lenis }).__lenis = lenis;
     let raf = 0;

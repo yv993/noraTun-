@@ -1,3 +1,5 @@
+"use client";
+
 import { Fragment } from "react";
 import { FloorPlan } from "@/components/ui/FloorPlan";
 import { homesPage, type Listing } from "@/lib/content";
@@ -50,13 +52,22 @@ export function Card({ l }: { l: Listing }) {
     `${l.name}, ${l.typology.toLowerCase()} in ${l.place}` +
     (spec.length ? ` — ${spec.join(", ")}` : "") +
     `. ${homesPage.statusLabel[l.status]}.`;
+  // The whole card is still one destination, but it can no longer BE the
+  // anchor: a <button> inside an <a> is invalid markup and, in a browser, two
+  // interactive elements fighting for the same tap. The anchor covers the card
+  // with a pseudo-element instead, and the request button sits above it.
+  const ask = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    window.dispatchEvent(
+      new CustomEvent("noratun:call", {
+        detail: { about: `${homesPage.detail.code(l.code)} — ${l.name}` },
+      }),
+    );
+  };
   return (
-    <a
-      className="hp-card"
-      href={`/homes/${l.id}`}
-      data-status={l.status}
-      aria-label={label}
-    >
+    <article className="hp-card" data-status={l.status}>
+      <a className="hp-card__link" href={`/homes/${l.id}`} aria-label={label} />
       <span className="hp-card__head">
         <span className="hp-card__typo">{l.typology}</span>
         <span className="hp-card__completion">
@@ -93,6 +104,16 @@ export function Card({ l }: { l: Listing }) {
         </span>
       )}
       <span className="hp-card__status">{homesPage.statusLabel[l.status]}</span>
-    </a>
+      {/* the request the detail page offers, offered here too — a visitor
+          should never have to open a home to ask about it */}
+      <button
+        type="button"
+        className="hp-card__ask"
+        onClick={ask}
+        aria-label={`${homesPage.detail.request} — ${l.name}`}
+      >
+        {homesPage.detail.request}
+      </button>
+    </article>
   );
 }

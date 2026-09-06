@@ -68,7 +68,6 @@ export default function Chrome() {
     ) as HTMLElement[];
     if (!pieces.length) return;
 
-
     // Scroll direction drives `.is-away`. On a phone the chrome is fixed over
     // the content and was measured covering live CTAs at a third of all scroll
     // stops; getting out of the way while the visitor reads downward is the
@@ -239,6 +238,9 @@ export default function Chrome() {
   // the message field opens with it already written. Everything else on the
   // site opens the dialog with a blank message, exactly as before.
   const [about, setAbout] = useState("");
+  // "sent" and "logged" both mean the request is away — the window turns over
+  // to its answer. "error" stays on the form so it can be sent again.
+  const doneBtn = useRef<HTMLButtonElement | null>(null);
   const openCall = (trigger?: HTMLElement | null, subject = "") => {
     setAbout(subject);
     lastFocus.current =
@@ -252,7 +254,10 @@ export default function Chrome() {
   // any CTA on the page can summon the dialog without importing Chrome
   useEffect(() => {
     const h = (e: Event) =>
-      openCall(null, (e as CustomEvent<{ about?: string }>).detail?.about ?? "");
+      openCall(
+        null,
+        (e as CustomEvent<{ about?: string }>).detail?.about ?? "",
+      );
     window.addEventListener("noratun:call", h);
     return () => window.removeEventListener("noratun:call", h);
   }, []);
@@ -343,6 +348,12 @@ export default function Chrome() {
     };
   }, [open]);
 
+  const done = state === "sent" || state === "logged";
+  // the form it replaced held the focus; move it on rather than dropping it
+  useEffect(() => {
+    if (done) doneBtn.current?.focus({ preventScroll: true });
+  }, [done]);
+
   const send = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (state === "sending") return;
@@ -412,12 +423,18 @@ export default function Chrome() {
 
   return (
     <div className="n-chrome">
+      {/* The seal is the site's home link. It used to point at #main, which
+          exists on EVERY page (layout renders <main id="main">), so on /homes
+          and a home's own page it only scrolled that page to its top and there
+          was no way back to the one-pager from the logo. On the one-pager it
+          still scrolls to the top; anywhere else it navigates home. */}
       <a
-        href="#main"
+        href={here === "/" ? "#main" : "/"}
         ref={seal}
         className="n-seal"
-        aria-label={`${brand.full} — to the top`}
+        aria-label={here === "/" ? `${brand.full} — to the top` : brand.full}
         onClick={(e) => {
+          if (here !== "/") return; // a real navigation; let the browser go
           e.preventDefault();
           go("#main");
         }}
@@ -609,164 +626,199 @@ export default function Chrome() {
               <span aria-hidden>✕</span>
             </button>
 
-            <span className="n-dlg__kicker n-dlg__stage">
-              {callModal.kicker}
+            {/* LEFT — the script line at the top, the promise at the foot */}
+            <div className="n-dlg__left">
+              <h2 id="n-dlg-title" className="n-dlg__title n-dlg__stage">
+                {done ? callModal.ok.script : callModal.script}
+              </h2>
+              <p className="n-dlg__lead n-dlg__stage">
+                {done ? callModal.ok.when : callModal.lead}
+              </p>
+            </div>
+
+            {/* the hairline down the middle, and the seal that breaks it */}
+            <i className="n-dlg__rule" aria-hidden="true" />
+            <span className="n-dlg__seal" aria-hidden="true">
+              <svg viewBox="0 0 100 100">
+                <path
+                  id="n-dlg-arc"
+                  d="M50,50 m-38,0 a38,38 0 1,1 76,0 a38,38 0 1,1 -76,0"
+                  fill="none"
+                />
+                {/* textLength = the ring's circumference (2π·38), so the words
+                    spread evenly instead of clipping at the seam */}
+                <text textLength="238.7" lengthAdjust="spacing">
+                  <textPath href="#n-dlg-arc" startOffset="0%">
+                    NORATUN · ARMENIA · NORATUN ·
+                  </textPath>
+                </text>
+              </svg>
+              <BotanicalCrestIcon className="n-dlg__crest" />
             </span>
-            <h2 id="n-dlg-title" className="n-dlg__title n-dlg__stage">
-              {callModal.title.map((l) => (
-                <span key={l}>{l}</span>
-              ))}
-            </h2>
 
-            {state === "sent" && (
-              <p className="n-dlg__ok" role="status">
-                {callModal.okDelivered}
-              </p>
-            )}
-            {(state === "logged" || state === "error") && (
-              <p className="n-dlg__warn" role="alert">
-                {state === "logged"
-                  ? callModal.okUndelivered
-                  : callModal.failed}{" "}
-                <a href={`tel:${brand.phone.replace(/[^\d+]/g, "")}`}>
-                  {brand.phone}
-                </a>
-              </p>
-            )}
-            {errors.form && (
-              <p className="n-dlg__warn" role="alert">
-                {errors.form}
-              </p>
-            )}
-            {/* a summary that MOUNTS when the field errors arrive — a live
-                region already on the page announces nothing when it is
-                rendered with its text already in place */}
-            {!errors.form && Object.keys(errors).length > 0 && (
-              <p className="n-dlg__warn" role="alert">
-                {callModal.fix}{" "}
-                {Object.keys(errors)
-                  .map(
-                    (k) => callModal.fields[k as keyof typeof callModal.fields],
-                  )
-                  .filter(Boolean)
-                  .join(", ")}
-              </p>
-            )}
-
-            <form className="n-dlg__form" onSubmit={send} noValidate>
-              <div className="n-dlg__pot" aria-hidden="true">
-                <label htmlFor="n-company">Company</label>
-                <input
-                  id="n-company"
-                  name="company"
-                  type="text"
-                  tabIndex={-1}
-                  autoComplete="off"
-                />
-              </div>
-
-              <label className="n-dlg__field n-dlg__stage">
-                <input
-                  ref={first}
-                  name="name"
-                  type="text"
-                  placeholder=" "
-                  required
-                  autoComplete="name"
-                  aria-label={callModal.fields.name}
-                  aria-invalid={!!errors.name}
-                  aria-describedby={errors.name ? "n-err-name" : undefined}
-                />
-                <span className="lbl">{callModal.fields.name}</span>
-                {errors.name && (
-                  <em className="err" id="n-err-name">
-                    {errors.name}
-                  </em>
+            {/* RIGHT — the four fields, or, once it is away, the answer */}
+            {done ? (
+              <div className="n-dlg__done" role="status">
+                <p className="n-dlg__done-lead">{callModal.ok.lead}</p>
+                {about && (
+                  <p className="n-dlg__done-about">
+                    {callModal.ok.aboutLabel} <em>{about}</em>
+                  </p>
                 )}
-              </label>
-              <label className="n-dlg__field n-dlg__stage">
-                <input
-                  name="phone"
-                  type="tel"
-                  placeholder=" "
-                  inputMode="tel"
-                  autoComplete="tel"
-                  aria-label={callModal.fields.phone}
-                  aria-invalid={!!errors.phone}
-                  aria-describedby={errors.phone ? "n-err-phone" : undefined}
-                />
-                <span className="lbl">{callModal.fields.phone}</span>
-                {errors.phone && (
-                  <em className="err" id="n-err-phone">
-                    {errors.phone}
-                  </em>
+                {/* HONEST: "logged" means the endpoint stored it but call-back
+                    delivery is not switched on for this build, so the visitor
+                    is told, and given the number rather than a promise. */}
+                {state === "logged" && (
+                  <p className="n-dlg__warn">
+                    {callModal.okUndelivered}{" "}
+                    <a href={`tel:${brand.phone.replace(/[^\d+]/g, "")}`}>
+                      {brand.phone}
+                    </a>
+                  </p>
                 )}
-              </label>
-              <label className="n-dlg__field n-dlg__stage">
-                <input
-                  name="email"
-                  type="email"
-                  placeholder=" "
-                  inputMode="email"
-                  autoComplete="email"
-                  aria-label={callModal.fields.email}
-                  aria-invalid={!!errors.email}
-                  aria-describedby={errors.email ? "n-err-email" : undefined}
-                />
-                <span className="lbl">{callModal.fields.email}</span>
-                {errors.email && (
-                  <em className="err" id="n-err-email">
-                    {errors.email}
-                  </em>
-                )}
-              </label>
-              <label className="n-dlg__field n-dlg__stage is-area">
-                <textarea
-                  name="message"
-                  defaultValue={about ? `About ${about}.` : undefined}
-                  rows={2}
-                  placeholder=" "
-                  aria-label={callModal.fields.message}
-                  aria-invalid={!!errors.message}
-                  aria-describedby={
-                    errors.message ? "n-err-message" : undefined
-                  }
-                />
-                <span className="lbl">{callModal.fields.message}</span>
-                {errors.message && (
-                  <em className="err" id="n-err-message">
-                    {errors.message}
-                  </em>
-                )}
-              </label>
-
-              <div className="n-dlg__row n-dlg__stage">
-                {/* the privacy link used to sit INSIDE this label, 38x14, and
-                    Chrome's touch adjustment gave it taps 6px outside itself:
-                    a thumb aiming at the checkbox navigated away and took the
-                    typed form with it. It is its own row now, and a new tab. */}
-                <label className="n-dlg__consent">
-                  <input type="checkbox" name="consent" required />
-                  <span>{callModal.consent}</span>
-                </label>
-                <a
-                  className="n-dlg__privacy"
-                  href="/privacy"
-                  target="_blank"
-                  rel="noopener"
-                >
-                  {callModal.privacy}
-                </a>
                 <button
+                  type="button"
                   className="n-pill"
-                  type="submit"
-                  disabled={state === "sending"}
+                  ref={doneBtn}
+                  onClick={() => setOpen(false)}
                 >
-                  {state === "sending" ? callModal.sending : callModal.send}{" "}
-                  <span aria-hidden>{state === "sending" ? "…" : "→"}</span>
+                  {callModal.ok.done}
                 </button>
               </div>
-            </form>
+            ) : (
+              <form className="n-dlg__form" onSubmit={send} noValidate>
+                {state === "error" && (
+                  <p className="n-dlg__warn" role="alert">
+                    {callModal.failed}{" "}
+                    <a href={`tel:${brand.phone.replace(/[^\d+]/g, "")}`}>
+                      {brand.phone}
+                    </a>
+                  </p>
+                )}
+                {errors.form && (
+                  <p className="n-dlg__warn" role="alert">
+                    {errors.form}
+                  </p>
+                )}
+                {/* a summary that MOUNTS when the field errors arrive — a live
+                  region already on the page announces nothing when it is
+                  rendered with its text already in place */}
+                {!errors.form && Object.keys(errors).length > 0 && (
+                  <p className="n-dlg__warn" role="alert">
+                    {callModal.fix}{" "}
+                    {Object.keys(errors)
+                      .map(
+                        (k) =>
+                          callModal.fields[k as keyof typeof callModal.fields],
+                      )
+                      .filter(Boolean)
+                      .join(", ")}
+                  </p>
+                )}
+
+                <div className="n-dlg__pot" aria-hidden="true">
+                  <label htmlFor="n-company">Company</label>
+                  <input
+                    id="n-company"
+                    name="company"
+                    type="text"
+                    tabIndex={-1}
+                    autoComplete="off"
+                  />
+                </div>
+
+                <label className="n-dlg__field n-dlg__stage">
+                  <input
+                    ref={first}
+                    name="name"
+                    type="text"
+                    placeholder=" "
+                    required
+                    autoComplete="name"
+                    aria-label={callModal.fields.name}
+                    aria-invalid={!!errors.name}
+                    aria-describedby={errors.name ? "n-err-name" : undefined}
+                  />
+                  <span className="lbl">{callModal.fields.name}</span>
+                  {errors.name && (
+                    <em className="err" id="n-err-name">
+                      {errors.name}
+                    </em>
+                  )}
+                </label>
+                <label className="n-dlg__field n-dlg__stage">
+                  <input
+                    name="email"
+                    type="email"
+                    placeholder=" "
+                    inputMode="email"
+                    autoComplete="email"
+                    aria-label={callModal.fields.email}
+                    aria-invalid={!!errors.email}
+                    aria-describedby={errors.email ? "n-err-email" : undefined}
+                  />
+                  <span className="lbl">{callModal.fields.email}</span>
+                  {errors.email && (
+                    <em className="err" id="n-err-email">
+                      {errors.email}
+                    </em>
+                  )}
+                </label>
+                <label className="n-dlg__field n-dlg__stage">
+                  <input
+                    name="phone"
+                    type="tel"
+                    placeholder=" "
+                    inputMode="tel"
+                    autoComplete="tel"
+                    aria-label={callModal.fields.phone}
+                    aria-invalid={!!errors.phone}
+                    aria-describedby={errors.phone ? "n-err-phone" : undefined}
+                  />
+                  <span className="lbl">{callModal.fields.phone}</span>
+                  {errors.phone && (
+                    <em className="err" id="n-err-phone">
+                      {errors.phone}
+                    </em>
+                  )}
+                </label>
+                <label className="n-dlg__field n-dlg__stage is-area">
+                  <textarea
+                    name="message"
+                    defaultValue={about ? `About ${about}.` : undefined}
+                    rows={3}
+                    placeholder=" "
+                    aria-label={callModal.fields.message}
+                    aria-invalid={!!errors.message}
+                    aria-describedby={
+                      errors.message ? "n-err-message" : undefined
+                    }
+                  />
+                  <span className="lbl">{callModal.fields.message}</span>
+                  {errors.message && (
+                    <em className="err" id="n-err-message">
+                      {errors.message}
+                    </em>
+                  )}
+                </label>
+
+                <div className="n-dlg__foot n-dlg__stage">
+                  <p className="n-dlg__agree">
+                    {callModal.agree}{" "}
+                    <a href="/privacy" target="_blank" rel="noopener">
+                      {callModal.privacy}
+                    </a>
+                  </p>
+                  <button
+                    className="n-dlg__send"
+                    type="submit"
+                    disabled={state === "sending"}
+                  >
+                    {state === "sending" ? callModal.sending : callModal.send}
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}

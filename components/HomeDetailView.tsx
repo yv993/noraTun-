@@ -5,16 +5,15 @@ import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { FloorPlan } from "@/components/ui/FloorPlan";
-import { BotanicalCrestIcon } from "@/components/ui/BotanicalCrestIcon";
 import { LevelStack } from "@/components/ui/LevelStack";
 import { Letters, riseLetters } from "@/components/ui/Letters";
+import SiteFooter from "@/components/ui/SiteFooter";
 import { Card } from "@/components/ui/HomeCard";
 import AmenityBand from "@/components/AmenityBand";
 import AmenityScroll from "@/components/AmenityScroll";
 import { under } from "@/lib/under";
 import {
   brand,
-  footer,
   homeGallery,
   homesPage,
   placeClose,
@@ -63,7 +62,8 @@ export default function HomeDetailView({
   const [tab, setTab] = useState<Tab>("info");
 
   const D = homesPage.detail;
-  const gallery = homeGallery[l.place];
+  // a home's own photography where it has any, otherwise the place's
+  const gallery = l.gallery ?? homeGallery[l.place];
   const close = placeClose[l.place];
   const code = D.code(l.code);
 
@@ -127,13 +127,60 @@ export default function HomeDetailView({
         );
       });
 
-      // the panel takes up the head once the real one has scrolled away
-      ScrollTrigger.create({
-        trigger: ".hd-lot",
-        start: "top -100px",
-        end: "bottom bottom",
-        toggleClass: { targets: ".hd-lot__late", className: "is-late" },
-      });
+      // THE HANDOFF. The number crosses the section, left to right, on one
+      // scroll: the head drifts right and out of the left column exactly as
+      // the panel's copy slides in from the left and takes its place, and the
+      // drawings rise past both. It is scrubbed, not toggled — the two used to
+      // cross-fade on a class switch, which read as a blink rather than a
+      // move, and had no relationship to how far the reader had actually got.
+      //
+      // The end is measured off the head's own height, so the crossing is
+      // finished exactly when the head has cleared the top, whatever the
+      // viewport does to the clamped type.
+      const early = el.querySelector<HTMLElement>(".hd-lot__head");
+      const late = el.querySelector<HTMLElement>(".hd-lot__late");
+      if (early && late) {
+        const media = el.querySelector<HTMLElement>(".hd-lot__media");
+        const travel = () => Math.round(early.offsetHeight * 0.9);
+        gsap
+          .timeline({
+            scrollTrigger: {
+              trigger: ".hd-lot",
+              start: "top top",
+              end: () => "+=" + travel(),
+              // the screen HOLDS for this first scroll: the page does not move
+              // under the reader, the parts move inside it. Only once the
+              // crossing has finished does the section let go and the page
+              // carry on down.
+              pin: true,
+              anticipatePin: 1,
+              scrub: 0.5,
+              invalidateOnRefresh: true,
+            },
+          })
+          .fromTo(
+            media,
+            { y: 0 },
+            { y: () => -travel(), ease: "none", duration: 1 },
+            0,
+          )
+          .fromTo(
+            early,
+            { xPercent: 0, opacity: 1 },
+            { xPercent: 24, opacity: 0, ease: "none", duration: 1 },
+            0,
+          )
+          // the panel's copy RISES into place rather than sliding in from the
+          // left: .hd-lot__body is the scrolling half, so its overflow clips
+          // the x axis too and a leftward entry cut "NO." down to "0." on the
+          // way in. Rising also ties it to the drawings coming up beside it.
+          .fromTo(
+            late,
+            { y: 18, opacity: 0 },
+            { y: 0, opacity: 1, ease: "none", duration: 1 },
+            0,
+          );
+      }
 
       // the closing photograph drifts behind its type
       const bg = el.querySelector<HTMLElement>(".hd-close__bg img");
@@ -263,7 +310,10 @@ export default function HomeDetailView({
     [D.spec.place, l.place],
     [D.spec.block, l.block],
     [D.spec.floor, l.floor],
-    [D.spec.bedrooms, l.bedrooms !== null ? String(l.bedrooms) : D.spec.undrawn],
+    [
+      D.spec.bedrooms,
+      l.bedrooms !== null ? String(l.bedrooms) : D.spec.undrawn,
+    ],
     [D.spec.area, l.area !== null ? `${l.area} m²` : D.spec.unnumbered],
     ...(l.terrace > 0
       ? ([[D.spec.terrace, `${l.terrace} m²`]] as Array<[string, string]>)
@@ -375,74 +425,78 @@ export default function HomeDetailView({
         </div>
 
         <aside className="hd-lot__info">
-          {head(true)}
+          {/* the scrolling half: everything a reader scrolls through. The
+              actions sit OUTSIDE it, so nothing can appear below them. */}
+          <div className="hd-lot__body">
+            {head(true)}
 
-          {cells.length > 0 && (
-            <dl className="hd-cells" data-rise>
-              {cells.map(([k, v]) => (
-                <div key={k}>
-                  <dt>{k}</dt>
-                  <dd>{v}</dd>
-                </div>
-              ))}
-            </dl>
-          )}
-
-          <div
-            className="hd-tabs"
-            role="tablist"
-            aria-label={l.name}
-            ref={tabsRef}
-            onKeyDown={onTabKey}
-          >
-            {TABS.map((t) => (
-              <button
-                key={t}
-                type="button"
-                role="tab"
-                id={`hd-tab-${t}`}
-                aria-selected={tab === t}
-                aria-controls={`hd-panel-${t}`}
-                tabIndex={tab === t ? 0 : -1}
-                onClick={() => setTab(t)}
-              >
-                {D.tabs[t]}
-              </button>
-            ))}
-          </div>
-
-          <div className="hd-panels">
-            <div
-              className="hd-panel"
-              id="hd-panel-info"
-              role="tabpanel"
-              aria-labelledby="hd-tab-info"
-              hidden={tab !== "info"}
-            >
-              {/* with no JS the tabs cannot switch, so both panels show and
-                  each says what it is; with JS the tab above is the label */}
-              <h2 className="hd-panel__h">{D.tabs.info}</h2>
-              <p className="hd-info">{l.description}</p>
-            </div>
-            <div
-              className="hd-panel"
-              id="hd-panel-benefits"
-              role="tabpanel"
-              aria-labelledby="hd-tab-benefits"
-              hidden={tab !== "benefits"}
-            >
-              <h2 className="hd-panel__h">{D.tabs.benefits}</h2>
-              <ul className="hd-benefits">
-                {l.benefits.map((b) => (
-                  <li key={b}>{b}</li>
+            {cells.length > 0 && (
+              <dl className="hd-cells">
+                {cells.map(([k, v]) => (
+                  <div key={k}>
+                    <dt>{k}</dt>
+                    <dd>{v}</dd>
+                  </div>
                 ))}
-              </ul>
+              </dl>
+            )}
+
+            <div
+              className="hd-tabs"
+              role="tablist"
+              aria-label={l.name}
+              ref={tabsRef}
+              onKeyDown={onTabKey}
+            >
+              {TABS.map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  role="tab"
+                  id={`hd-tab-${t}`}
+                  aria-selected={tab === t}
+                  aria-controls={`hd-panel-${t}`}
+                  tabIndex={tab === t ? 0 : -1}
+                  onClick={() => setTab(t)}
+                >
+                  {D.tabs[t]}
+                </button>
+              ))}
             </div>
+
+            <div className="hd-panels">
+              <div
+                className="hd-panel"
+                id="hd-panel-info"
+                role="tabpanel"
+                aria-labelledby="hd-tab-info"
+                hidden={tab !== "info"}
+              >
+                {/* with no JS the tabs cannot switch, so both panels show and
+                  each says what it is; with JS the tab above is the label */}
+                <h2 className="hd-panel__h">{D.tabs.info}</h2>
+                <p className="hd-info">{l.description}</p>
+              </div>
+              <div
+                className="hd-panel"
+                id="hd-panel-benefits"
+                role="tabpanel"
+                aria-labelledby="hd-tab-benefits"
+                hidden={tab !== "benefits"}
+              >
+                <h2 className="hd-panel__h">{D.tabs.benefits}</h2>
+                <ul className="hd-benefits">
+                  {l.benefits.map((b) => (
+                    <li key={b}>{b}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <LevelStack levels={l.levels} label={D.levels} />
           </div>
 
-          <LevelStack levels={l.levels} label={D.levels} />
-
-          <div className="hd-lot__actions" data-rise>
+          <div className="hd-lot__actions">
             <button type="button" className="hd-pill" onClick={ask}>
               {D.request}
             </button>
@@ -520,49 +574,7 @@ export default function HomeDetailView({
         </a>
       </section>
 
-      <footer className="n-foot" data-dark>
-        <div className="n-foot__in">
-          <a className="n-foot__top" href="#main">
-            {footer.toTop} ↑
-          </a>
-          <BotanicalCrestIcon className="n-foot__mark" />
-          <a
-            className="n-foot__phone"
-            href={`tel:${brand.phone.replace(/[^\d+]/g, "")}`}
-          >
-            {brand.phone}
-          </a>
-          <p className="n-foot__office">
-            <span className="lbl">{footer.officeLabel}</span>
-            {footer.office.map((x) => (
-              <span className="ln" key={x}>
-                {x}
-              </span>
-            ))}
-          </p>
-          <div className="n-foot__row">
-            <div className="n-foot__col">
-              <span className="strong">{brand.full}.</span>
-              <span>
-                © {brand.year} {footer.rights}
-              </span>
-              <span className="links">
-                {footer.legal.map((x) => (
-                  <a key={x.href} href={x.href}>
-                    {x.label}
-                  </a>
-                ))}
-              </span>
-            </div>
-            <div className="n-foot__col is-r">
-              <span>{footer.contactLabel}</span>
-              <a className="strong" href={`mailto:${brand.email}`}>
-                {brand.email}
-              </a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

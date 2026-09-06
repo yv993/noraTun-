@@ -920,17 +920,20 @@ ol {
   .n-hero__world {
     height: calc(50svh + 109.47vw);
   }
-  /* the CSS sky: cobalt at the zenith, easing to the photograph's own deep
-     blue exactly at its top edge (50svh), and holding it underneath the
-     dissolve */
+  /* The CSS sky: cobalt at the zenith, easing to the photograph's own deep
+     blue exactly at its top edge (50svh) and holding it underneath.
+     It has to outlast the dissolve: at 72svh it ended while the photograph
+     was still only ~72% opaque, and the sky's own bottom edge showed through
+     as a step (MEASURED 23 levels at x=1320). The photograph is fully opaque
+     at 88.6svh, so the sky runs to the foot of the screen. */
   .n-hero__sky {
-    height: 72svh;
+    height: 100svh;
     background: linear-gradient(
       180deg,
       var(--sky-top) 0svh,
       var(--sky-mid) 30svh,
       var(--sky-seam) 50svh,
-      var(--sky-seam) 72svh
+      var(--sky-seam) 100%
     );
   }
   /* the photograph's sky darkens to the left; this band under the seam
@@ -961,30 +964,103 @@ ol {
       #000 100%
     );
   }
+  /* THE SKY ABOVE THE PICTURE. The upper half of the hero has no photograph
+     in it, so the row where the photograph's own clouds begin used to read as
+     the join, and this plate puts weather up there to cover it.
+
+     IT WAS THE PHOTOGRAPH MIRRORED, and the mirror was the problem. Cirrus
+     fall-streaks hang DOWNWARD; flipped, they splayed upward and read as
+     feathers rather than weather. The mirror also put every cloud in the
+     right half — MEASURED 4.96x more cloud energy right than left — which is
+     exactly where the white nav sits, and the brightest of it left white type
+     on a 3.75:1 ground, below AA.
+
+     This plate is the same photograph's cirrus taken the RIGHT WAY UP and
+     recomposed: the streaks hang, the weather sits left of centre (77.5% of
+     the cloud energy is now in the left half), and the upper right is left
+     empty and dark — worst white contrast there measures 6.06:1 on the plate,
+     7.76:1 in the page. Built by scripts/hero-sky.mjs.
+
+     The seam is a colour match rather than a mirror match: the plate's bottom
+     third dissolves to the photograph's own first row, and the generator
+     asserts the last row against it — currently 0.0000 levels of error. */
+  .n-hero__above {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 50svh; /* its foot IS the photograph's top edge */
+    height: 24.973vw; /* the plate's own 1826x456 at full width */
+    background: url("/flora/sky-hang.webp") 50% 100% / 100% 100% no-repeat;
+    /* 58% is not a guess: masks of 40/58/75/88% were swept against four
+       viewports and 58 won on the worst deviation anywhere (9.6 levels). The
+       plate is shorter than 50svh on a tall window — 256px of plate under
+       427px of painted gradient at 1024x1366 — and this fade is what carries
+       that handover. */
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      transparent 0,
+      #000 58%,
+      #000 100%
+    );
+    mask-image: linear-gradient(to bottom, transparent 0, #000 58%, #000 100%);
+  }
   .n-hero__bg {
     top: 50svh;
     height: auto;
     aspect-ratio: 1826 / 1999; /* the file's own proportions: shown whole, never cropped */
-    /* the dissolve lives entirely inside the photograph's sky (its top 8%,
-       well above the palm crown at 28%), so it never touches the building —
-       a cubic fade so there is no line where the picture begins */
+    /* No fade at all. The mirrored sky above meets this picture on its own
+       top row, so its first row is already the right pixels — a fade there
+       only let the painted gradient through for one row, which MEASURED as a
+       17-level step along the join. */
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  /* THE BAND ACROSS THE JOIN. This was written for the MIRRORED plate, which
+     painted the photograph's darkest row twice — once each side of the seam —
+     and dug a trough that 0.14 filled. There is no mirror now and no trough
+     of that shape, so 0.14 overshot into a bright bulge: MEASURED +11.0
+     levels across the join at 1440.
+
+     0.08 is the floor of a sweep of 0, 0.05 and 0.08 against four viewports,
+     scored on the worst deviation anywhere from a line fitted through the
+     seam's two sides. 0 leaves -17.2; 0.08 leaves 9.6. It stays because the
+     photograph's own top edge is darker than the sky above and below it
+     whatever plate sits there. */
+  .n-hero__world:not([data-night]) .n-hero__bg::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -120px;
+    height: 240px;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(
+      to bottom,
+      rgba(80, 168, 255, 0) 0%,
+      rgba(80, 168, 255, 0.08) 50%,
+      rgba(80, 168, 255, 0) 100%
+    );
+  }
+  /* Night has no mirrored sky of its own — the plate is the DAY photograph's,
+     and the night gradient paints over it — so by night the picture still
+     needs the dissolve it always had, easing into --night-seam, which is that
+     photograph's own top-edge colour. Without it the star field met the flat
+     night sky along a hard line. */
+  .n-hero__world[data-night] .n-hero__bg {
     -webkit-mask-image: linear-gradient(
       to bottom,
       rgba(0, 0, 0, 0) 0%,
-      rgba(0, 0, 0, 0.08) 1.8%,
       rgba(0, 0, 0, 0.28) 3.2%,
       rgba(0, 0, 0, 0.65) 5%,
-      rgba(0, 0, 0, 0.95) 6.6%,
       #000 8%,
       #000 100%
     );
     mask-image: linear-gradient(
       to bottom,
       rgba(0, 0, 0, 0) 0%,
-      rgba(0, 0, 0, 0.08) 1.8%,
       rgba(0, 0, 0, 0.28) 3.2%,
       rgba(0, 0, 0, 0.65) 5%,
-      rgba(0, 0, 0, 0.95) 6.6%,
       #000 8%,
       #000 100%
     );
@@ -1250,15 +1326,56 @@ ol {
 .n-place__frame:active {
   cursor: grabbing;
 }
+/* THE PAGE TURN. The photograph changes the way a leaf turns in a book,
+   pivoting on a spine at the frame's left edge.
+
+   ONE PAGE MOVES, NOT TWO. The first build rotated both — the outgoing away
+   and the incoming in — and handed over edge-on at 90 degrees. It read wrong,
+   and the captured strip showed why: with both leaves edge-on at the same
+   moment there is an instant with no page flat in the frame at all, and the
+   ground shows through. A book never does that. The next page lies FLAT and
+   the current one turns off it.
+
+   So the arriving slide snaps to flat with no transition, and the leaving one
+   takes the whole 780ms to turn over on top of it. That asymmetry is the
+   `transition: none` on [data-on]: a transition is read from the state being
+   moved INTO, so the rule on the parked state governs leaving, and the rule
+   on the active state governs arriving.
+   z-index follows: the turning leaf must be above the page it uncovers.
+
+   backface-visibility keeps the turned page from reappearing back-to-front
+   once it passes 90 degrees, and the brightness ramp is the other half of the
+   illusion — a page turning out of the light loses it, and a crossfade never
+   does.
+   Going back, the spine moves to the right edge so the ‹ arrow and a rightward
+   drag turn the leaf back the way it came.
+   780ms, so the turn is over well inside a two-second slide. */
+.n-place__frame {
+  perspective: 1600px;
+}
 .n-place__frame img {
   object-fit: cover;
-  opacity: 0;
-  /* short enough that the crossfade finishes inside a two-second slide */
-  transition: opacity 480ms var(--ease);
+  transform-origin: left center;
+  transform: rotateY(-180deg);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  filter: brightness(0.62);
+  z-index: 1; /* the leaf that is turning rides over the one beneath */
+  transition:
+    transform 780ms cubic-bezier(0.36, 0.02, 0.28, 1),
+    filter 780ms var(--ease);
   pointer-events: none;
 }
-.n-place__frame img[data-on] {
-  opacity: 1;
+.n-place__frame[data-dir="back"] img {
+  transform-origin: right center;
+  transform: rotateY(180deg);
+}
+.n-place__frame img[data-on],
+.n-place__frame[data-dir="back"] img[data-on] {
+  transform: rotateY(0deg);
+  filter: brightness(1);
+  z-index: 0;
+  transition: none; /* the page being turned TO is already lying there */
 }
 /* the control row: arrow · current numeral · scrubber · total · arrow */
 .n-place__ctl {
@@ -1380,8 +1497,22 @@ ol {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .n-place__frame img {
+  /* No turn, and no rotation to be caught mid-way: the slides go back to
+     lying flat and simply appear, because a leaf swinging through 3D space
+     is exactly the kind of motion this setting is asking us not to make. */
+  .n-place__frame img,
+  .n-place__frame[data-dir="back"] img {
+    transform: none;
+    backface-visibility: visible;
+    -webkit-backface-visibility: visible;
+    opacity: 0;
+    filter: none;
     transition: none;
+  }
+  .n-place__frame img[data-on],
+  .n-place__frame[data-dir="back"] img[data-on] {
+    transform: none;
+    opacity: 1;
   }
 }
 
@@ -1642,7 +1773,6 @@ ol {
 }
 @media (hover: hover) and (pointer: fine) {
   .n-loc__orb:hover {
-    background: var(--wine);
     border-color: var(--wine);
     color: var(--cream);
   }
@@ -2182,7 +2312,6 @@ ol {
 }
 @media (hover: hover) and (pointer: fine) {
   .n-tycar__pill:hover {
-    background: var(--wine);
     color: var(--cream);
   }
 }
@@ -2531,7 +2660,6 @@ ol {
 }
 @media (hover: hover) and (pointer: fine) {
   .n-amsl__orb:hover {
-    background: #fff;
     color: var(--wine);
   }
 }
@@ -2758,7 +2886,6 @@ ol {
 }
 @media (hover: hover) and (pointer: fine) {
   .n-inter__orb:hover {
-    background: var(--wine);
     border-color: var(--wine);
     color: var(--cream);
   }
@@ -3154,7 +3281,6 @@ ol {
 }
 @media (hover: hover) and (pointer: fine) {
   .n-views__orb:hover {
-    background: #fff;
     color: var(--wine);
   }
 }
@@ -3695,7 +3821,7 @@ ol {
     box-shadow 320ms var(--ease),
     transform 320ms var(--ease);
 }
-.hp-card:focus-visible {
+.hp-card:has(.hp-card__link:focus-visible) {
   box-shadow: 0 18px 44px rgba(51, 18, 31, 0.1);
   transform: translateY(-3px);
 }
@@ -3703,6 +3829,63 @@ ol {
   .hp-card:hover {
     box-shadow: 0 18px 44px rgba(51, 18, 31, 0.1);
     transform: translateY(-3px);
+  }
+}
+/* The card is an <article>, not an <a>: it now carries a button, and a button
+   inside an anchor is invalid markup and two controls fighting for one tap.
+   This link covers the whole card instead, so the surface still navigates. */
+.hp-card__link {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  text-decoration: none;
+}
+/* the request the detail page offers, offered on every card. It sits ABOVE the
+   covering link, so a tap on it asks about this home rather than opening it. */
+.hp-card__ask {
+  position: relative;
+  z-index: 2;
+  justify-self: center;
+  margin-top: clamp(2px, 0.6vh, 8px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* The BUTTON is the 44px target and the ::before draws the reference's 36px
+     ring inside it. The other way round — a 36px button with a negative-inset
+     pseudo — does not work here: measured, the card's covering link wins the
+     hit test 3px below the button, so the extra height was only ever real
+     above it. */
+  min-height: 44px;
+  padding: 4px 20px;
+  border: 0;
+  background: none;
+  color: var(--wine);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 9.9px;
+  font-weight: 700;
+  letter-spacing: 0.048em;
+  line-height: 1;
+  text-transform: uppercase;
+  transition: color 220ms var(--ease);
+}
+.hp-card__ask::before {
+  content: "";
+  position: absolute;
+  inset: 4px 0;
+  border: 1px solid var(--wine);
+  border-radius: 36px;
+  transition: background 220ms var(--ease);
+}
+.hp-card__ask:active::before {
+  background: color-mix(in srgb, var(--wine) 10%, transparent);
+}
+@media (hover: hover) and (pointer: fine) {
+  .hp-card__ask:hover {
+    color: var(--on-wine);
+  }
+  .hp-card__ask:hover::before {
   }
 }
 .hp-card__head {
@@ -4018,8 +4201,8 @@ body:has(.hp) .n-nav__cta {
   background: var(--wine);
   color: var(--on-wine);
   text-align: center;
-  padding: clamp(64px, min(18vh, 16vw), 210px) var(--gutter)
-    clamp(56px, min(14vh, 14vw), 170px);
+  /* no top padding: the band opens on the photograph itself */
+  padding: 0 var(--gutter) clamp(56px, min(14vh, 14vw), 170px);
   display: grid;
   gap: clamp(20px, 3.4vh, 40px);
   justify-items: center;
@@ -4076,13 +4259,17 @@ body:has(.hp) .n-nav__cta {
   width: calc(100% + 2 * var(--gutter));
   margin-inline: calc(-1 * var(--gutter));
   justify-self: stretch;
-  margin-top: clamp(16px, 3vh, 30px);
 }
 .hp-tail__screen {
   position: relative;
   width: 100%;
   height: 100svh;
   overflow: clip;
+  /* declared, not left to default: the timeline tweens this, and GSAP cannot
+     read a numeric start value off an unset custom property — it was left at
+     0 after one pass and never came back, so scrolling up through the band
+     showed the type on an unscrimmed picture */
+  --scrim: 1;
 }
 .hp-tail__bg {
   position: absolute;
@@ -4136,6 +4323,10 @@ body:has(.hp) .n-nav__cta {
 .hp-tail__fore h2 {
   text-shadow: 0 4px 30px rgba(0, 20, 40, 0.42);
 }
+.hp-tail__fore .n-running {
+  margin: 0 auto;
+  text-shadow: 0 2px 16px rgba(0, 20, 40, 0.5);
+}
 .hp-tail__fore .hp-tail__copy {
   text-shadow: 0 2px 16px rgba(0, 20, 40, 0.5);
   opacity: 1;
@@ -4172,7 +4363,6 @@ body:has(.hp) .n-nav__cta {
 }
 @media (hover: hover) and (pointer: fine) {
   .hp-tail__orb:hover {
-    background: #fff;
     color: var(--wine);
   }
 }
@@ -4558,13 +4748,11 @@ html:not(.js) .hd-panel + .hd-panel {
 }
 .hd-pill:focus-visible,
 .hd-round:focus-visible {
-  background: var(--wine);
   color: var(--cream);
 }
 @media (hover: hover) and (pointer: fine) {
   .hd-pill:hover,
   .hd-round:hover {
-    background: var(--wine);
     color: var(--cream);
   }
 }
@@ -4593,17 +4781,16 @@ html:not(.js) .hd-panel + .hd-panel {
   height: 100svh;
   overflow: clip;
 }
-.hd-amen__slide {
+/* one photograph for the whole hold — the grounds at dusk. It used to be six,
+   one per amenity, wiping over each other; they were bright interiors that
+   had nothing to do with the line in front of them, and white type could not
+   clear 4.5:1 over them. */
+.hd-amen__bg {
   position: absolute;
   inset: 0;
   margin: 0;
-  clip-path: inset(100% 0 0 0);
-  will-change: clip-path;
 }
-.hd-amen__slide:first-of-type {
-  clip-path: inset(0 0 0 0);
-}
-.hd-amen__slide img {
+.hd-amen__bg img {
   object-fit: cover;
   will-change: transform;
 }
@@ -4612,6 +4799,11 @@ html:not(.js) .hd-panel + .hd-panel {
    white ceilings): white type needs the ground under it at 88% wine to clear
    4.5:1, which is why the band is this strong and this shallow — the top half
    of every picture is untouched. */
+/* THE SCRIM. It belongs to the screen, not to the picture, so it does not
+   move with the drift. The dusk photograph is dark to begin with, so these
+   are much lighter than the six bright interiors needed: measured white-on-
+   ground at the label, the line, the list and the orb, and at the fixed
+   chrome, with the numbers kept comfortably above 4.5:1. */
 .hd-amen__screen::after {
   content: "";
   position: absolute;
@@ -4622,22 +4814,19 @@ html:not(.js) .hd-panel + .hd-panel {
     /* the foot, under the band of type */
     linear-gradient(
       0deg,
-      color-mix(in srgb, var(--wine) 93%, transparent) 0%,
-      color-mix(in srgb, var(--wine) 89%, transparent) 27%,
-      color-mix(in srgb, var(--wine) 42%, transparent) 41%,
-      transparent 57%
+      color-mix(in srgb, var(--wine) 76%, transparent) 0%,
+      color-mix(in srgb, var(--wine) 68%, transparent) 27%,
+      color-mix(in srgb, var(--wine) 28%, transparent) 41%,
+      transparent 56%
     ),
-    /* the head, under the site chrome, which flips to white over this band.
-       MEASURED: the nav's lowest link sits at 17.4% of the screen and needs
-       the ground at 88% wine to clear 4.5:1 over a white ceiling. */
+    /* the head, under the site chrome, which flips to white over this band */
     linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--wine) 88%, transparent) 0%,
-      color-mix(in srgb, var(--wine) 88%, transparent) 18%,
-      color-mix(in srgb, var(--wine) 55%, transparent) 25%,
-      color-mix(in srgb, var(--wine) 22%, transparent) 32%,
-      transparent 42%
-    );
+        180deg,
+        color-mix(in srgb, var(--wine) 64%, transparent) 0%,
+        color-mix(in srgb, var(--wine) 60%, transparent) 16%,
+        color-mix(in srgb, var(--wine) 26%, transparent) 25%,
+        transparent 36%
+      );
 }
 /* the band: the line on the left, the six names on the right, the call at the
    end of the row — all of it inside the scrim */
@@ -4732,7 +4921,18 @@ html:not(.js) .hd-panel + .hd-panel {
   position: relative;
   z-index: 2;
   background: var(--cream);
-  padding: clamp(80px, 14vh, 144px) 0 44px;
+  /* THE CREST. The reference closes this band with a deep circular dome that
+     climbs over the photograph and takes the screen — not the shallow scrubbed
+     --dome the other arch bands carry, which resolved to a flat edge here.
+     Explicit radii of half the width on both axes give a true half-circle
+     crown at any height, exactly as .n-arc does on the one-pager. */
+  border-top-left-radius: 50vw 50vw;
+  border-top-right-radius: 50vw 50vw;
+  overflow: clip;
+  isolation: isolate;
+  /* the title sits INSIDE the crown, about two fifths down it, where the
+     curve is already wide enough to carry the line */
+  padding: clamp(140px, 24vw, 360px) 0 44px;
 }
 /* the cream dome climbs over the still-held amenities screen. 60svh, not a
    full one: at 100svh it reached the deck's type band while the sixth amenity
@@ -4764,6 +4964,12 @@ html:not(.js) .hd-panel + .hd-panel {
 .hd-sim__title .hp-title__word,
 .hd-close__title .hp-title__word {
   transform-origin: 50% 50%;
+  /* The word box is laid out UNSCALED — scaleX(0.72) is a transform, so its
+     layout width is 1.39x what it paints. On a phone that let the line break
+     inside the word ("SIMILAR OPT / IONS"). It is one word to the eye and is
+     now one word to the layout; the size below keeps the painted width inside
+     the gutters. */
+  white-space: nowrap;
 }
 .hd-sim__rule {
   display: block;
@@ -4934,14 +5140,59 @@ html:not(.js) .hd-panel + .hd-panel {
     font-size: 8.5px;
   }
   .hd-lot__info {
-    grid-column: 2;
-    grid-row: 1 / span 2;
     position: sticky;
     top: 0;
     height: 100svh;
     padding: 27px 0 43px;
-    /* only ever scrolls on a short viewport; on 900 it never does */
+    /* two rows: the body scrolls, the actions under it do not. The actions
+       used to be sticky INSIDE the scroller, which always leaves a strip
+       between the pinned row and the foot of the scrollport — the tail of the
+       description rendered in it, below the buttons, and stayed readable
+       there. Outside the scrolling box it cannot happen. */
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    overflow: hidden;
+  }
+  .hd-lot__body {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--wine) 30%, transparent)
+      transparent;
+  }
+  /* The panel is one viewport tall and its content is not: on a 1366x768
+     laptop the Benefits list pushed the request 67px past the fold, and at
+     1280x720 the request was gone on the Info tab too. MEASURED, per
+     viewport, with the taller tab open:
+       1440x900  fits          1440x800  41px cut
+       1366x768  67px cut      1280x720  107px cut     1024x640  171px cut
+     So the request stays on screen while the rest of the panel scrolls under
+     it — the figures, the tabs and the text are read by scrolling up to them,
+     and the thing a reader came to do is never the thing they have to hunt
+     for. */
+  .hd-lot__actions {
+    position: relative;
+    margin-top: 0;
+    padding-block: 14px clamp(0px, 1vh, 10px);
+    background: var(--cream);
+  }
+  /* content does not end with a hard edge under the pinned row */
+  .hd-lot__actions::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    height: 26px;
+    background: linear-gradient(to top, var(--cream), transparent);
+    pointer-events: none;
+  }
+  /* the pinned row's fade is 26px tall; the scrolling content stops short of
+     it so the last line ends clear of the fade rather than under it */
+  .hd-panels {
+    padding-bottom: 26px;
   }
   .hd-lot__late {
     display: grid;
@@ -4950,11 +5201,9 @@ html:not(.js) .hd-panel + .hd-panel {
     /* the fixed nav ends at y157; this row's content starts below it */
     padding-top: 130px;
     flex: none;
+    /* opacity and x are the scrubbed handoff's to drive — no transition here,
+       or it fights the scrub and lags the reader's own scroll */
     opacity: 0;
-    transition: opacity 400ms var(--ease);
-  }
-  .hd-lot__late.is-late {
-    opacity: 1;
   }
   /* the copy is revealed by a scroll trigger that only runs where motion is
      allowed; without it nothing ever reveals it, so it does not hold a row */
@@ -5087,12 +5336,23 @@ html:not(.js) .hd-panel + .hd-panel {
   .hd-lot__info {
     order: 2;
   }
+  /* the panel is not a scroller on a phone — the page is. The body's children
+     lay out as if the wrapper were not there. */
+  .hd-lot__body {
+    display: contents;
+  }
   .hd-cells {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 20px;
   }
   .hd-benefits {
     line-height: 2.2;
+  }
+  /* the painted line is 0.72 of the laid-out one: 6.7px of width per px of
+     type, so this is the largest size that still fits between the gutters */
+  .hd-sim__title,
+  .hd-close__title {
+    font-size: min(52.5px, 13vw);
   }
   .hd-sim__grid {
     grid-template-columns: minmax(0, 1fr);
@@ -5174,15 +5434,19 @@ html:not(.js) .hd-panel + .hd-panel {
 }
 
 /* ==========================================================================
-   Book-a-call dialog (n-dlg) — staged arrival; instant under reduced motion
+   BOOK A CALL — the dialog.
+   Anatomy from the reference's own booking window: a near full-bleed sheet in
+   the powder tone, one script line top left, the promise at the foot of that
+   column, a hairline down the middle broken by the seal, and the four fields
+   ranged on the right over a send row that carries the policy link.
+   Ours is the lake tone with the brand's wine ink, not powder blue and navy.
+   Staged arrival; instant under reduced motion.
    ========================================================================== */
 .n-dlg {
   position: fixed;
   inset: 0;
   z-index: 300;
-  display: grid;
-  place-items: center;
-  padding: clamp(16px, 4vh, 48px) var(--gutter);
+  padding: clamp(8px, 3.8vh, 28px) clamp(8px, 0.9vw, 13px);
 }
 .n-dlg__veil {
   position: absolute;
@@ -5191,176 +5455,314 @@ html:not(.js) .hd-panel + .hd-panel {
      CLOSED the dialog, discarding the typed form */
   background: color-mix(in srgb, var(--wine) 88%, transparent);
   cursor: pointer;
-}
-/* the pill stayed fully legible through the veil and a tap on it closed the
-   dialog, discarding the typed form. It is not there to be tapped. */
-body:has(.n-dlg) .n-nav,
-body:has(.n-dlg) .n-seal,
-body:has(.n-sheet) .n-nav,
-body:has(.n-sheet) .n-seal {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 200ms var(--ease);
+  border: 0;
 }
 .n-dlg__card {
   position: relative;
-  width: min(700px, 100%);
-  max-height: 92svh;
+  height: 100%;
   overflow-y: auto;
-  overscroll-behavior: contain;
-  background: var(--cream);
-  color: var(--ink);
-  border-radius: 24px;
-  padding: clamp(30px, 4.4vw, 54px) clamp(24px, 4vw, 58px)
-    clamp(26px, 3.6vw, 44px);
-  text-align: center;
+  background: var(--lake);
+  color: var(--wine);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: stretch;
+  padding: clamp(22px, 3.6vh, 40px) clamp(18px, 2.4vw, 36px)
+    clamp(24px, 5vh, 52px) clamp(18px, 2.6vw, 38px);
 }
 .n-dlg__x {
   position: absolute;
-  top: clamp(14px, 2vw, 24px);
-  right: clamp(14px, 2vw, 24px);
+  top: clamp(14px, 3vh, 24px);
+  right: clamp(14px, 2.4vw, 36px);
+  z-index: 2;
   width: 44px;
   height: 44px;
   display: grid;
   place-items: center;
-  font-size: 20px;
+  border: 1px solid color-mix(in srgb, var(--wine) 45%, transparent);
   border-radius: 50%;
-  transition: background 200ms var(--ease);
+  background: none;
+  color: var(--wine);
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+  transition:
+    background 220ms var(--ease),
+    color 220ms var(--ease);
 }
-@media (hover: hover) and (pointer: fine) {
-  .n-dlg__x:hover {
-    background: color-mix(in srgb, var(--ink) 8%, transparent);
-  }
+.n-dlg__x:focus-visible,
+.n-dlg__x:hover {
+  color: var(--lake);
 }
-.n-dlg__kicker {
-  display: block;
-  font-family: var(--font-script);
-  font-size: clamp(1.3rem, 2vw, 1.7rem);
-  color: var(--apricot);
+
+/* ---- left: the line, and the promise under it ------------------------- */
+.n-dlg__left {
+  display: grid;
+  align-content: space-between;
+  gap: 24px;
+  min-width: 0;
 }
 .n-dlg__title {
-  margin: 10px 0 clamp(22px, 4vh, 40px);
-  font-family: var(--font-display);
+  margin: 0;
+  font-family: var(--font-script);
   font-weight: 400;
-  font-size: clamp(1.7rem, 3.6vw, 2.8rem);
-  line-height: 1.1;
-  letter-spacing: 0.04em;
+  font-size: clamp(3.2rem, 10.4vw, 9.6rem);
+  line-height: 0.92;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--wine);
 }
-.n-dlg__title span {
+.n-dlg__lead {
+  margin: 0 0 clamp(0px, 3vh, 26px);
+  max-width: 26ch;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.62;
+  text-transform: uppercase;
+}
+
+/* ---- the centre rule, and the seal that breaks it --------------------- */
+.n-dlg__rule {
+  position: absolute;
+  left: 50%;
+  top: 10%;
+  bottom: 14%;
+  width: 1px;
+  background: color-mix(in srgb, var(--wine) 30%, transparent);
+}
+/* the lake disc masks the rule behind the seal, so the line reads as broken
+   rather than drawn under it */
+.n-dlg__seal {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  width: clamp(180px, 17vw, 240px);
+  height: clamp(180px, 17vw, 240px);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--lake);
+  color: var(--wine);
+}
+.n-dlg__seal > svg {
+  grid-area: 1 / 1;
+  width: 112px;
+  height: 112px;
+  overflow: visible;
+}
+.n-dlg__seal text {
+  font-family: var(--font-sans);
+  font-size: 9.4px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  fill: currentColor;
+}
+/* the petals reach 56% of the crest's own box, so at the ring's size they
+   land inside the lettering with a clear band — the seal's own proportion.
+   No fill override here: the emblem is drawn in strokes and fills its own
+   accents, and forcing fill on its paths turns it into a solid blob. */
+.n-dlg__crest {
+  grid-area: 1 / 1;
+  width: 112px;
+  height: 112px;
+}
+.n-dlg__crest svg {
   display: block;
+  width: 100%;
+  height: 100%;
 }
+
+/* ---- right: the four fields and the send ------------------------------ */
 .n-dlg__form {
   display: flex;
   flex-direction: column;
-  gap: clamp(14px, 2.4vh, 24px);
-  text-align: left;
+  justify-content: center;
+  gap: 2px;
+  min-width: 0;
+  max-width: 430px;
+  margin-left: clamp(0px, 9vw, 130px);
+  padding-block: clamp(20px, 6vh, 64px);
 }
+/* the honeypot: reachable to a bot, never to a person */
 .n-dlg__pot {
   position: absolute;
-  left: -9999px;
   width: 1px;
   height: 1px;
   overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 .n-dlg__field {
   position: relative;
   display: block;
+  padding-top: 14px;
 }
 .n-dlg__field input,
 .n-dlg__field textarea {
   width: 100%;
+  display: block;
+  padding: 4px 0 9px;
   border: 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--ink) 35%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--wine) 32%, transparent);
   border-radius: 0;
   background: none;
-  color: inherit;
-  font-family: var(--font-body);
-  font-size: clamp(1rem, 1.5vw, 1.25rem);
-  padding: 22px 0 10px;
-  transition: border-color 200ms var(--ease);
+  color: var(--wine);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
 }
 .n-dlg__field textarea {
+  min-height: 104px;
   resize: vertical;
-  min-height: 60px;
 }
 .n-dlg__field input:focus,
 .n-dlg__field textarea:focus {
   outline: none;
-  border-bottom-color: var(--ink);
+  border-bottom-color: var(--wine);
 }
+/* the label rests ON the line, as the reference's does, and rises out of the
+   way once there is something to read — it is never removed, so the field
+   keeps its name after it is filled */
 .n-dlg__field .lbl {
   position: absolute;
   left: 0;
-  top: 20px;
-  font-size: clamp(0.95rem, 1.4vw, 1.2rem);
-  letter-spacing: 0.06em;
+  top: 21px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--ink) 55%, transparent);
+  opacity: 0.6;
   pointer-events: none;
-  transform-origin: left top;
   transition:
-    transform 240ms var(--ease),
-    color 240ms var(--ease);
+    top 220ms var(--ease),
+    font-size 220ms var(--ease),
+    letter-spacing 220ms var(--ease),
+    opacity 220ms var(--ease);
+}
+.n-dlg__field .lbl::after {
+  content: ":";
 }
 .n-dlg__field input:focus + .lbl,
 .n-dlg__field textarea:focus + .lbl,
 .n-dlg__field input:not(:placeholder-shown) + .lbl,
 .n-dlg__field textarea:not(:placeholder-shown) + .lbl {
-  /* .6 collapsed the floating label to a 9.12px effective size at 3.92:1 */
-  transform: translateY(-19px) scale(0.78);
-  color: color-mix(in srgb, var(--ink) 70%, transparent);
+  top: 0;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  opacity: 1;
 }
 .n-dlg__field .err {
   display: block;
   margin-top: 6px;
+  font-family: var(--font-sans);
+  font-size: 11px;
   font-style: normal;
-  font-size: 12.5px;
+  letter-spacing: 0.04em;
   color: #8e2a22;
 }
 .n-dlg__field input[aria-invalid="true"],
 .n-dlg__field textarea[aria-invalid="true"] {
   border-bottom-color: #8e2a22;
 }
-.n-dlg__row {
+.n-dlg__foot {
+  margin-top: clamp(26px, 7vh, 72px);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: clamp(16px, 3vw, 34px);
-  margin-top: 8px;
+  gap: clamp(16px, 3vw, 40px);
+  flex-wrap: wrap;
 }
-.n-dlg__consent {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  max-width: 40ch;
-  min-height: 44px;
-  font-size: 13px;
-  line-height: 1.55;
-  color: var(--muted);
-  cursor: pointer;
-}
-.n-dlg__consent input {
-  width: 22px;
-  height: 22px;
-  flex: none;
+.n-dlg__agree {
   margin: 0;
-  accent-color: var(--wine);
+  max-width: 24ch;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  line-height: 1.55;
 }
-/* the privacy link, out of the consent label and given its own hit area */
-.n-dlg__privacy {
-  display: inline-block;
-  padding: 10px 8px;
-  margin: -10px -8px;
-  font-size: 13px;
-  color: var(--ink);
+.n-dlg__agree a {
+  color: inherit;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-.n-dlg__consent a {
-  color: var(--ink);
-  text-decoration: underline;
-  text-underline-offset: 2px;
+.n-dlg__send {
+  flex: none;
+  min-width: 114px;
+  height: 48px;
+  padding: 0 28px;
+  border: 1px solid var(--wine);
+  border-radius: 999px;
+  background: none;
+  color: var(--wine);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition:
+    background 220ms var(--ease),
+    color 220ms var(--ease);
 }
+.n-dlg__send:focus-visible,
+.n-dlg__send:hover {
+  color: var(--lake);
+}
+.n-dlg__send[disabled] {
+  opacity: 0.55;
+  cursor: progress;
+}
+.n-dlg :focus-visible {
+  outline: 2px solid var(--wine);
+  outline-offset: 3px;
+}
+
+/* ---- the answer, once the request is away ------------------------------
+   The same window: lake ground, wine ink, the script line and the seal all
+   stay where they were. Only this column changes, from the four fields to
+   the reply — so it reads as the dialog answering, not a second dialog. */
+.n-dlg__done {
+  align-self: center;
+  display: grid;
+  gap: clamp(16px, 2.8vh, 28px);
+  justify-items: start;
+  min-width: 0;
+  /* the same inset the form uses: the seal straddles the centre rule and
+     reaches 120px into this column, and without it the reply read straight
+     through the crest */
+  max-width: 430px;
+  margin-left: clamp(0px, 9vw, 130px);
+  padding-block: clamp(20px, 6vh, 64px);
+}
+.n-dlg__done p {
+  margin: 0;
+}
+.n-dlg__done-lead {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.6rem, 2.7vw, 2.6rem);
+  line-height: 1.14;
+  letter-spacing: -0.008em;
+}
+.n-dlg__done-about {
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.62;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--wine) 72%, transparent);
+}
+.n-dlg__done-about em {
+  font-style: normal;
+  color: var(--wine);
+}
+
+/* ---- what actually happened ------------------------------------------- */
 .n-dlg__ok,
 .n-dlg__warn {
   margin: 0 0 clamp(14px, 2.4vh, 22px);
@@ -5371,11 +5773,11 @@ body:has(.n-sheet) .n-seal {
   text-align: left;
 }
 .n-dlg__ok {
-  background: color-mix(in srgb, #1e9c8f 12%, transparent);
+  background: color-mix(in srgb, #1e9c8f 16%, transparent);
   color: #0f5f57;
 }
 .n-dlg__warn {
-  background: color-mix(in srgb, #c0392b 13%, transparent);
+  background: color-mix(in srgb, #c0392b 15%, transparent);
   color: #8e2a22;
 }
 .n-dlg__ok a,
@@ -5383,6 +5785,43 @@ body:has(.n-sheet) .n-seal {
   color: inherit;
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+/* ---- phones: one column, no rule, no seal ----------------------------- */
+@media (max-width: 860px) {
+  .n-dlg__card {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    padding: clamp(52px, 9vh, 72px) var(--gutter) clamp(24px, 5vh, 44px);
+  }
+  .n-dlg__left {
+    align-content: start;
+    gap: 14px;
+  }
+  .n-dlg__title {
+    font-size: clamp(3rem, 17vw, 5.2rem);
+  }
+  .n-dlg__lead {
+    margin-bottom: 0;
+    max-width: none;
+  }
+  .n-dlg__rule,
+  .n-dlg__seal {
+    display: none;
+  }
+  .n-dlg__form {
+    margin-left: 0;
+    max-width: none;
+    justify-content: flex-start;
+    padding-block: clamp(18px, 4vh, 30px) 0;
+  }
+  .n-dlg__foot {
+    margin-top: clamp(22px, 4vh, 36px);
+  }
+  .n-dlg__agree {
+    max-width: none;
+    flex: 1 1 160px;
+  }
 }
 
 /* ==========================================================================
@@ -6347,10 +6786,6 @@ body:has(.n-sheet) .n-seal {
   .n-archi__side {
     width: 100%;
   }
-  .n-dlg__row {
-    flex-direction: column;
-    align-items: flex-start;
-  }
   .n-arch {
     --dome: 24% 5vh;
   }
@@ -6652,4 +7087,136 @@ html:not(.js) .n-loc__card {
   .n-rail {
     display: none; /* the bottom nav pill owns PHONE screens */
   }
+}
+
+/* ========================================================================
+   THE RISING FILL — every solid hover on the site
+
+   A hover that swaps the whole ground at once reads as a state flag being
+   set. These fill from the floor of the control to its ceiling instead, so
+   the pointer's arrival has a direction.
+
+   MECHANISM: a gradient of one flat colour, pinned to the bottom edge and
+   grown from 0 to full height. No pseudo-element — .hd-pill and .hd-round
+   already spend theirs on a 44px hit target, and .hp-card__ask spends its
+   on the 36px ring, so a ::before would have to be argued for three
+   different ways. background-size repaints rather than composites, but the
+   largest of these is a 260px circle, which is nothing.
+
+   THE LABEL'S TIMING is the part that matters, and it is measured, not
+   guessed. The fill crosses a centred label between 69ms and 91ms after the
+   pointer lands (sampled on rAF in the page, every control, 420ms/--ease).
+   Change the ink outside that window and the label blinks out: too early it
+   is the hover colour on the un-filled ground — for the dialog, lake on
+   lake — and too late it is wine ink on the wine that has already covered
+   it. So the ink blends across exactly that crossing, 70ms starting at
+   60ms. The same numbers serve the way out: --ease is front-loaded, so the
+   fill retreats past the label on the same schedule it arrived.
+   ===================================================================== */
+.n-loc__orb,
+.n-tycar__pill,
+.n-amsl__orb,
+.n-inter__orb,
+.n-views__orb,
+.hp-tail__orb,
+.hd-pill,
+.hd-round,
+.n-dlg__x,
+.n-dlg__send,
+.hp-card__ask::before {
+  --fill: var(--wine);
+  --fill-ms: 420ms;
+  background-image: linear-gradient(var(--fill), var(--fill));
+  background-repeat: no-repeat;
+  background-position: 50% 100%;
+  background-size: 100% 0;
+}
+/* the three that stand on a photograph fill white, not wine */
+.n-amsl__orb,
+.n-views__orb,
+.hp-tail__orb {
+  --fill: #fff;
+}
+
+.n-loc__orb,
+.n-tycar__pill,
+.n-amsl__orb,
+.n-inter__orb,
+.n-views__orb,
+.hp-tail__orb,
+.hd-pill,
+.hd-round,
+.n-dlg__x,
+.n-dlg__send {
+  transition:
+    background-size var(--fill-ms) var(--ease),
+    color 70ms linear 60ms,
+    border-color 300ms var(--ease);
+}
+
+/* the fill itself */
+.n-loc__orb:hover,
+.n-tycar__pill:hover,
+.n-amsl__orb:hover,
+.n-inter__orb:hover,
+.n-views__orb:hover,
+.hp-tail__orb:hover,
+.hd-pill:hover,
+.hd-round:hover,
+.hd-pill:focus-visible,
+.hd-round:focus-visible,
+.n-dlg__x:hover,
+.n-dlg__x:focus-visible,
+.n-dlg__send:hover,
+.n-dlg__send:focus-visible,
+.hp-card__ask:hover::before {
+  background-size: 100% 100%;
+}
+
+/* .hp-card__ask carries the fill on its ring and the ink on the button, so
+   its two halves are timed here rather than above */
+.hp-card__ask::before {
+  transition: background-size var(--fill-ms) var(--ease);
+}
+.hp-card__ask {
+  transition: color 70ms linear 60ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .n-loc__orb,
+  .n-tycar__pill,
+  .n-amsl__orb,
+  .n-inter__orb,
+  .n-views__orb,
+  .hp-tail__orb,
+  .hd-pill,
+  .hd-round,
+  .n-dlg__x,
+  .n-dlg__send,
+  .hp-card__ask,
+  .hp-card__ask::before,
+  .n-loc__orb:hover,
+  .n-tycar__pill:hover,
+  .n-amsl__orb:hover,
+  .n-inter__orb:hover,
+  .n-views__orb:hover,
+  .hp-tail__orb:hover,
+  .hd-pill:hover,
+  .hd-round:hover,
+  .n-dlg__x:hover,
+  .n-dlg__send:hover,
+  .hp-card__ask:hover {
+    /* the fill still marks the state; it just does not travel */
+    transition: none;
+  }
+}
+
+/* .hp-card__ask's ring is a POSITIONED pseudo-element, so the moment it got a
+   solid fill it began painting over the button's own label — measured: the
+   text disappeared for the whole filled state. It only ever held a border
+   before, which is why this never came up. The button already carries
+   position: relative and z-index: 2, so it is its own stacking context and a
+   negative z-index here stays inside it, behind the text and nothing else. */
+.hp-card__ask::before {
+  z-index: -1;
 }

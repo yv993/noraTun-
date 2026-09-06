@@ -31,6 +31,10 @@ export default function PlaceCarousel({
   playLabel: string;
 }) {
   const [idx, setIdx] = useState(0);
+  // Which way the page turns. The photograph changes as a leaf in a book —
+  // pivoting on the spine — so going back has to pivot on the other edge or
+  // the gesture and the picture disagree. -1 puts the spine on the right.
+  const [dir, setDir] = useState(1);
   // A touch visitor could not reach the pause: it was pointerenter only. This
   // is the latched one — a control, and any touch inside the frame.
   const [held, setHeld] = useState(false);
@@ -39,6 +43,13 @@ export default function PlaceCarousel({
   const [say, setSay] = useState("");
   const n = slides.length;
   const root = useRef<HTMLDivElement | null>(null);
+  // Hover-pause hangs off the CARD, not the whole screen. The unit is a held
+  // viewport — MEASURED 1440x900 at 1440x900, i.e. every pixel on screen — so
+  // listening for pointerenter on it meant the clock was paused whenever the
+  // pointer was anywhere at all, and the slideshow never advanced by itself on
+  // any desktop. The card is the part a visitor is actually reading or
+  // reaching for, which is what the pause was ever meant to protect.
+  const card = useRef<HTMLDivElement | null>(null);
   const line = useRef<HTMLSpanElement | null>(null);
   const copyEl = useRef<HTMLParagraphElement | null>(null);
   const idxRef = useRef(0);
@@ -82,6 +93,9 @@ export default function PlaceCarousel({
   const go = (to: number) => {
     const next = ((to % n) + n) % n;
     if (next === idxRef.current || busy.current) return;
+    // Forward or back, counted the short way round so the last-to-first tick
+    // still turns forward rather than riffling the whole book backwards.
+    setDir(next === (idxRef.current + 1) % n ? 1 : next === (idxRef.current - 1 + n) % n ? -1 : next > idxRef.current ? 1 : -1);
     if (still.current || !revealed.current) {
       idxRef.current = next;
       setIdx(next);
@@ -172,15 +186,18 @@ export default function PlaceCarousel({
       paused = false;
       start();
     };
-    host.addEventListener("pointerenter", pause);
-    host.addEventListener("pointerleave", resume);
+    // pointer: the card only. focus: the whole unit, because focus landing
+    // anywhere in here is a keyboard visitor working, not a resting cursor.
+    const near = card.current ?? host;
+    near.addEventListener("pointerenter", pause);
+    near.addEventListener("pointerleave", resume);
     host.addEventListener("focusin", pause);
     host.addEventListener("focusout", resume);
     return () => {
       io.disconnect();
       stop();
-      host.removeEventListener("pointerenter", pause);
-      host.removeEventListener("pointerleave", resume);
+      near.removeEventListener("pointerenter", pause);
+      near.removeEventListener("pointerleave", resume);
       host.removeEventListener("focusin", pause);
       host.removeEventListener("focusout", resume);
     };
@@ -235,9 +252,10 @@ export default function PlaceCarousel({
         </span>
       </h2>
 
-      <div className="n-place__card">
+      <div className="n-place__card" ref={card}>
         <figure
           className="n-place__frame"
+          data-dir={dir < 0 ? "back" : undefined}
           onPointerDown={onPointerDown}
           onPointerUp={onPointerUp}
           onPointerCancel={() => (drag.current = null)}

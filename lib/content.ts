@@ -24,6 +24,9 @@ import phInteriorBath from "@/assets/photos/interior-bath.jpg";
 import phBalcony from "@/assets/photos/balcony.jpg";
 import phCourtyard from "@/assets/photos/courtyard.jpg";
 import phTailColonnade from "@/assets/photos/homes-tail-colonnade.jpg";
+import phTilePergola from "@/assets/photos/homes-tile-pergola.jpg";
+import phTileLiving from "@/assets/photos/homes-tile-living.jpg";
+import phTileArarat from "@/assets/photos/homes-tile-ararat.jpg";
 import phPool from "@/assets/photos/pool.jpg";
 import phPlaceGarden from "@/assets/photos/place-garden.jpg";
 import phPlaceTerrace from "@/assets/photos/place-terrace.jpg";
@@ -118,9 +121,15 @@ export const sky = {
 // slides. Kicker stays fixed.
 export const place = {
   label: "The concept",
-  // 2000 gave a touch visitor no chance to read a slide before it changed and
-  // no reachable pause; 6000 matches the type carousel's own clock.
-  interval: 6000,
+  // Two seconds, asked for directly. It was 6000 because 2000 leaves no time
+  // to read the line under the frame — the copy is ~120 characters and two
+  // seconds is under half a comfortable reading pass. That is a real cost and
+  // it is the client's to take; the pause control below is what keeps it
+  // compliant (WCAG 2.2.2), and it is reachable by touch, pointer and
+  // keyboard. The transitions were re-timed to land inside the two seconds:
+  // the title's lift-and-reveal runs ~1.18s on the longest title and the
+  // page turn ~0.78s, so a slide comes to rest before the next begins.
+  interval: 2000,
   pause: "Pause the slideshow",
   play: "Play the slideshow",
   slides: [
@@ -276,57 +285,46 @@ export const collectionsIntro = {
 export const amenities = {
   kicker: "(Amenities)",
   title: "WHAT COMES WITH THE ADDRESS",
-  // Each item carries its own photograph — the desktop band swaps them by
-  // tab, the reference's device. Alt text describes what each frame
-  // actually shows, reused verbatim from where these photos already appear.
+  // The six carry a label, a place on the photograph and one line each. No
+  // picture of their own: the deck and the band both show the grounds at
+  // dusk behind all of them, which is the one photograph that is actually of
+  // the thing this band is about.
   items: [
     {
       label: "Closed courtyard",
       x: "24%",
       y: "57%",
       note: "Gated, planted, and a place a child can be let out into.",
-      img: phCourtyard,
-      alt: "Terraced planting and clipped hedges climbing beside a residential block",
     },
     {
       label: "Water that works",
       x: "50%",
       y: "80%",
       note: "Storage and pressure sized for the whole building, not the ground floor.",
-      img: phInteriorBath,
-      alt: "A pale stone bathroom with a freestanding bath and a lit recess",
     },
     {
       label: "Winter access",
       x: "58%",
       y: "62%",
       note: "Cleared road agreements in writing before we place a single home.",
-      img: phTsaghkadzorSlope,
-      alt: "A chalet under heavy snow at the treeline",
     },
     {
       label: "Heat that holds",
       x: "85%",
       y: "58%",
       note: "Underfloor throughout, and insulation checked against the invoice.",
-      img: phInteriorLiving,
-      alt: "City apartment living room with tall windows and pale walls",
     },
     {
       label: "Parking and charging",
       x: "6%",
       y: "56%",
       note: "One space per home, conduit run for a charger whether or not you want one now.",
-      img: phFacade,
-      alt: "Angular glazed balconies stacked across a pale facade",
     },
     {
       label: "Fibre",
       x: "44%",
       y: "32%",
       note: "Two providers to the door, so working from the house is not a gamble.",
-      img: phInteriorBedroom,
-      alt: "A bedroom in linen and pale wood under a pendant light",
     },
   ],
   // the one photograph the desktop screen keys its list to; each item's
@@ -479,21 +477,36 @@ export const footer = {
 // The contact dialog — same honesty rules as every other build here: with no
 // delivery configured the endpoint says so and the dialog offers the phone.
 export const callModal = {
-  kicker: "(Book a call)",
-  title: ["TELL US WHERE", "YOU WANT TO WAKE UP"],
+  // The reference's dialog opens with ONE line, set in the script face, and
+  // nothing above it — no kicker, no headline. The promise underneath is the
+  // same one the delivered state makes, so the dialog cannot say one thing
+  // before you send and another after.
+  script: "Book a call",
+  lead: "Leave your details and we will call you back within one working day.",
   fields: {
     name: "Name",
     phone: "Phone",
     email: "Email",
-    message: "Which place interests you, and roughly when?",
+    message: "Message",
   },
   send: "Request the call",
   sending: "Sending",
-  consent: "I've read how Noratun handles this message",
-  // its own row, out of the consent label: inside it, Chrome's touch
-  // adjustment gave the 38x14 link taps aimed at the checkbox
-  privacy: "Read the privacy policy",
+  // No tick-box: the reference asks for none, and the box was never sent to
+  // the endpoint or checked there — it only stood between a typed form and
+  // the send. Submitting IS the agreement, and the policy is one tap away.
+  agree: "By submitting, you agree to our",
+  privacy: "Privacy policy",
   okDelivered: "Thank you — we have it. We call back within one working day.",
+  // The delivered state takes over the whole window rather than adding a line
+  // above the form: the same lake ground, the same script face, the same seal
+  // — only the right-hand column changes, from the four fields to this.
+  ok: {
+    script: "Thank you",
+    lead: "We have your request.",
+    when: "We call back within one working day.",
+    aboutLabel: "Your message was about",
+    done: "Close",
+  },
   okUndelivered:
     "Saved, but call-back delivery isn't switched on for this build yet — please reach us directly so nothing is lost:",
   failed: "That didn't send. Please reach us directly:",
@@ -557,6 +570,9 @@ export type Listing = {
   // Cars the sheet draws bays for. Null where it draws none, or draws them
   // without making the count legible — never a guess.
   parking: number | null;
+  // A home's OWN photography, where it has any. homeGallery below is shared
+  // by every address in a place; this overrides it for one home only.
+  gallery?: Array<{ src: StaticImageData; alt: string }>;
   // One or two sentences naming ONLY rooms the sheet draws.
   description: string;
   // Six to eight things the sheet draws. No brands, no ratings, no claims
@@ -730,12 +746,22 @@ export const homesPage = {
       parking: "Parking spaces",
     },
   },
+  // Three photo tiles now, spaced through the grid — one after the fourth
+  // card, one after the ninth, one after the fourteenth.
   tiles: [
     {
-      img: phBalcony,
-      alt: "A planted balcony with a cushioned sofa and flowering pots",
+      img: phTilePergola,
+      alt: "A stone house behind a pergola thick with bougainvillea, its sliding doors open to a shaded seating area, with a table laid under the vine and lavender along the path",
     },
-    { img: phStair, alt: "A cream plaster stair rising into soft light" },
+    {
+      img: phTileLiving,
+      alt: "A double-height living room in concrete and oak, curtains drawn back from a full-height window onto a planted terrace with the wooded slope beyond",
+    },
+    {
+      img: phTileArarat,
+      alt:
+        "A terrace under a bougainvillea pergola at sundown, a table laid beside the olives, and Ararat with the monastery on its foothill through the open sliding doors",
+    },
   ],
   tail: {
     running: "THE LIST MOVES WEEKLY — RESERVED HOMES RETURN, NEW ONES ARRIVE",

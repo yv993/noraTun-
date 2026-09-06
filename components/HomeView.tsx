@@ -1,8 +1,9 @@
 "use client";
 
-import { Fragment, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { BotanicalCrestIcon } from "@/components/ui/BotanicalCrestIcon";
+import SiteFooter from "@/components/ui/SiteFooter";
 import { HotspotPin } from "@/components/ui/HotspotPin";
 import PlaceCarousel from "@/components/PlaceCarousel";
 import gsap from "gsap";
@@ -59,27 +60,6 @@ import {
 // Values marked "measured" were read off the reference site directly rather
 // than eyeballed — see lib/eases.ts for its five easing curves.
 // ============================================================================
-
-/** Splits a string into per-letter boxes, each word kept whole so a line can
- *  only break at a space. The footer's arrival lifts these one by one. */
-function Letters({ text }: { text: string }) {
-  return (
-    <>
-      {text.split(" ").map((w, wi) => (
-        <Fragment key={`${w}-${wi}`}>
-          {wi ? " " : ""}
-          <span className="n-w">
-            {w.split("").map((ch, i) => (
-              <span className="n-l" key={i}>
-                {ch}
-              </span>
-            ))}
-          </span>
-        </Fragment>
-      ))}
-    </>
-  );
-}
 
 /** Licensed CC0 bougainvillea cut-out; `lite` is the lifted copy for dark bands. */
 function Bloom({
@@ -788,36 +768,6 @@ export default function HomeView() {
 
     // ---- all widths with motion ------------------------------------------
     mm.add("(prefers-reduced-motion: no-preference)", () => {
-      // The footer arrives letter by letter, in reading order. An observer
-      // rather than a ScrollTrigger: the trigger is built before the page
-      // has reached its full height, so its start line is measured against
-      // a shorter page and the reveal fires during load, long before anyone
-      // reaches the footer. The observer only ever measures the real thing.
-      const footEl = q(".n-foot");
-      const footLetters = el.querySelectorAll<HTMLElement>(".n-foot .n-l");
-      let footIO: IntersectionObserver | null = null;
-      if (footEl && footLetters.length) {
-        // opacity, not autoAlpha: autoAlpha parks visibility:hidden, which
-        // takes the five footer links out of the accessibility tree entirely
-        // until the band reveals
-        gsap.set(footLetters, { opacity: 0, yPercent: 65 });
-        footIO = new IntersectionObserver(
-          ([e]) => {
-            if (!e.isIntersecting) return;
-            footIO?.disconnect();
-            gsap.to(footLetters, {
-              opacity: 1,
-              yPercent: 0,
-              duration: 0.5,
-              ease: eOut,
-              stagger: 0.011,
-            });
-          },
-          { threshold: 0.12 },
-        );
-        footIO.observe(footEl);
-      }
-
       // ---- ARRIVAL REVEALS — the reference's language, measured live
       // 2026-08-11. TEXT rides out of an overflow-clip mask: parked at
       // exactly 110% of its own height, ~0.9s out-ease, 0.1s per line.
@@ -952,8 +902,6 @@ export default function HomeView() {
           },
         });
       });
-
-      return () => footIO?.disconnect();
     });
 
     return () => mm.revert();
@@ -979,7 +927,13 @@ export default function HomeView() {
               photograph parked below the fold with its top edge dissolved into
               that sky, so the two read as a single continuous picture */}
           <div className="n-hero__world" data-night={night || undefined}>
-            <div className="n-hero__sky" aria-hidden="true" />
+            {/* the CSS sky carries its own high cloud, so the photograph's
+                clouds are not the first ones on screen — the plate is the
+                photograph's own cirrus taken the right way up and recomposed
+                to the left, away from the nav (scripts/hero-sky.mjs) */}
+            <div className="n-hero__sky" aria-hidden="true">
+              <span className="n-hero__above" />
+            </div>
             <div className="n-hero__bg">
               <div className="n-hero__media n-media">
                 {/* `priority` preloads but does NOT emit fetchpriority in this
@@ -1676,74 +1630,7 @@ export default function HomeView() {
         <p>{architecture.copy}</p>
       </div>
 
-      {/* role, not element: <footer> inside <main> is a generic element, so the
-          page had no contentinfo landmark at all. The band cannot move out of
-          HomeView — the whole scroll choreography is scoped to this subtree. */}
-      <footer className="n-foot" id="call" role="contentinfo" data-dark>
-        <div className="n-foot__in">
-          {/* Every footer link's name is computed from per-letter spans, so
-              a screen reader and Voice Control read "T O   T O P" and cannot
-              address it. The string is the name; the letters are decoration. */}
-          <a className="n-foot__top" href="#main" aria-label={footer.toTop}>
-            <span aria-hidden="true">
-              <Letters text={`${footer.toTop} ↑`} />
-            </span>
-          </a>
-          <BotanicalCrestIcon className="n-foot__mark" />
-          <a
-            className="n-foot__phone"
-            href={`tel:${brand.phone.replace(/[^\d+]/g, "")}`}
-            aria-label={brand.phone}
-          >
-            <span aria-hidden="true">
-              <Letters text={brand.phone} />
-            </span>
-          </a>
-          <p className="n-foot__office">
-            <span className="lbl">
-              <Letters text={footer.officeLabel} />
-            </span>
-            {footer.office.map((l) => (
-              <span className="ln" key={l}>
-                <Letters text={l} />
-              </span>
-            ))}
-          </p>
-          <div className="n-foot__row">
-            <div className="n-foot__col">
-              <span className="strong">
-                <Letters text={`${brand.full}.`} />
-              </span>
-              <span>
-                <Letters text={`© ${brand.year} ${footer.rights}`} />
-              </span>
-              <span className="links">
-                {footer.legal.map((l) => (
-                  <a key={l.href} href={l.href} aria-label={l.label}>
-                    <span aria-hidden="true">
-                      <Letters text={l.label} />
-                    </span>
-                  </a>
-                ))}
-              </span>
-            </div>
-            <div className="n-foot__col is-r">
-              <span>
-                <Letters text={footer.contactLabel} />
-              </span>
-              <a
-                className="strong"
-                href={`mailto:${brand.email}`}
-                aria-label={brand.email}
-              >
-                <span aria-hidden="true">
-                  <Letters text={brand.email} />
-                </span>
-              </a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter id="call" />
     </div>
   );
 }

@@ -5,11 +5,10 @@ import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Card } from "@/components/ui/HomeCard";
-import { BotanicalCrestIcon } from "@/components/ui/BotanicalCrestIcon";
+import SiteFooter from "@/components/ui/SiteFooter";
 import { eInOut } from "@/lib/eases";
 import {
   brand,
-  footer,
   homesPage,
   listings,
   TYPOLOGIES,
@@ -51,7 +50,6 @@ const PLACES = ["Yerevan", "Dilijan", "Sevan"] as const;
 type Place = (typeof PLACES)[number] | "all";
 type Beds = "any" | "1" | "2" | "3plus";
 type Sort = "relevant" | "smallest" | "largest";
-
 
 export default function HomesView() {
   const root = useRef<HTMLDivElement | null>(null);
@@ -116,11 +114,13 @@ export default function HomesView() {
     ).length;
   };
 
-  // photo tiles take grid slots after the 4th and 9th card
+  // photo tiles take grid slots after the 4th, 9th and 14th card. Spliced
+  // from the BACK so each index still refers to the unshifted array.
   const cells = useMemo(() => {
     const out: Array<
       { kind: "card"; l: Listing } | { kind: "tile"; i: number }
     > = shown.map((l) => ({ kind: "card", l }));
+    if (out.length > 12) out.splice(12, 0, { kind: "tile", i: 2 });
     if (out.length > 8) out.splice(8, 0, { kind: "tile", i: 1 });
     if (out.length > 4) out.splice(4, 0, { kind: "tile", i: 0 });
     return out;
@@ -305,8 +305,9 @@ export default function HomesView() {
             )
             // the scrim is there for the type; it leaves with it, so the
             // framed picture is shown exactly as it was made
-            .to(
+            .fromTo(
               ".hp-tail__screen",
+              { "--scrim": 1 },
               { "--scrim": 0, ease: "none", duration: 0.2 },
               0.6,
             );
@@ -651,9 +652,6 @@ export default function HomesView() {
           own rate, then the picture pulls back into a frame and the wine
           opens on all four sides, running on unbroken into the footer. */}
       <section className="n-arch hp-tail" data-dark>
-        <p className="n-running" data-rise>
-          {homesPage.tail.running}
-        </p>
         {/* the sticky screen needs travel to stick through: this holder is
             the two screens of scroll the frame closes across */}
         <div className="hp-tail__hold">
@@ -669,6 +667,10 @@ export default function HomesView() {
               />
             </figure>
             <div className="hp-tail__fore">
+              {/* the running line rides over the photograph with the rest of
+                  the type — the band opens on the picture, with no wine
+                  above it */}
+              <p className="n-running">{homesPage.tail.running}</p>
               <h2>
                 {homesPage.tail.lines.map((l) => (
                   <span key={l}>{l}</span>
@@ -694,50 +696,7 @@ export default function HomesView() {
         </div>
       </section>
 
-      {/* footer — the one-pager's anatomy */}
-      <footer className="n-foot" data-dark>
-        <div className="n-foot__in">
-          <a className="n-foot__top" href="#main">
-            {footer.toTop} ↑
-          </a>
-          <BotanicalCrestIcon className="n-foot__mark" />
-          <a
-            className="n-foot__phone"
-            href={`tel:${brand.phone.replace(/[^\d+]/g, "")}`}
-          >
-            {brand.phone}
-          </a>
-          <p className="n-foot__office">
-            <span className="lbl">{footer.officeLabel}</span>
-            {footer.office.map((l) => (
-              <span className="ln" key={l}>
-                {l}
-              </span>
-            ))}
-          </p>
-          <div className="n-foot__row">
-            <div className="n-foot__col">
-              <span className="strong">{brand.full}.</span>
-              <span>
-                © {brand.year} {footer.rights}
-              </span>
-              <span className="links">
-                {footer.legal.map((l) => (
-                  <a key={l.href} href={l.href}>
-                    {l.label}
-                  </a>
-                ))}
-              </span>
-            </div>
-            <div className="n-foot__col is-r">
-              <span>{footer.contactLabel}</span>
-              <a className="strong" href={`mailto:${brand.email}`}>
-                {brand.email}
-              </a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }
