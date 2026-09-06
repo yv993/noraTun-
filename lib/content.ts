@@ -44,6 +44,8 @@ import phInterBedroom from "@/assets/photos/inter-bedroom.jpg";
 import phFacade from "@/assets/photos/facade.jpg";
 import phStair from "@/assets/photos/stair.jpg";
 import phTerrace from "@/assets/photos/terrace.jpg";
+import phContactMap from "@/assets/photos/contact-map.jpg";
+import phContactCourt from "@/assets/photos/contact-court.jpg";
 import phValley from "@/assets/photos/valley.jpg";
 
 export const brand = {
@@ -58,9 +60,18 @@ export const brand = {
   email: "hello@noratun.am",
   office: "12 Saryan Street, Yerevan 0002, Armenia",
   year: "2026",
-  // EMPTY UNTIL REAL. Every consumer renders this conditionally, so one real
-  // profile added here is the only edit needed — no dead links ship.
-  social: [] as Array<{ label: string; href: string }>,
+  // ⚠ PLACEHOLDERS. This list was empty on purpose — "no dead links ship" —
+  // and the contact map's social rail was asked for, which is the one surface
+  // that cannot render without it. These three URLs are NOT verified: they
+  // are the handles NORATUN would own, not accounts anyone has checked, and
+  // every one of them 404s today. Replace the hrefs with the real profiles
+  // before launch, or empty this array again and the rail disappears on its
+  // own — every consumer still renders it conditionally.
+  social: [
+    { label: "LinkedIn", icon: "in", href: "https://www.linkedin.com/company/noratun" },
+    { label: "Facebook", icon: "fb", href: "https://www.facebook.com/noratun" },
+    { label: "Instagram", icon: "ig", href: "https://www.instagram.com/noratun" },
+  ] as Array<{ label: string; icon: string; href: string }>,
 };
 
 // 1 · HERO — pinned. Two photographs of the same view, by day and by night,
@@ -460,6 +471,69 @@ export const cta = {
   alt: "A roof terrace with a long bench and low timber tables",
 };
 
+// 11b · CONTACT — its own page, the reference's contact screen.
+//
+// Three columns of label-over-value on a pale blue ground, under a title set
+// at the same 172.8/400/0.87 as the home page's close, then the site plan
+// full-bleed beneath with one label on it. Nothing here is new information:
+// the address, the phone and the email are brand's own, so the page cannot
+// drift out of step with the footer that repeats them.
+export const contact = {
+  title: "CONTACT US",
+  lead: "A short conversation is enough to settle which of the addresses fits how you actually live — a first home, a second one for the summer, or somewhere to put the winters.",
+  columns: [
+    {
+      label: "Write us",
+      items: [{ text: brand.email, href: `mailto:${brand.email}` }],
+    },
+    {
+      label: "Sales office",
+      items: [{ text: brand.office }],
+      second: {
+        label: "Where the homes are",
+        items: [{ text: "Yerevan · Dilijan · Sevan · Tsaghkadzor" }],
+      },
+    },
+    {
+      label: "Talk to us",
+      items: [
+        { text: brand.phone, href: `tel:${brand.phone.replace(/[^\d+]/g, "")}` },
+        { text: "Book a call", call: true },
+      ],
+    },
+  ],
+  hours: "Daily 09:00 – 19:00",
+  map: {
+    img: phContactMap,
+    alt: "A site plan of the estate and the town around it — the houses stepping down their own hillside, the roads and the roundabouts that reach them, and the water along the foot of the drawing",
+    label: "Sales office",
+    // The plate that sits over the drawing, with the seal on its right and a
+    // pointer under it aimed at the office's own block.
+    plate: { label: "Sales office", hours: "Daily 09:00 – 21:00" },
+    orb: { label: ["Book a call", "now"] },
+    // The reference pins local landmarks on its plan. Pinning OUR OWN
+    // collections instead says something the visitor can act on — which part
+    // of the estate each name refers to — and invents no third-party places.
+    // x/y are percentages of the map band, not of the plate.
+    // Positions are chosen against the drawing AND against the plate: Pine
+    // lane began at 47/46, directly under the plate, and was invisible.
+    pins: [
+      { label: ["Orran", "court"], x: 21, y: 21 },
+      { label: ["Pine", "lane"], x: 44, y: 62 },
+      { label: ["Saryan", "court"], x: 16, y: 66 },
+      { label: ["Shore", "terrace"], x: 71, y: 72 },
+    ],
+  },
+  // The courtyard, after the plan: the drawing says where, this says what it
+  // is like to be there. It carries the same arrival and drift as every other
+  // photograph on the site, then the footer runs on underneath.
+  court: {
+    img: phContactCourt,
+    alt: "A walled courtyard in pale stone — a low built-in sofa under bougainvillea spilling over the parapet, a young tree in white gravel, a brass lantern on the wall and a stone water basin beside a cane chair",
+    caption: "The courtyard at 12 Saryan Street",
+  },
+};
+
 // 12 · FOOTER
 export const footer = {
   toTop: "To top",
@@ -778,7 +852,10 @@ export const homesPage = {
 
 export const nav = [
   { label: "Homes", href: "/homes" },
-  { label: "The approach", href: "#approach" },
+  // was "The approach" -> #approach. The reference's third link is CONTACT and
+  // it leads to a page; the approach section is untouched and still reachable
+  // from the phone menu's chapter list below.
+  { label: "Contact", href: "/contact" },
   { label: "Book a call", href: "#call" },
 ];
 // the nav's hairline lockup: two stacked display lines split by a rule (the

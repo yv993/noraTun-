@@ -17,6 +17,10 @@
   --ink: #1e1216;
   --muted: #6a5f63;
   --on-wine: #f2e8ec;
+  /* the reference's ink on its pale grounds — measured rgb(23,35,59) on its
+     contact screen, where the title, the labels and the values are all this
+     one navy rather than the site's wine. 8.9:1 on --lake. */
+  --navy: #17233b;
   --hero-sky: #17539b; /* the sky-to-estate hero's ground, ERA-residence blue */
   /* the hero's sky, top to horizon, and the white rules and shadow that sit on it */
   --sky-top: #114278;
@@ -5448,6 +5452,14 @@ html:not(.js) .hd-panel + .hd-panel {
   z-index: 300;
   padding: clamp(8px, 3.8vh, 28px) clamp(8px, 0.9vw, 13px);
 }
+/* while the card is on its way out, nothing under the pointer may fire: a
+   second tap on the veil or the × would otherwise call for a close that is
+   already happening, and a tap on the form would type into a window that is
+   leaving */
+.n-dlg[data-closing] .n-dlg__veil,
+.n-dlg[data-closing] .n-dlg__card {
+  pointer-events: none;
+}
 .n-dlg__veil {
   position: absolute;
   inset: 0;
@@ -5463,6 +5475,12 @@ html:not(.js) .hd-panel + .hd-panel {
   overflow-y: auto;
   background: var(--lake);
   color: var(--wine);
+  /* The card travels a parabola in and out (Chrome.tsx, `parabola`): x, y
+     and a few degrees of bank, all on transform. The pivot is the card's
+     TOP edge — a thing swinging in from above hangs from where it came, and
+     a centre pivot reads as a spin, not a swing. */
+  transform-origin: 50% 0;
+  will-change: transform;
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: stretch;
@@ -7043,13 +7061,40 @@ html:not(.js) .n-loc__card {
   font-variant-numeric: tabular-nums;
   opacity: 0.8;
 }
+/* THE RAIL IS A CONTROL, NOT A READOUT. You can take the hairline and pull
+   the page down it.
+   Two things that had to change to allow that: the rail root is
+   pointer-events: none, so the track opts back in; and the track was
+   overflow: hidden, which would have clipped the handle to the 1px width of
+   the line it sits on. The clip was never doing anything — the fill is
+   inset:0 scaled from the top, so it cannot leave the box — so it is gone. */
 .n-rail__line {
   position: relative;
   flex: 1 1 auto;
   width: 1px;
   min-height: 60px;
   background: color-mix(in srgb, currentColor 34%, transparent);
-  overflow: hidden;
+  pointer-events: auto;
+  cursor: grab;
+  touch-action: none; /* the drag owns the gesture; no scroll-to-pan under it */
+}
+/* A 1px target cannot be hit. This is the real one: 25px wide and the full
+   height of the track, invisible, centred on the line — WCAG 2.5.8 asks for
+   24. The visible hairline stays 1px. */
+.n-rail__line::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -12px;
+  right: -12px;
+}
+.n-rail__line:focus-visible {
+  outline: none;
+}
+.n-rail__line:focus-visible::before {
+  outline: 1px solid currentColor;
+  outline-offset: 2px;
 }
 .n-rail__fill {
   position: absolute;
@@ -7057,6 +7102,37 @@ html:not(.js) .n-loc__card {
   background: currentColor;
   transform: scaleY(0);
   transform-origin: top;
+}
+/* the handle: the site's own dot, sitting at the head of the filled length */
+.n-rail__thumb {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 7px;
+  height: 7px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: currentColor;
+  transition: scale 200ms var(--ease);
+}
+.n-rail__line:hover .n-rail__thumb,
+.n-rail__line:focus-visible .n-rail__thumb {
+  scale: 1.5;
+}
+/* while the drag is live the cursor stays closed everywhere on the page, not
+   just over the 1px line the pointer has long since left */
+.n-rail-drag,
+.n-rail-drag * {
+  cursor: grabbing !important;
+  user-select: none !important;
+}
+.n-rail-drag .n-rail__thumb {
+  scale: 1.5;
+}
+@media (prefers-reduced-motion: reduce) {
+  .n-rail__thumb {
+    transition: none;
+  }
 }
 .n-rail__go {
   pointer-events: auto;
@@ -7219,4 +7295,491 @@ html:not(.js) .n-loc__card {
    negative z-index here stays inside it, behind the text and nothing else. */
 .hp-card__ask::before {
   z-index: -1;
+}
+
+/* ========================================================================
+   CONTACT — its own page, the reference's contact screen.
+
+   MEASURED at era-residence.com/contact, 1440 wide:
+     ground  rgb(181,206,219) — a pale blue band of its own
+     title   172.8px / 400 / ls -4.15px (-0.024em) / lh 150.3px (0.87), centred
+     labels  9.9px / 400 / ls 0.48px (0.048em) / lh 14.4px, uppercase
+     values  the SAME 9.9px at weight 700 — the weight is the whole hierarchy
+     map     full bleed, 1425x752 in a 1440 viewport
+     on it   8.1px / 700 / ls 2.59px (0.32em), in cream
+
+   Every one of those numbers is already in this stylesheet under another
+   name: 172.8/400/.87 is the home page's close title, 9.9/400/.048em is the
+   plan cell, 9.9/700 is the tab. So this page joins the site's scale rather
+   than importing a second one. The ground is --lake for the same reason: it
+   is this palette's pale blue, and it already carries wine ink in the dialog.
+   ===================================================================== */
+.n-ct {
+  background: var(--lake);
+  /* navy, not wine: the reference sets its whole contact screen in one ink,
+     rgb(23,35,59), and it is the pale ground that makes that reading work.
+     8.9:1 measured against --lake. */
+  color: var(--navy);
+}
+.n-ct__head {
+  position: relative;
+  padding: calc(var(--chrome-top) + clamp(30px, 7vh, 78px)) var(--gutter)
+    clamp(34px, 7vh, 76px);
+}
+/* the breadcrumb, the reference's HOME / CONTACT, top left */
+.n-ct__crumb {
+  display: flex;
+  gap: 10px;
+  margin: 0 0 clamp(26px, 6vh, 64px);
+  font-family: var(--font-sans);
+  font-size: 8.1px;
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  line-height: 1.33;
+  text-transform: uppercase;
+}
+.n-ct__crumb a {
+  color: inherit;
+  text-decoration: none;
+}
+.n-ct__crumb a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.n-ct__crumb span[aria-hidden] {
+  opacity: 0.3;
+}
+.n-ct__crumb span[aria-current] {
+  opacity: 0.55;
+}
+
+.n-ct__title {
+  margin: 0;
+  font-family: var(--font-display);
+  /* 700, not 400. The reference's face is ambroise-francois-std, a didone
+     whose 400 already carries thick stems against hairline thins; Bodoni
+     Moda's 400 is much lighter, so matching the LOOK means matching the
+     stem weight, not the weight number. 700 is what this site's other
+     condensed didone titles use. */
+  font-weight: 700;
+  /* 172.8 at 1440 is 12vw; it holds that ratio and stops growing at 172.8 */
+  font-size: clamp(46px, 12vw, 172.8px);
+  letter-spacing: -0.024em;
+  line-height: 0.87;
+  text-transform: uppercase;
+  text-align: center;
+}
+/* THE CONDENSATION. MEASURED: the reference sets CONTACT US in 4.612em —
+   797px at 172.8px. Bodoni Moda 700 sets the same string in 6.493em, i.e.
+   1.37x as wide, which is why the first build read as a different typeface
+   rather than the same one at a different size. 4.612/6.493 = 0.710.
+   The scale sits on the LINE, never on the letters: the letters carry their
+   own arrival transform and the two would overwrite each other. */
+.n-ct__line {
+  display: inline-block;
+  white-space: nowrap;
+  transform: scaleX(0.71);
+  transform-origin: 50% 50%;
+}
+/* words stay whole; letters ride out of their own clip */
+.n-ct__word {
+  display: inline-block;
+  white-space: nowrap;
+}
+.n-ct__chbox {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+.n-ct__ch {
+  display: inline-block;
+  will-change: transform;
+}
+
+.n-ct__lead {
+  max-width: 62ch;
+  margin: clamp(20px, 4vh, 40px) auto 0;
+  font-family: var(--font-body);
+  font-size: 11.7px;
+  letter-spacing: -0.024em;
+  line-height: 1.75;
+  text-align: center;
+}
+
+/* Three columns on the reference's own rhythm: at 1440 it puts them at
+   x178, x627 and x990, i.e. roughly even thirds inside the gutter. */
+.n-ct__cols {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(24px, 4vw, 60px);
+  margin-top: clamp(34px, 8vh, 86px);
+  text-align: center;
+}
+.n-ct__lbl {
+  margin: 0 0 8px;
+  font-family: var(--font-sans);
+  font-size: 9.9px;
+  font-weight: 400;
+  letter-spacing: 0.048em;
+  line-height: 1.45;
+  text-transform: uppercase;
+}
+.n-ct__lbl--2 {
+  margin-top: clamp(18px, 3vh, 30px);
+}
+.n-ct__vals {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+  /* the value is the same size as its label and only heavier — which is the
+     reference's whole hierarchy, and why nothing needs to grow to lead */
+  font-family: var(--font-sans);
+  font-size: 9.9px;
+  font-weight: 700;
+  letter-spacing: 0.048em;
+  line-height: 1.45;
+  text-transform: uppercase;
+}
+.n-ct__vals a,
+.n-ct__vals button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+.n-ct__vals a:hover,
+.n-ct__vals button:hover,
+.n-ct__vals a:focus-visible,
+.n-ct__vals button:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.n-ct__hours {
+  margin: clamp(26px, 6vh, 60px) 0 0;
+  font-family: var(--font-sans);
+  font-size: 8.1px;
+  font-weight: 400;
+  letter-spacing: 0.32em;
+  line-height: 1.33;
+  text-transform: uppercase;
+  text-align: center;
+  opacity: 0.72;
+}
+
+/* THE MAP. The reference runs it full width at 1425x752 — 1.9:1. The plate
+   here is 2378x1792 (1.33), so cover crops it; 50% 46% is the position that
+   keeps the estate's own cluster and still reaches the water at the foot. */
+.n-ct__map {
+  position: relative;
+  margin: 0;
+  aspect-ratio: 1425 / 752;
+  overflow: clip;
+  background: var(--lake);
+}
+.n-ct__map img {
+  object-fit: cover;
+  object-position: 50% 46%;
+  will-change: transform;
+}
+/* The first build put a plain caption bottom-left here. It is gone: the plate
+   below replaces it. The rule had to go rather than just be overridden —
+   `.n-ct__map figcaption` outranks `.n-ct__plate` on specificity, so while it
+   stood it kept winning on `left` and `background`, and the plate rendered
+   pinned to the left edge in wine instead of centred in navy. */
+
+@media (max-width: 860px) {
+  /* the line must be allowed to break on a phone — nowrap plus a condensed
+     172.8px would run off the side — so it wraps between words and condenses
+     less, the same trade the concept screen's title makes */
+  .n-ct__line {
+    white-space: normal;
+    transform: scaleX(0.8);
+  }
+  .n-ct__cols {
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(22px, 5vh, 40px);
+  }
+  .n-ct__map {
+    aspect-ratio: 4 / 5;
+  }
+  .n-ct__map figcaption {
+    right: var(--gutter);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .n-ct__ch {
+    will-change: auto;
+  }
+  .n-ct__map img {
+    will-change: auto;
+  }
+}
+
+/* ---- what sits on the plan -------------------------------------------
+   Three things over the drawing, and the point of them is the RATE: the map
+   travels yPercent -3.6 -> 3.6 while these travel -1.2 -> 1.2, a third as
+   far, on the same trigger and the same scrub. That difference is what makes
+   them read as sitting above the plan rather than printed on it.
+   The pin labels are the exception — they name parts of the drawing, so they
+   ride with it at the drawing's own rate. */
+.n-ct__plate,
+.n-ct__rail,
+.n-ct__orb {
+  position: absolute;
+  z-index: 3;
+  will-change: transform;
+}
+
+/* the plate, centred, with the seal on its right and a pointer beneath */
+.n-ct__plate {
+  left: 50%;
+  top: 42%;
+  translate: -50% -50%;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 15px 20px;
+  background: var(--navy);
+  color: var(--cream);
+  text-align: center;
+}
+.n-ct__plate__t {
+  display: grid;
+  gap: 4px;
+  font-family: var(--font-sans);
+  font-size: 9.9px;
+  letter-spacing: 0.19em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+.n-ct__plate__t b {
+  font-weight: 700;
+}
+.n-ct__plate__t em {
+  font-style: normal;
+  font-weight: 400;
+  opacity: 0.86;
+}
+/* the pointer under the plate, aimed at the block it names */
+.n-ct__plate::after {
+  content: "";
+  position: absolute;
+  right: 22%;
+  bottom: -9px;
+  width: 18px;
+  height: 10px;
+  background: var(--navy);
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+/* the rail, left, a bordered column of three */
+.n-ct__rail {
+  left: clamp(16px, 6vw, 96px);
+  top: 50%;
+  translate: 0 -50%;
+  display: grid;
+  border: 1px solid color-mix(in srgb, var(--navy) 32%, transparent);
+  color: var(--navy);
+}
+.n-ct__rail a {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  color: inherit;
+}
+.n-ct__rail a + a {
+  border-top: 1px solid color-mix(in srgb, var(--navy) 22%, transparent);
+}
+.n-ct__rail a:hover svg,
+.n-ct__rail a:focus-visible svg {
+  transform: scale(1.14);
+}
+.n-ct__rail svg {
+  transition: transform 260ms var(--ease);
+}
+
+/* the orb, right — the site's own round call, in navy on the plan */
+.n-ct__orb {
+  right: clamp(16px, 6vw, 90px);
+  top: 50%;
+  translate: 0 -50%;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 2px;
+  width: clamp(150px, 17vw, 232px);
+  height: clamp(150px, 17vw, 232px);
+  padding: 0 34px;
+  border: 1px solid color-mix(in srgb, var(--navy) 42%, transparent);
+  border-radius: 50%;
+  color: var(--navy);
+  cursor: pointer;
+  text-align: center;
+  font-family: var(--font-sans);
+  font-size: 9.9px;
+  font-weight: 700;
+  letter-spacing: 0.19em;
+  line-height: 1.7;
+  text-transform: uppercase;
+  /* joins the site's rising fill rather than switching at once */
+  --fill: var(--navy);
+  --fill-ms: 420ms;
+  background-image: linear-gradient(var(--fill), var(--fill));
+  background-repeat: no-repeat;
+  background-position: 50% 100%;
+  background-size: 100% 0;
+  transition:
+    background-size var(--fill-ms) var(--ease),
+    color 70ms linear 60ms;
+}
+.n-ct__orb:hover,
+.n-ct__orb:focus-visible {
+  background-size: 100% 100%;
+  color: var(--lake);
+}
+
+/* THE DRAWING'S OWN LABELS: a dot and two lines, at the plan's rate.
+   They carry a pale chip, which the reference's do not, and the reason is
+   measured: the reference's labels sit on open ground, ours land wherever the
+   crop puts them. Unbacked, navy 8.1px over this drawing's dark building
+   blocks measured 1.55, 1.58, 2.47 and 4.33 to 1 — all four below AA, two of
+   them barely visible. The chip is the map's own pale tint, so it reads as
+   part of the drawing rather than as a box dropped on it, and it makes the
+   contrast independent of where the crop lands. */
+.n-ct__pinlbl {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  translate: 0 -50%;
+  padding: 5px 8px 5px 7px;
+  border-radius: 2px;
+  background: color-mix(in srgb, #ffffff 52%, var(--lake));
+  color: var(--navy);
+  font-family: var(--font-sans);
+  font-size: 8.1px;
+  font-weight: 700;
+  letter-spacing: 0.19em;
+  line-height: 1.5;
+  text-transform: uppercase;
+  pointer-events: none;
+  will-change: transform;
+}
+.n-ct__pinlbl i {
+  flex: none;
+  width: 5px;
+  height: 5px;
+  margin-top: 4px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.n-ct__pinlbl b {
+  display: grid;
+  font-weight: inherit;
+}
+
+/* ---- the courtyard, after the plan -----------------------------------
+   Same treatment as every other photograph on the site: the slanted blade on
+   arrival, a slow drift under it, and the wine footer running on beneath. */
+.n-ct__court {
+  position: relative;
+  margin: 0;
+  /* 3:2, not 16:9. The plate is 1792x2398 — a 0.75 portrait — so a 1.78 band
+     keeps only its middle 42% and threw away the seating and the gravel,
+     which are the part that says what being there is like. 1.5 keeps 50% and
+     reaches the sofa. */
+  aspect-ratio: 3 / 2;
+  overflow: clip;
+  background: var(--lake);
+}
+.n-ct__court img {
+  object-fit: cover;
+  object-position: 50% 52%;
+  will-change: transform;
+}
+.n-ct__court figcaption {
+  position: absolute;
+  left: var(--gutter);
+  bottom: clamp(18px, 4vh, 42px);
+  z-index: 2;
+  padding: 11px 16px;
+  background: color-mix(in srgb, var(--navy) 84%, transparent);
+  color: var(--cream);
+  font-family: var(--font-sans);
+  font-size: 8.1px;
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  line-height: 1.33;
+  text-transform: uppercase;
+}
+
+@media (max-width: 860px) {
+  /* On a phone the plan is 4:5 and there is no room for three things over it
+     side by side. The plate stays — it is the one that carries information —
+     and the other two move BELOW the drawing, where they are still reachable
+     and no longer fight it. */
+  .n-ct__rail,
+  .n-ct__orb {
+    position: static;
+    translate: none;
+    margin: 0 auto;
+  }
+  .n-ct__railwrap {
+    display: grid;
+    justify-items: center;
+    gap: 22px;
+    padding: 26px var(--gutter) 4px;
+    background: var(--lake);
+  }
+  .n-ct__orb {
+    width: 168px;
+    height: 168px;
+  }
+  .n-ct__plate {
+    top: 50%;
+    padding: 12px 15px;
+    gap: 12px;
+  }
+  .n-ct__pinlbl {
+    font-size: 7.2px;
+    letter-spacing: 0.14em;
+  }
+  .n-ct__court {
+    aspect-ratio: 4 / 5;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .n-ct__plate,
+  .n-ct__rail,
+  .n-ct__orb,
+  .n-ct__pinlbl,
+  .n-ct__court img {
+    will-change: auto;
+  }
+}
+
+/* the plan and the two controls that ride over it */
+.n-ct__plan {
+  position: relative;
+}
+/* on wide screens the wrapper is not a box of its own: its two children are
+   positioned against the plan behind them */
+@media (min-width: 861px) {
+  .n-ct__railwrap {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .n-ct__railwrap > * {
+    pointer-events: auto;
+  }
 }

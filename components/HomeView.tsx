@@ -733,10 +733,16 @@ export default function HomeView() {
               { yPercent: -32, ease: "none", duration: 1 },
               0,
             )
+            // The picture pulls back AND drifts, so it moves against the type
+            // rather than only shrinking under it. It lands at 1.08 rather
+            // than 1 for a reason: object-fit: cover leaves no spare picture
+            // at scale 1, and a yPercent drift there would walk the frame's
+            // own edge into view. 8% over the box is 4% of slack top and
+            // bottom, and the drift asks for 2.2% x 1.08 = 2.4%.
             .fromTo(
               ".n-views__bg img",
-              { scale: 1.14 },
-              { scale: 1, ease: "none", duration: 1 },
+              { scale: 1.14, yPercent: -2.2 },
+              { scale: 1.08, yPercent: 2.2, ease: "none", duration: 1 },
               0,
             )
             // the picture pulls back into a frame; the wine opens on all four sides
@@ -762,6 +768,41 @@ export default function HomeView() {
               { autoAlpha: 0, ease: "none", duration: 0.16 },
               0.6,
             );
+
+          // THE PICTURE'S ARRIVAL. Every other photograph on this page wipes
+          // in behind the same slanted blade; this one had nothing — it was
+          // simply already there when you reached it, which is why the band
+          // read as flat wine with type on it for the split second before the
+          // photograph decoded.
+          //
+          // The blade goes on the IMG, not on the figure. The figure's
+          // clip-path is already spoken for by the frame close above, and one
+          // element cannot carry two of them.
+          //
+          // And it parks ONLY if the section is still below the reveal line at
+          // effect time. A parked clip whose trigger never fires leaves a
+          // full-screen photograph clipped to a sliver — invisible, exactly
+          // the failure this section was just reported for — so the safe state
+          // is "unparked", and the reveal opts in rather than out.
+          const vimg = q<HTMLElement>(".n-views__bg img");
+          if (vimg && vw.getBoundingClientRect().top > window.innerHeight * 0.82) {
+            const blade = { u: 1 };
+            const paint = () => {
+              const u = blade.u;
+              vimg.style.clipPath = `polygon(${(100 * u).toFixed(3)}% 0%, 100% 0%, ${(100 + u).toFixed(3)}% 100%, ${(125 * u).toFixed(3)}% 100%)`;
+            };
+            paint();
+            gsap.to(blade, {
+              u: 0,
+              duration: 1.4,
+              ease: eInOut,
+              scrollTrigger: { trigger: vw, start: "top 82%", once: true },
+              onUpdate: paint,
+              onComplete: () => {
+                vimg.style.clipPath = "none";
+              },
+            });
+          }
         }
       },
     );

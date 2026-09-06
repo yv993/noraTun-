@@ -14,6 +14,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly" as const,
       priority: 0.6,
     })),
+    { url: abs("/contact"), lastModified: now, changeFrequency: "yearly", priority: 0.5 },
     { url: abs("/privacy"), lastModified: now, changeFrequency: "yearly", priority: 0.2 },
     { url: abs("/terms"), lastModified: now, changeFrequency: "yearly", priority: 0.2 },
   ];

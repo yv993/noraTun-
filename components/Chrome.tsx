@@ -241,6 +241,56 @@ export default function Chrome() {
   // "sent" and "logged" both mean the request is away — the window turns over
   // to its answer. "error" stays on the form so it can be sent again.
   const doneBtn = useRef<HTMLButtonElement | null>(null);
+  // ---- THE PARABOLA -----------------------------------------------------
+  // The window comes in from the top and leaves at the bottom, and it does
+  // not travel in a straight line: it swings. One progress value t drives the
+  // whole journey — t = -1 is out above, 0 is at rest, +1 is out below — and
+  // the card's place is
+  //     x = SWING · t²      y = DROP · t      tilt = BANK · t
+  // which is a parabola with its vertex at rest, opening to the side: the
+  // card arrives from the upper right, sweeps left and down into place, and
+  // on close sweeps right and down out of the frame along the same curve.
+  // The tilt is the bank a thing takes on a curve, and it is what reads as
+  // motion rather than as a slide.
+  const parabola = (t: number) => {
+    const vw = window.innerWidth;
+    const swing = Math.min(180, Math.max(64, vw * 0.11));
+    const drop = window.innerHeight * 1.12;
+    return { x: swing * t * t, y: drop * t, rotate: 4 * t };
+  };
+  const paintCard = (t: number) => {
+    const card = dlg.current?.querySelector<HTMLElement>(".n-dlg__card");
+    if (!card) return;
+    const p = parabola(t);
+    gsap.set(card, { x: p.x, y: p.y, rotate: p.rotate });
+  };
+  // Closing is no longer "unmount now": the card has to travel out first.
+  // Every close path — Escape, the veil, the ×, the done-state button — comes
+  // through here, and while the exit is playing a second request is ignored
+  // rather than restarted.
+  const closing = useRef(false);
+  const requestClose = () => {
+    const el = dlg.current;
+    if (!el || closing.current) return;
+    if (!window.matchMedia("(prefers-reduced-motion: no-preference)").matches) {
+      setOpen(false);
+      return;
+    }
+    closing.current = true;
+    el.setAttribute("data-closing", "");
+    const prog = { t: 0 };
+    gsap.timeline({
+      onComplete: () => {
+        closing.current = false;
+        setOpen(false);
+      },
+    })
+      .to(".n-dlg__stage", { y: -10, opacity: 0, duration: 0.22, ease: "power2.in", stagger: 0.02 }, 0)
+      // the fall accelerates, as a fall does
+      .to(prog, { t: 1, duration: 0.62, ease: "power2.in", onUpdate: () => paintCard(prog.t) }, 0.06)
+      .to(".n-dlg__veil", { opacity: 0, duration: 0.34, ease: "power2.in" }, 0.3);
+  };
+
   const openCall = (trigger?: HTMLElement | null, subject = "") => {
     setAbout(subject);
     lastFocus.current =
@@ -282,7 +332,7 @@ export default function Chrome() {
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        setOpen(false);
+        requestClose(); // out along the curve, not an instant unmount
         return;
       }
       if (e.key !== "Tab") return;
@@ -301,35 +351,41 @@ export default function Chrome() {
     };
     window.addEventListener("keydown", onKey);
 
+    closing.current = false;
+    el.removeAttribute("data-closing");
+
     let ctx: gsap.Context | undefined;
     if (window.matchMedia("(prefers-reduced-motion: no-preference)").matches) {
       ctx = gsap.context(() => {
-        const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+        // The arrival: the card starts out above the frame (t = -1) and comes
+        // down the parabola to rest (t = 0). Decelerating, because it is
+        // being CAUGHT at the vertex — the close, which is a fall, accelerates.
+        // The card is parked out of frame BEFORE the veil starts so the first
+        // painted frame never shows it standing at rest.
+        const prog = { t: -1 };
+        paintCard(-1);
+        const tl = gsap.timeline();
         tl.fromTo(
           ".n-dlg__veil",
           { opacity: 0 },
-          { opacity: 1, duration: 0.28 },
+          { opacity: 1, duration: 0.3, ease: "power2.out" },
+          0,
         )
-          .fromTo(
-            ".n-dlg__card",
+          .to(
+            prog,
             {
-              yPercent: 3,
-              opacity: 0,
-              clipPath: "inset(46% 0% 46% 0% round 24px)",
+              t: 0,
+              duration: 0.82,
+              ease: "power3.out",
+              onUpdate: () => paintCard(prog.t),
             },
-            {
-              yPercent: 0,
-              opacity: 1,
-              clipPath: "inset(0% 0% 0% 0% round 24px)",
-              duration: 0.6,
-            },
-            0.06,
+            0.04,
           )
           .fromTo(
             ".n-dlg__stage",
             { y: 16, opacity: 0 },
-            { y: 0, opacity: 1, duration: 0.5, stagger: 0.055 },
-            0.3,
+            { y: 0, opacity: 1, duration: 0.5, stagger: 0.055, ease: "power3.out" },
+            0.42,
           );
       }, el);
     }
@@ -614,13 +670,13 @@ export default function Chrome() {
             type="button"
             className="n-dlg__veil"
             aria-label={callModal.close}
-            onClick={() => setOpen(false)}
+            onClick={requestClose}
           />
           <div className="n-dlg__card">
             <button
               type="button"
               className="n-dlg__x"
-              onClick={() => setOpen(false)}
+              onClick={requestClose}
               aria-label={callModal.close}
             >
               <span aria-hidden>✕</span>
@@ -680,7 +736,7 @@ export default function Chrome() {
                   type="button"
                   className="n-pill"
                   ref={doneBtn}
-                  onClick={() => setOpen(false)}
+                  onClick={requestClose}
                 >
                   {callModal.ok.done}
                 </button>
