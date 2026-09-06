@@ -4417,6 +4417,13 @@ body:has(.hp) .n-nav__cta {
   display: grid;
   gap: clamp(24px, 5vh, 48px);
 }
+/* the head and the drawings share one box on wide screens (it is the box the
+   handoff pins — see HomeDetailView). Here, and on a phone, the box is not a
+   box at all: its two children take part in the section's own grid and the
+   phone's `order` interleaving exactly as they did before it existed. */
+.hd-lot__left {
+  display: contents;
+}
 .hd-lot__media {
   display: grid;
   /* minmax(0, 1fr), never auto: an auto track takes its width from the drawing
@@ -5125,7 +5132,8 @@ html:not(.js) .hd-panel + .hd-panel {
     align-items: start;
   }
   .hd-lot__media {
-    grid-column: 1;
+    /* no grid-column any more: it sits inside .hd-lot__left, which is the
+       grid item now */
     max-width: 770px;
   }
   /* the head is inset inside its column, the drawings less so — the
@@ -5133,7 +5141,7 @@ html:not(.js) .hd-panel + .hd-panel {
   /* the head is the section's own child, so the panel spans both of the
      left column's rows beside it */
   .hd-lot__head {
-    grid-column: 1;
+    /* inside .hd-lot__left now, so no grid-column of its own */
     padding: 27px 0 73px clamp(20px, 8vw, 115px);
   }
   .fp.is-lot {
@@ -5143,7 +5151,32 @@ html:not(.js) .hd-panel + .hd-panel {
   .hd-line {
     font-size: 8.5px;
   }
+  /* the left column becomes a real box here: the head over the drawings, one
+     grid item, and the one thing the handoff pins */
+  .hd-lot__left {
+    display: block;
+    grid-column: 1;
+    min-width: 0;
+  }
   .hd-lot__info {
+    /* SPANS BOTH ROWS, beside the head AND the drawings. It was never told
+       to, and auto-placement put it in the second row under the head — so
+       the whole panel began 252px down the page, its first 187px an
+       invisible late-head row, and its pinned request button sat at y1050 in
+       a 900px viewport: MEASURED off screen on entry at 1440x900, 1366x768
+       and 1280x720 alike (150 / 143 / 139px below the fold). Starting at the
+       section's top, the 100svh panel's foot IS the fold, so the button is on
+       screen the moment the page opens, and the info sits 252px higher.
+       BOTH axes are stated. Rows alone were tried: with the column left auto,
+       the panel took the first free cells in column 1 and the head and the
+       drawings were auto-placed underneath it (MEASURED: head at y945, four
+       row tracks). An item locked to a row is column-placed before the
+       auto-flow items are, so it wins the cell.
+       ONE row, not two: the head and the drawings are a single box on wide
+       screens (.hd-lot__left, the box the handoff pins), so the grid is two
+       columns of one row and the panel sits beside that box, top-aligned. */
+    grid-column: 2;
+    grid-row: 1;
     position: sticky;
     top: 0;
     height: 100svh;

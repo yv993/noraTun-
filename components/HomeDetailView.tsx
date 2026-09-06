@@ -152,7 +152,11 @@ export default function HomeDetailView({
               // under the reader, the parts move inside it. Only once the
               // crossing has finished does the section let go and the page
               // carry on down.
-              pin: true,
+              // The LEFT COLUMN is what pins, not the section: the sticky
+              // panel beside it must stay outside the pinned subtree, or the
+              // translateY the pin leaves behind pushes it down by `travel`
+              // for the rest of the page (see the wrapper's note in the JSX).
+              pin: ".hd-lot__left",
               anticipatePin: 1,
               scrub: 0.5,
               invalidateOnRefresh: true,
@@ -372,6 +376,19 @@ export default function HomeDetailView({
       </nav>
 
       <section className="hd-lot" aria-labelledby="hd-h1">
+        {/* THE LEFT COLUMN IS ONE BOX, and it is the box the handoff pins —
+            not the whole section. The panel beside it is position: sticky,
+            and a sticky element inside a pinned ancestor breaks the moment the
+            pin lets go: ScrollTrigger leaves a translateY(travel) on the
+            pinned element to hold it at the end of its spacer, sticky is
+            computed on the un-transformed box, and the panel came out sitting
+            exactly `travel` (186px) too low for the rest of the page, its
+            request button below the fold — MEASURED, before and after the
+            panel's own placement was fixed. Pin only this box and the panel
+            is outside the transform altogether.
+            On a phone this wrapper is display: contents, so the head, the
+            panel and the drawings still interleave by `order` as they did. */}
+        <div className="hd-lot__left">
         {/* the head is the section's own child, not the media column's: on a
             phone the column stacks UNDER the figures, and the identity has to
             come before them — nobody should meet "3 / 141 m²" without knowing
@@ -422,6 +439,7 @@ export default function HomeDetailView({
               ))}
             </ul>
           </div>
+        </div>
         </div>
 
         <aside className="hd-lot__info">
