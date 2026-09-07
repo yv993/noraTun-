@@ -477,6 +477,13 @@ export default function Chrome() {
     else target.scrollIntoView();
   };
 
+  // /admin is a tool, not a page of the brochure. The seal, the nav and the
+  // phone number all belong to the sales surface, and on the admin they were
+  // both confusing — links straight out of the editor — and wrong-looking,
+  // wine serif chrome over a plain grey utility. Every hook above has already
+  // run, so this early return does not change their order.
+  if (here?.startsWith("/admin")) return null;
+
   return (
     <div className="n-chrome">
       {/* The seal is the site's home link. It used to point at #main, which

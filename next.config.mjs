@@ -20,6 +20,33 @@ const nextConfig = {
   async headers() {
     return [
       {
+        // MEASURED on the live deployment: the only security header present
+        // was Vercel's own HSTS. These four are the ones a brochure site can
+        // set without knowing anything about its own scripts.
+        //
+        // No Content-Security-Policy here on purpose. Next injects inline
+        // bootstrap scripts, so a real policy needs a per-request nonce and
+        // middleware; a `unsafe-inline` policy is theatre and a strict one
+        // added blind would white-screen the site. It is worth doing properly,
+        // as its own change, with the deployed pages checked afterwards.
+        source: "/:path*",
+        headers: [
+          // the pages embed no third-party frames and should not be framed:
+          // clickjacking cover for the booking dialog
+          { key: "X-Frame-Options", value: "DENY" },
+          // no MIME sniffing — the photographs and sheets are served as-is
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          // send the origin to other sites, the full path only to ourselves
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          // nothing here asks for a camera, a microphone or a location, so
+          // nothing embedded in it may either
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+          },
+        ],
+      },
+      {
         // the flora cut-outs are content-hashed by name and never change
         source: "/flora/:path*",
         headers: [

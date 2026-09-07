@@ -1,4 +1,5 @@
 import type { Listing } from "./content";
+import { applyOverlay } from "./overlay";
 
 // Orran A9's own photography — the only home with its own set so far;
 // every other address falls back to its place's gallery.
@@ -8,9 +9,6 @@ import phA9Hall from "@/assets/photos/orran-a9-hall.jpg";
 import phHsKitchen from "@/assets/photos/half-stone-kitchen.jpg";
 import phHsBedroom from "@/assets/photos/half-stone-bedroom.jpg";
 import phHsBath from "@/assets/photos/half-stone-bath.jpg";
-import phPl5Bath from "@/assets/photos/pine-lane-5-bath.jpg";
-import phPl5Bedroom from "@/assets/photos/pine-lane-5-bedroom.jpg";
-import phPl5Kitchen from "@/assets/photos/pine-lane-5-kitchen.jpg";
 import phC12Kitchen from "@/assets/photos/saryan-c12-kitchen.jpg";
 import phC12Bedroom from "@/assets/photos/saryan-c12-bedroom.jpg";
 import phC12Bath from "@/assets/photos/saryan-c12-bath.jpg";
@@ -23,6 +21,8 @@ import phT2Bath from "@/assets/photos/shore-t2-bathroom.jpg";
 import phP3Kitchen from "@/assets/photos/pine-3-kitchen.jpg";
 import phP3Bedroom from "@/assets/photos/pine-3-bedroom.jpg";
 import phP3Bath from "@/assets/photos/pine-3-bathroom.jpg";
+import phA4Bedroom from "@/assets/photos/orran-a4-bedroom.jpg";
+import phA4Bath from "@/assets/photos/orran-a4-bath.jpg";
 import phPl7Living from "@/assets/photos/pine-7-living.jpg";
 import phPl7Kitchen from "@/assets/photos/pine-7-kitchen.jpg";
 import phB2Kitchen from "@/assets/photos/orran-b2-kitchen.jpg";
@@ -284,20 +284,9 @@ const base: Omit<Listing, "sheet" | "parking" | "description" | "benefits">[] =
       level: "Ground + upper floor",
       status: "reserved",
       note: "The quiet end of the lane · the bedrooms cantilever over the garden",
-      gallery: [
-        {
-          src: phPl5Bath,
-          alt: "A bathroom in grey stone with a timber-clad wall behind the WC, folded towels on a timber shelf, and a walk-in shower with a stone bench behind glass",
-        },
-        {
-          src: phPl5Bedroom,
-          alt: "A bedroom opening through a sliding door to a timber-fenced deck of potted succulents, with a slatted oak headboard and full-height wardrobes along the far wall",
-        },
-        {
-          src: phPl5Kitchen,
-          alt: "The upper level seen from the landing: an island kitchen with a cooktop and stools, the stair dropping away behind a glass rail, and the dining and living area beyond",
-        },
-      ],
+      // no gallery: the three renders that were here were Pine Lane 3's,
+      // installed twice under two names. One house wearing another's rooms
+      // is worse than no rooms; this one waits for its own.
       levels: [
         {
           caption: "Ground floor",
@@ -550,6 +539,16 @@ const base: Omit<Listing, "sheet" | "parking" | "description" | "benefits">[] =
       level: "Ground + basement",
       status: "available",
       note: "Saryan district · five minutes to the park",
+      gallery: [
+        {
+          src: phA4Bedroom,
+          alt: "A bedroom under a concrete soffit — a walnut headboard against a full-height window onto a planted light well, fitted wardrobes down one wall, an open ensuite with a glazed shower beyond them, and the garage through the door on the right",
+        },
+        {
+          src: phA4Bath,
+          alt: "A bathroom in pale stone and oak — a vessel basin on a floating oak vanity under a black-framed mirror, a wall-hung WC, and a walk-in shower lit by a high window at the end",
+        },
+      ],
       levels: [
         {
           caption: "Ground floor",
@@ -1025,8 +1024,15 @@ const DETAIL: Record<string, Detail> = {
 
 // One home per sheet, and a missing DETAIL row is a build error rather than a
 // page that quietly renders without its description.
-export const listings: Listing[] = base.map((l) => {
+const authored: Listing[] = base.map((l) => {
   const detail = DETAIL[l.id];
   if (!detail) throw new Error(`lib/listings.ts: no DETAIL row for ${l.id}`);
   return { ...l, ...detail };
 });
+
+// …then whatever /admin has changed on top. The overlay is a separate JSON
+// file (data/homes.json) rather than edits to the rows above: the authored
+// numbers keep the drawing they were read off sitting next to them, and an
+// admin mistake is one file to revert. With an empty overlay this is exactly
+// `authored`, which is the state the site ships in today.
+export const listings: Listing[] = applyOverlay(authored);

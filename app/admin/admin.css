@@ -1,0 +1,285 @@
+/* The admin's own styles, scoped to .ad and imported only by this route.
+   It does NOT borrow the site's wine-and-cream chrome: this is a tool, and a
+   tool that looks like the brochure is one you can mistake for the brochure
+   while editing it. */
+
+.ad {
+  --ink: #16181d;
+  --dim: #5c626e;
+  --line: #d9dce3;
+  --bg: #f7f8fa;
+  --card: #ffffff;
+  --accent: #17233b;
+  --bad: #9a2331;
+  --good: #1d6b46;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 32px 20px 96px;
+  color: var(--ink);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.ad * {
+  box-sizing: border-box;
+}
+.ad h1 {
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: -0.01em;
+}
+.ad h2 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--dim);
+}
+.ad code {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: #eceef3;
+  font-size: 12.5px;
+}
+
+.ad-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.ad-mode {
+  margin: 6px 0 0;
+  color: var(--dim);
+  font-size: 12.5px;
+}
+.ad-lead {
+  margin: 16px 0 20px;
+  color: var(--dim);
+}
+.ad-quiet-note {
+  color: var(--dim);
+  font-size: 12.5px;
+}
+
+/* controls: 44px targets throughout — this gets used on a phone in a car park
+   as often as at a desk */
+.ad button,
+.ad a[href],
+.ad input,
+.ad select,
+.ad textarea {
+  font: inherit;
+}
+.ad button {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+.ad button:hover {
+  filter: brightness(1.15);
+}
+.ad button:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+.ad .ad-quiet {
+  background: none;
+  color: var(--accent);
+}
+.ad .ad-danger {
+  border-color: var(--bad);
+  background: none;
+  color: var(--bad);
+}
+
+.ad-f {
+  display: grid;
+  gap: 5px;
+  margin-bottom: 14px;
+  min-width: 0;
+}
+.ad-f > span {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.ad-f > span em {
+  margin-left: 8px;
+  font-style: normal;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  opacity: 0.8;
+}
+.ad input,
+.ad select,
+.ad textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--card);
+  color: inherit;
+  /* 16px on touch: below it, iOS zooms the page on focus and does not zoom
+     back — the same trap the booking form had */
+  font-size: 15px;
+}
+@media (hover: none) and (pointer: coarse) {
+  .ad input,
+  .ad select,
+  .ad textarea {
+    font-size: 16px;
+  }
+}
+.ad textarea {
+  min-height: 84px;
+  resize: vertical;
+  line-height: 1.55;
+}
+.ad :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.ad-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 0 16px;
+}
+
+.ad-add {
+  margin-bottom: 18px;
+}
+.ad-new {
+  margin-bottom: 26px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--card);
+}
+
+.ad-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+.ad-row {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--card);
+  overflow: hidden;
+}
+/* `.ad button` outranks `.ad-head` on specificity (0,1,1 against 0,1,0), so
+   the plain declarations below lost and every row header rendered as a navy
+   button with navy text on it. Matching the element as well settles it. */
+.ad button.ad-head {
+  width: 100%;
+  min-height: 56px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 2px 14px;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--ink);
+  text-align: left;
+}
+.ad button.ad-head:hover {
+  filter: none;
+  background: #f2f4f8;
+}
+.ad-head b {
+  grid-column: 1;
+  font-size: 14.5px;
+}
+.ad-head span {
+  grid-column: 1;
+  color: var(--dim);
+  font-size: 12.5px;
+}
+.ad-head i {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  font-style: normal;
+  font-size: 20px;
+  color: var(--dim);
+}
+.ad-body {
+  padding: 4px 16px 18px;
+  border-top: 1px solid var(--line);
+}
+.ad-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 6px;
+}
+.ad-actions a {
+  color: var(--accent);
+  font-size: 13px;
+}
+.ad-side {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--line);
+}
+
+.ad-hidden {
+  margin-bottom: 22px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff9e8;
+}
+.ad-hidden ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+.ad-hidden li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ad-note {
+  margin: 10px 0 0;
+  font-size: 13px;
+}
+.ad-note.ok {
+  color: var(--good);
+}
+.ad-note.bad {
+  color: var(--bad);
+}
+
+.ad-gate {
+  max-width: 420px;
+  padding-top: 14vh;
+}
+.ad-gate form {
+  margin-top: 18px;
+}
+.ad-gate button {
+  width: 100%;
+}

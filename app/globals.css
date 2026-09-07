@@ -5670,6 +5670,19 @@ html:not(.js) .hd-panel + .hd-panel {
   min-height: 104px;
   resize: vertical;
 }
+/* iOS Safari zooms the whole page in when a field under 16px takes focus,
+   and does not zoom back out when it loses it. The fields are 14px, so on a
+   phone every tap into the form left the visitor stranded in a zoomed page.
+   16px on touch — measured by pointer, not by width, because the zoom is a
+   property of the device, not the viewport. The viewport meta deliberately
+   does NOT lock zoom: that would silence the symptom by disabling a visitor's
+   right to zoom, which fails WCAG 1.4.4 outright. */
+@media (hover: none) and (pointer: coarse) {
+  .n-dlg__field input,
+  .n-dlg__field textarea {
+    font-size: 16px;
+  }
+}
 .n-dlg__field input:focus,
 .n-dlg__field textarea:focus {
   outline: none;
@@ -7372,6 +7385,11 @@ html:not(.js) .n-loc__card {
   text-transform: uppercase;
 }
 .n-ct__crumb a {
+  /* 8.1px type, MEASURED as a 39x13 target on a phone; the same trade as the
+     values below — a taller box, the layout unmoved */
+  display: inline-block;
+  padding: 7px 0;
+  margin: -7px 0;
   color: inherit;
   text-decoration: none;
 }
@@ -7465,7 +7483,13 @@ html:not(.js) .n-loc__card {
   padding: 0;
   list-style: none;
   display: grid;
-  gap: 4px;
+  /* 10px, not the reference's 4: two stacked controls (the phone, then BOOK A
+     CALL) at a 14.4px line need a pitch of 24 before each can carry a 24px
+     target without overlapping the other — MEASURED at 4px, the phone's box
+     reached only 20 downward because the button's box sat over its foot.
+     14.4 + 10 = 24.4, and the boxes below are 24.4 tall, so they touch and
+     never cross. */
+  gap: 10px;
   /* the value is the same size as its label and only heavier — which is the
      reference's whole hierarchy, and why nothing needs to grow to lead */
   font-family: var(--font-sans);
@@ -7477,7 +7501,15 @@ html:not(.js) .n-loc__card {
 }
 .n-ct__vals a,
 .n-ct__vals button {
-  padding: 0;
+  /* The reference sets these as bare 9.9px lines, and so did the first
+     build — MEASURED on a phone as real hit areas of 80x14 and 79x17, under
+     the 24px WCAG 2.5.8 asks for. The padding grows the target to 26px
+     tall and the negative margin gives the same space back to the layout,
+     so the line stays exactly where it was and only the tappable box
+     grows. */
+  display: inline-block;
+  padding: 5px 0; /* 14.4 + 10 = 24.4: the box exactly fills the list's pitch */
+  margin: -5px 0;
   border: 0;
   background: none;
   color: inherit;

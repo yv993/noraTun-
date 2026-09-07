@@ -75,7 +75,16 @@ export const metadata: Metadata = {
     description: site.description,
     images: ["/opengraph-image.png"],
   },
-  robots: { index: true, follow: true },
+  // The same gate app/robots.ts uses. It was hardcoded to index: true, which
+  // contradicted robots.txt on every deployment that is not the configured
+  // production origin: LIVE TODAY the page says `index, follow` while
+  // /robots.txt says `Disallow: /`. A preview shipping "index me" in its HTML
+  // is the half of that pair that can actually get a staging URL into the
+  // index, since a crawler that already knows a URL may index it from the
+  // meta tag alone.
+  robots: site.indexable
+    ? { index: true, follow: true }
+    : { index: false, follow: false },
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
