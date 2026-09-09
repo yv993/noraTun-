@@ -7848,3 +7848,56 @@ html:not(.js) .n-loc__card {
     pointer-events: auto;
   }
 }
+
+/* ── Route loading ─────────────────────────────────────────────────────────
+   D5 (Doherty): every interaction answers inside 400 ms, or shows that it
+   heard. All seventeen homes are prerendered, so on a fast line a click is
+   effectively instant and this never paints — but on a slow connection the
+   RSC payload still has to arrive, and without this the site simply sat there
+   looking broken. It is deliberately a rule and a word, not a spinner: a
+   spinner implies "working", a determinate-looking bar would be a lie about
+   progress nobody is measuring. */
+.n-load {
+  min-height: 60svh;
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: 18px;
+  padding: clamp(60px, 16vh, 180px) var(--gutter);
+}
+.n-load__word {
+  font-family: var(--font-script);
+  font-size: clamp(1.4rem, 2.6vw, 2.2rem);
+  color: var(--apricot);
+}
+.n-load__rule {
+  position: relative;
+  width: min(320px, 60vw);
+  height: 1px;
+  background: color-mix(in srgb, var(--ink) 14%, transparent);
+  overflow: hidden;
+}
+.n-load__rule::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 38%;
+  background: var(--apricot);
+  transform: translateX(-100%);
+  animation: n-load-sweep 1.15s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+@keyframes n-load-sweep {
+  to {
+    transform: translateX(363%);
+  }
+}
+/* the site's standing rule: motion is an enhancement, never the message. With
+   motion off the rule stays, filled and still, so the state is still visible. */
+@media (prefers-reduced-motion: reduce) {
+  .n-load__rule::after {
+    animation: none;
+    width: 100%;
+    transform: none;
+    opacity: 0.45;
+  }
+}

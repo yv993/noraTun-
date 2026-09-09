@@ -6,7 +6,9 @@
     "dev": "next dev -p 3800",
     "build": "next build",
     "start": "next start -p 3800",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "gsap": "^3.13.0",
@@ -19,6 +21,7 @@
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^5.0.0"
   }
 }

@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { brand } from "@/lib/content";
+import { reportError } from "@/lib/report";
 
 export default function RouteError({
   error,
@@ -12,6 +13,8 @@ export default function RouteError({
 }) {
   useEffect(() => {
     console.error("[noratun] route error", error);
+    // the console is nobody's inbox — send it somewhere a person will see
+    reportError(error, "route");
   }, [error]);
 
   return (

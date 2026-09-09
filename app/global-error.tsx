@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { reportError } from "@/lib/report";
 
 // The last net. app/error.tsx catches a crash inside a route, but it renders
 // INSIDE the root layout — so it cannot help when the root layout itself is
@@ -21,6 +22,9 @@ export default function GlobalError({
 }) {
   useEffect(() => {
     console.error("[noratun] global error", error);
+    // a root-layout crash is the most serious failure this site has and the
+    // one least likely to be reported by a visitor — report it ourselves
+    reportError(error, "global");
   }, [error]);
 
   return (

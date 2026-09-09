@@ -6,6 +6,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Card } from "@/components/ui/HomeCard";
 import SiteFooter from "@/components/ui/SiteFooter";
+import { EV, track } from "@/lib/analytics";
 import { eInOut } from "@/lib/eases";
 import {
   brand,
@@ -400,7 +401,10 @@ export default function HomesView() {
               className={place === v ? "on" : ""}
               aria-pressed={place === v}
               disabled={c === 0 && place !== v}
-              onClick={() => setPlace(v)}
+              onClick={() => {
+                setPlace(v);
+                track(EV.filterUse, { facet: "place", value: String(v) });
+              }}
             >
               {lab}
               <i aria-hidden="true">{c}</i>
@@ -531,7 +535,10 @@ export default function HomesView() {
                       className={beds === b.v ? "on" : ""}
                       aria-pressed={beds === b.v}
                       disabled={c === 0 && beds !== b.v}
-                      onClick={() => setBeds(b.v)}
+                      onClick={() => {
+                        setBeds(b.v);
+                        track(EV.filterUse, { facet: "beds", value: String(b.v) });
+                      }}
                     >
                       {b.label}
                       <i aria-hidden="true">{c}</i>

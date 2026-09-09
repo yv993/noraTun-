@@ -1,0 +1,71 @@
+name: CI
+
+# Vercel builds and deploys on every push to main. Until now nothing ran BEFORE
+# that, so a type error or a broken test reached production and was discovered
+# by a visitor. This runs the same three commands a person would, on every push
+# and every pull request, and it is the gate that should be marked required on
+# the main branch.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# A second push supersedes the first: no point finishing a build for a commit
+# that is already stale, and it keeps the queue short on a free runner.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # `npm ci` and not `npm install`: it installs exactly the lockfile, so CI
+      # cannot pass against a dependency tree that no one else has.
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      # Last, because it is the slowest and the other two catch most failures
+      # first. No env is set on purpose: the build must succeed with nothing
+      # configured — that path already broke production once, when a blank
+      # NEXT_PUBLIC_SITE_URL reached `new URL("")` and failed the build.
+      - name: Build
+        run: npm run build
+
+  # Advisory, never blocking. `npm audit` fails a build the day a new advisory
+  # is published against a transitive dependency, which turns a security signal
+  # into noise everyone learns to ignore. This reports and moves on.
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high

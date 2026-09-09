@@ -91,7 +91,10 @@ async function deliver(lead: Lead, ua: string) {
     const res = await fetch(process.env.CONTACT_WEBHOOK_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...lead, source: "kar-site", at: new Date().toISOString() }),
+      // was "kar-site" — copied from the KAR project. Anyone routing leads from
+      // both sites into one webhook would have filed every Noratun enquiry
+      // under the architecture studio.
+      body: JSON.stringify({ ...lead, source: "noratun-site", at: new Date().toISOString() }),
     });
     if (res.ok) return true;
     console.error("[noratun/contact] webhook rejected", res.status);

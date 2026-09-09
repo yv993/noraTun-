@@ -6,7 +6,9 @@ import {
   Pinyon_Script,
 } from "next/font/google";
 import "./globals.css";
+import Analytics from "@/components/Analytics";
 import Chrome from "@/components/Chrome";
+import Telemetry from "@/components/Telemetry";
 import SmoothScroll from "@/components/SmoothScroll";
 import { brand } from "@/lib/content";
 import { abs, site } from "@/lib/site";
@@ -149,6 +151,7 @@ export default function RootLayout({
           Skip to content
         </a>
         <SmoothScroll />
+        <Telemetry />
         {/* the chrome is a banner OUTSIDE main: rendered inside it, "Skip to
             content" landed before the chrome and skipped nothing, and the page
             had no banner landmark at all */}
@@ -156,6 +159,9 @@ export default function RootLayout({
           <Chrome />
         </header>
         <main id="main">{children}</main>
+        {/* last in the body, afterInteractive: measurement must not compete
+            with the hero render it is measuring */}
+        <Analytics />
       </body>
     </html>
   );

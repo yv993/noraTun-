@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { EV, track } from "@/lib/analytics";
 import { brand, callModal, chapters, nav, navCta } from "@/lib/content";
 import type Lenis from "lenis";
 import { under } from "@/lib/under";
@@ -299,6 +300,9 @@ export default function Chrome() {
     setErrors({});
     openedAt.current = Date.now();
     setOpen(true);
+    // top of the enquiry funnel. `about` names which home summoned it, so the
+    // seventeen can be ranked by intent, not just by page views.
+    track(EV.askOpen, { about: subject || "general" });
   };
 
   // any CTA on the page can summon the dialog without importing Chrome
@@ -450,6 +454,10 @@ export default function Chrome() {
         return;
       }
       setState(data.delivered ? "sent" : "logged");
+      // two separate events on purpose. `ask_undelivered` firing at all means
+      // leads are only reaching the server log — it is the alarm for "the
+      // delivery env vars were never set", which is otherwise invisible.
+      track(data.delivered ? EV.askSent : EV.askUndelivered, { about: about || "general" });
       form.reset();
     } catch {
       setState("error");

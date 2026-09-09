@@ -11,6 +11,7 @@ import SiteFooter from "@/components/ui/SiteFooter";
 import { Card } from "@/components/ui/HomeCard";
 import AmenityBand from "@/components/AmenityBand";
 import AmenityScroll from "@/components/AmenityScroll";
+import { EV, track } from "@/lib/analytics";
 import { under } from "@/lib/under";
 import {
   brand,
@@ -66,6 +67,14 @@ export default function HomeDetailView({
   const gallery = l.gallery ?? homeGallery[l.place];
   const close = placeClose[l.place];
   const code = D.code(l.code);
+
+  // Which of the seventeen homes people actually open. This is the number S1
+  // (Pareto) needs: without it, deciding which listings deserve interior
+  // renders next is guesswork. Keyed on l.id so a client-side navigation
+  // between two homes counts as two views, not one.
+  useEffect(() => {
+    track(EV.homeView, { id: l.id, code: l.code, place: l.place });
+  }, [l.id, l.code, l.place]);
 
   // The scroll deck is a MOVED LAYER: wide screens with motion allowed get it,
   // everyone else gets the static band. Rendering it (rather than hiding it)
