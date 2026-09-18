@@ -61,13 +61,25 @@ const SHEETS = {
 // caption sat inside the deck or terrace that runs to the plan's foot.
 const MANUAL = {
   v03: [[185, 205, 2265, 635], [160, 945, 2290, 625]],
-  v04: [[130, 208, 2212, 660], [134, 976, 2164, 588]],
+  // RE-MEASURED 2026-09-18 with isPlanPx above — the drawing's true extent,
+  // text excluded — instead of by eye. The old boxes CUT THE DRAWINGS: v04's
+  // lower plan occupies rows 973..1559, x 145..2315 and was boxed
+  // 976..1564, x 134..2298, losing its right edge and the dimension row under
+  // its foot. Measure with isPlanPx, never with "any non-paper pixel": a drawn
+  // caption is ink on cream, so an ink profile merges it into the plan's own
+  // run and the box grows INTO the caption (which is how a first attempt at
+  // this fix put "LOWER GROUND &" inside the crop).
+  v04: [[184, 220, 2138, 636], [139, 950, 2184, 612]],
   v06: [[158, 184, 2184, 670], [422, 976, 1876, 600]],
   v07: [[330, 192, 1916, 600], [342, 900, 1724, 692]],
-  v12: [[314, 232, 1820, 623], [514, 1028, 1616, 560]],
+  // v12's ground box measured clean (plan rows 268..828 inside 232..855); only
+  // its basement needed widening — the plan starts at x 504 and was boxed at 514.
+  v12: [[314, 232, 1820, 623], [496, 1028, 1634, 560]],
   v13: [[579, 179, 1331, 622], [579, 949, 1331, 591]],
   v14: [[85, 225, 1323, 575], [85, 860, 1323, 580], [1422, 275, 1380, 1236]],
-  v15: [[406, 156, 1536, 660], [578, 948, 1380, 584]],
+  // v15: ground plan rows 184..783 (its drop shadow carries on below), basement
+  // 997..1501; the captions sit at 866 and 1558, so both boxes stop well short.
+  v15: [[426, 172, 1492, 648], [597, 975, 1338, 545]],
   v16: [[410, 160, 1532, 660], [590, 948, 1368, 568]],
   v17: [[74, 203, 1158, 536], [148, 838, 1084, 505]],
 };
